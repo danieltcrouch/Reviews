@@ -178,6 +178,7 @@ function getList( $shelf, $sortType, $includeImages )
             $author = $book['book']['authors']['author']['name'];
             $rating = $book['rating'];
             $review = getTrimmedReview( $book['body'] );
+            //$review = getTrimmedReview( $book['body'] ); //todo - reviews with links need a class added to the anchor tag to make them stand out
             $review = isset( $review ) ? $review : "No Review";
             $image = ( $images[$id] ) ? $images[$id] : $book['book']['image_url'];
             $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";

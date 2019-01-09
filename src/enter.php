@@ -1,9 +1,9 @@
-<?php include_once($_SERVER["DOCUMENT_ROOT"] . "/utility/common/php/startup.php"); ?>
+<?php include("$_SERVER[DOCUMENT_ROOT]/common/php/startup.php"); ?>
 <!DOCTYPE html>
 <html>
 <head>
 	<title>New Ratings</title>
-    <?php include($BASE_UTL_PATH . "/common/html/head.html"); ?>
+    <?php includeHeadInfo(); ?>
     <script src="http://religionandstory.webutu.com/utility/ratings/javascript/enter.js"></script>
     <script src="http://religionandstory.webutu.com/utility/ratings/javascript/enterRanked.js"></script>
 </head>
@@ -11,7 +11,7 @@
 <body>
 
 	<!--Header-->
-    <?php include($BASE_UTL_PATH . "/common/html/header.html"); ?>
+    <?php includeHeader(); ?>
     <div class="col-10 header">
         <div class="title center">New Ratings</div>
     </div>
@@ -42,6 +42,5 @@
     </div>
 
 </body>
-<?php include($BASE_UTL_PATH . "/common/html/modal.html"); ?>
-<?php include($BASE_UTL_PATH . "/common/html/toaster.html"); ?>
+<?php includeModals(); ?>
 </html>

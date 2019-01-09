@@ -4,10 +4,22 @@ session_start();
 
 $project = "reviews";
 $homeUrl = "http://reviews.religionandstory.com";
+$style = "red";
 
 function includeHeadInfo()
 {
+    global $style;
     include("$_SERVER[DOCUMENT_ROOT]/../common/html/head.php");
+    echo '<link href="https://fonts.googleapis.com/css?family=Abril+Fatface" rel="stylesheet">';
+    echo '<style>
+              :root {
+                 --mainColor:   #9D2235;
+                 --hoverColor:  #BD4255;
+                 --normalFont:  "Times New Roman", serif;
+                 --titleFont:   "Abril Fatface", serif;
+                 --titleWeight: normal;
+              }
+          </style>';
 }
 
 function includeHeader()

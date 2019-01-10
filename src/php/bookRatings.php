@@ -219,7 +219,7 @@ function getFavoritesList()
 function getTempList( $shelf, $includeImages )
 {
     $result = [];
-    $file = fopen( getPath( "TempBookRatings-$shelf.csv" ), "r" );
+    $file = fopen( getPath( "TempBookRatings-$shelf.csv" ), "r" ); //todo - don't freak out if this isn't there
     $columns = getColumns( fgetcsv( $file ) );
 
     $index = 1;

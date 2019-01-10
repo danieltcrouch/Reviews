@@ -1,7 +1,7 @@
 <?php
 function getPath( $fileName )
 {
-    $newDirectory = $_SERVER["DOCUMENT_ROOT"] . "/archive/";
+    $newDirectory = "../archive/";
     $path = $newDirectory . $fileName;
     $pathInfo = pathinfo( $path );
     if ( !file_exists( $pathInfo['dirname'] ) )
@@ -50,7 +50,7 @@ function getRatingsIfCleared()
     {
         $ratingsFile = "";
         $ratingsDate = date( "Y-m-d H:i:s", strtotime("-1 year") );
-        $archiveDirectory = $_SERVER["DOCUMENT_ROOT"] . "/archive/";
+        $archiveDirectory = "../archive/";
 
         if ( is_dir( $archiveDirectory ) && $dirHandle = opendir( $archiveDirectory ) )
         {

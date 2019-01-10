@@ -4,8 +4,8 @@
 <head>
 	<title>Daniel&rsquo;s Ratings</title>
     <?php includeHeadInfo(); ?>
-    <script src="http://religionandstory.webutu.com/utility/ratings/javascript/ratings.js"></script>
-    <script src="http://religionandstory.webutu.com/utility/ratings/javascript/compare.js"></script>
+    <script src="javascript/ratings.js"></script>
+    <script src="javascript/compare.js"></script>
 </head>
 
 <body>
@@ -15,7 +15,7 @@
     <div class="col-10 header">
         <div class="title center"><span class="clickable">
             Daniel&rsquo;s Ratings
-            <img style="width: .5em; padding-bottom: .25em" src="http://religionandstory.webutu.com/utility/common/images/question-mark.png" alt="help">
+            <img style="width: .5em; padding-bottom: .25em" src="<?php getHelpImage() ?>" alt="help">
         </span></div>
         <div id="instructions" style="display: none">
             Click to view either movies or books. From here, you can search Daniel&rsquo;s reviews for either category or click to view the whole list.
@@ -30,21 +30,21 @@
         <a href="#main-top"></a>
         <div class="center" style="font-size: 1.5em">Please Select a Category</div>
         <div class="col-5 center">
-            <img src="http://religionandstory.webutu.com/utility/common/images/movies.png" class="logoImage clickable" style="margin-bottom: 1em"onclick="toggleMovieSubMenu()">
+            <img src="images/movies.png" class="logoImage clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
             <div id="movieSubMenu" style="display: none">
                 <input id="findMovie" type="search" class="input" onkeyup="findMovieOnEnter( event )" placeholder="Find a movie">
-                <div><img src="http://religionandstory.webutu.com/utility/common/images/list.png" class="logoImage clickable" onclick="showMovieList()" title="Click to see all movies"></div>
-                <div><img src="http://religionandstory.webutu.com/utility/common/images/disney.png" class="logoImage clickable" onclick="showDisneyList()" title="Click to see Disney movies"></div>
-                <div><img src="http://religionandstory.webutu.com/utility/common/images/marvel.png" class="logoImage clickable" onclick="showMarvelList()" title="Click to see Marvel movies"></div>
-                <div><img src="http://religionandstory.webutu.com/utility/common/images/star-wars.png" class="logoImage clickable" onclick="showSWList()" title="Click to see Star Wars movies"></div>
+                <div><img src="images/list.png" class="logoImage clickable" onclick="showMovieList()" title="Click to see all movies"></div>
+                <div><img src="images/disney.png" class="logoImage clickable" onclick="showDisneyList()" title="Click to see Disney movies"></div>
+                <div><img src="images/marvel.png" class="logoImage clickable" onclick="showMarvelList()" title="Click to see Marvel movies"></div>
+                <div><img src="images/star-wars.png" class="logoImage clickable" onclick="showSWList()" title="Click to see Star Wars movies"></div>
             </div>
         </div>
         <div class="col-5 center">
-            <img src="http://religionandstory.webutu.com/utility/common/images/books.png" class="logoImage clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
+            <img src="images/books.png" class="logoImage clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
             <div id="bookSubMenu" style="display: none">
                 <input id="findBook" type="search" class="input" onkeyup="findBookOnEnter( event )" placeholder="Find a book">
-                <div><img src="http://religionandstory.webutu.com/utility/common/images/list.png" class="logoImage clickable" onclick="showBookList()" title="Click to see all books"></div>
-                <div><img src="http://religionandstory.webutu.com/utility/common/images/star.png" class="logoImage clickable" onclick="showFavoritesList()" title="Click to see favorite books"></div>
+                <div><img src="images/list.png" class="logoImage clickable" onclick="showBookList()" title="Click to see all books"></div>
+                <div><img src="images/star.png" class="logoImage clickable" onclick="showFavoritesList()" title="Click to see favorite books"></div>
             </div>
         </div>
     </div>

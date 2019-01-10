@@ -1,7 +1,7 @@
 <?php
 function getPath( $fileName )
 {
-    $newDirectory = $_SERVER["DOCUMENT_ROOT"] . "/archive/";
+    $newDirectory = "../archive/";
     $path = $newDirectory . $fileName;
     $pathInfo = pathinfo( $path );
     if ( !file_exists( $pathInfo['dirname'] ) )
@@ -161,7 +161,9 @@ function getList( $shelf, $sortType, $includeImages )
     $images = [];
     if ( $includeImages )
     {
-        $images = getImages();
+        $images = getImages(); //todo - need a way to add image via GUI
+        //todo - need a way to download all files that are alterable (CSVs)
+        //todo - which means I should also be saving these to archives any time they're changed
     }
 
     $index = 1;

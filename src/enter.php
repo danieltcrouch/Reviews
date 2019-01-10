@@ -4,8 +4,8 @@
 <head>
 	<title>New Ratings</title>
     <?php includeHeadInfo(); ?>
-    <script src="http://religionandstory.webutu.com/utility/ratings/javascript/enter.js"></script>
-    <script src="http://religionandstory.webutu.com/utility/ratings/javascript/enterRanked.js"></script>
+    <script src="javascript/enter.js"></script>
+    <script src="javascript/enterRanked.js"></script>
 </head>
 
 <body>

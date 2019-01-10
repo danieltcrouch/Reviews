@@ -1,7 +1,7 @@
 <?php
 function getPath( $fileName )
 {
-    $newDirectory = $_SERVER["DOCUMENT_ROOT"] . "/archive/";
+    $newDirectory = "../archive/";
     $path = $newDirectory . $fileName;
     $pathInfo = pathinfo( $path );
     if ( !file_exists( $pathInfo['dirname'] ) )
@@ -457,7 +457,7 @@ function download()
 function viewToWatch()
 {
     $result = "";
-    $file = fopen( $_SERVER["DOCUMENT_ROOT"] . "/archive/ToWatch.txt", "r" );
+    $file = fopen( getPath( "ToWatch.txt" ), "r" );
     while ( ($line = fgets( $file )) !== false )
     {
         $result .= "<div>$line</div>";

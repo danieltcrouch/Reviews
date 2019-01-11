@@ -56,25 +56,25 @@
                 <button id="year" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
                 <button id="rating" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
-            <div id="Movies" class="textBlock"></div>
+            <div id="Movies" class="center textBlock"></div>
         </div>
         <div id="DisneyContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
                 <button class="button" style="width: 10em" onclick="compareRankings('Disney')">Compare</button>
             </div>
-            <div id="Disney" class="textBlock"></div>
+            <div id="Disney" class="center textBlock"></div>
         </div>
         <div id="MarvelContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
                 <button class="button" style="width: 10em" onclick="compareRankings('Marvel')">Compare</button>
             </div>
-            <div id="Marvel" class="textBlock"></div>
+            <div id="Marvel" class="center textBlock"></div>
         </div>
         <div id="StarWarsContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
                 <button class="button" style="width: 10em" onclick="compareRankings('StarWars')">Compare</button>
             </div>
-            <div id="StarWars" class="textBlock"></div>
+            <div id="StarWars" class="center textBlock"></div>
         </div>
 
         <div id="BookContainer" style="display: none">
@@ -82,12 +82,12 @@
                 <button id="title" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
                 <button id="read" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Read</button>
             </div>
-            <div id="Books" class="textBlock">Books are loading... May take a minute...</div>
+            <div id="Books" class="center textBlock">Books are loading... May take a minute...</div>
         </div>
         <div id="FavoritesContainer" style="display: none">
             <!--div class="center" style="margin-bottom: 1em">
             </div-->
-            <div id="Favorites" class="textBlock">Favorites are loading... May take a minute...</div>
+            <div id="Favorites" class="center textBlock">Favorites are loading... May take a minute...</div>
         </div>
     </div>
 

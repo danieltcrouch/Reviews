@@ -53,13 +53,9 @@ function getCleanedReview( $review )
         $result = substr( $result, 0, 1000 ) . "...";
     }
 
-//    $urls = [];
-//    preg_match_all( '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $result, $urls );
-//    foreach ( $urls as $url )
-//    {
-//        str_replace( $url, "<a class='link' href='$url'>$url</a>", $result );
-//    }
+    $result = str_replace( "<a ", "<a class='link'", $result );
 
+    $result = empty( $result ) ? "No Review" : $result;
     return $result;
 }
 
@@ -188,10 +184,9 @@ function getList( $shelf, $sortType, $includeImages )
             $title = $book['book']['title'];
             $author = $book['book']['authors']['author']['name'];
             $rating = $book['rating'];
-            $review = getCleanedReview( $book['body'] ); //todo - reviews with links need a class added to the anchor tag to make them stand out
-            $review = isset( $review ) ? $review : "No Review";
+            $review = getCleanedReview( $book['body'] );
             $image = ( $images[$id] ) ? $images[$id] : $book['book']['image_url'];
-            $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
+            $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>"; //todo - get linked Title to Goodreads (also for Temp list below)
             $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
 
             $index++;
@@ -243,7 +238,6 @@ function getTempList( $shelf, $includeImages )
         $rating = $row[$columns['rIndex']];
         $image = $row[$columns['pIndex']];
         $review = getCleanedReview( $row[$columns['cIndex']] );
-        $review = isset( $review ) ? $review : "No Review";
         $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
         $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
 

@@ -426,7 +426,7 @@ function showBookList()
 function showFavoritesList()
 {
     hideAll();
-    $('#Favorites').show();
+    $('#FavoritesContainer').show();
     scrollToId( "Favorites" );
 }
 
@@ -437,5 +437,5 @@ function hideAll()
     $('#MarvelContainer').hide();
     $('#StarWarsContainer').hide();
     $('#BookContainer').hide();
-    $('#Favorites').hide();
+    $('#FavoritesContainer').hide();
 }

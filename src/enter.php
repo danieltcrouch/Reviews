@@ -16,6 +16,22 @@
         <div class="title center">New Ratings</div>
     </div>
 
+<!--
+TODO
+Review entering:
+
+Update movies in list
+Add movies in list (default to top)
+Add movies in ranking
+Update movies in ranking
+(Update any file and archive latest)
+Download all in Zip
+View Watch/Read
+Link to GoodReads
+Build in Later?
+Add book images
+-->
+
     <!--Main-->
     <div class="main">
         <div class="col-10 center" style="padding-bottom: 0">
@@ -32,10 +48,10 @@
         </div>
         <div class="col-10 center">
             <div><textarea id="review" class="input" placeholder="Review"></textarea></div>
-            <div><input id="submit" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkSubmit()" value="Submit"></div>
-            <!--<div><input id="load" class="button" style="width: 10em; margin-bottom: 1em" onclick="load()" value="Load"></div>-->
-            <div><input id="delete" class="button" style="width: 10em; margin-bottom: 1em" onclick="remove()" value="Delete"></div>
-            <div><input id="download" class="button" style="width: 10em; margin-bottom: 1em" onclick="download()" value="Download"></div>
+            <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkSubmit()" value="Submit"></div>
+            <!--<div><input id="load" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="load()" value="Load"></div>-->
+            <div><input id="delete" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="remove()" value="Delete"></div>
+            <div><input id="download" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="download()" value="Download"></div>
             <input id="id" type="hidden" value="">
             <input id="poster" type="hidden" value="">
         </div>

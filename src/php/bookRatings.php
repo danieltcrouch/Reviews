@@ -44,13 +44,22 @@ function compareTitles( $searchTitle, $rowTitle )
     return $result;
 }
 
-function getTrimmedReview( $review )
+function getCleanedReview( $review )
 {
-    $result = trim( $review );
+    $result = is_array( $review ) ? implode( $review ) : $review;
+    $result = trim( $result );
     if ( strlen( $result ) > 1000 )
     {
         $result = substr( $result, 0, 1000 ) . "...";
     }
+
+//    $urls = [];
+//    preg_match_all( '#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $result, $urls );
+//    foreach ( $urls as $url )
+//    {
+//        str_replace( $url, "<a class='link' href='$url'>$url</a>", $result );
+//    }
+
     return $result;
 }
 
@@ -179,8 +188,7 @@ function getList( $shelf, $sortType, $includeImages )
             $title = $book['book']['title'];
             $author = $book['book']['authors']['author']['name'];
             $rating = $book['rating'];
-            $review = getTrimmedReview( $book['body'] );
-            //$review = getTrimmedReview( $book['body'] ); //todo - reviews with links need a class added to the anchor tag to make them stand out
+            $review = getCleanedReview( $book['body'] ); //todo - reviews with links need a class added to the anchor tag to make them stand out
             $review = isset( $review ) ? $review : "No Review";
             $image = ( $images[$id] ) ? $images[$id] : $book['book']['image_url'];
             $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
@@ -234,7 +242,7 @@ function getTempList( $shelf, $includeImages )
         $author = $row[$columns['aIndex']];
         $rating = $row[$columns['rIndex']];
         $image = $row[$columns['pIndex']];
-        $review = getTrimmedReview( $row[$columns['cIndex']] );
+        $review = getCleanedReview( $row[$columns['cIndex']] );
         $review = isset( $review ) ? $review : "No Review";
         $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
         $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";

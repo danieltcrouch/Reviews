@@ -13,21 +13,10 @@ function requestGoodReads( $endpoint, array $params = array() )
 
 function getBookIdFromFile( $title )
 {
-    $bookId = "";
     $file = fopen( getPath( "TempBookRatings-read.csv" ), "r" );
     $columns = getColumns( fgetcsv( $file ) );
-
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        if ( compareTitles( $title, trim( $row[$columns['tIndex']] ) ) )
-        {
-            $bookId = $row[$columns['iIndex']];
-            break;
-        }
-        $row = fgetcsv( $file );
-    }
-
+    $books = createEntryList( $file, $columns['iIndex'], $columns['tIndex'] );
+    $bookId = findEntry( $books, $title );
     fclose( $file );
     return $bookId;
 }
@@ -64,6 +53,11 @@ function getCleanedReview( $review )
 
     $result = empty( $result ) ? "No Review" : $result;
     return $result;
+}
+
+function getCDATA( $url )
+{
+    return preg_replace( '/^\s*\/\/<!\[CDATA\[([\s\S]*)\/\/\]\]>\s*\z/', '$1', $url );
 }
 
 function getImages()
@@ -133,8 +127,9 @@ function getList( $shelf, $sortType, $includeImages )
             $author = $book['book']['authors']['author']['name'];
             $rating = $book['rating'];
             $review = getCleanedReview( $book['body'] );
+            $url = getCDATA( $book['url'] );
             $image = ( $images[$id] ) ? $images[$id] : $book['book']['image_url'];
-            $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>"; //todo - get linked Title to Goodreads (also for Temp list below)
+            $item = "<div>$index. <a class='link' href='$url'>$title</a>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
             $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
 
             $index++;

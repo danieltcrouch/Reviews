@@ -1,11 +1,53 @@
 <?php
 
-function compareTitles( $searchTitle, $rowTitle )
+function compareEntry( $searchTitle, $rowTitle )
 {
     $result = false;
     if ( stripos( $rowTitle, $searchTitle ) !== false ) //todo - develop for more sophisticated search
     {
         $result = true;
+    }
+    return $result;
+}
+
+function findEntry( $list, $searchItem )
+{
+    $result = null;
+    foreach( $list as $key => $value )
+    {
+        if ( compareEntry( $searchItem, $value ) )
+        {
+            $result = $key;
+            break;
+        }
+    }
+    return $result;
+}
+
+function createEntryList( $file, $keyIndex, $valueIndex )
+{
+    $result = [];
+    $row = fgetcsv( $file );
+    $index = 0;
+    while ( $row !== false )
+    {
+        $result[ $keyIndex ? $row[$keyIndex] : $index ] = $row[$valueIndex];
+        $row = fgetcsv( $file );
+        $index++;
+    }
+    return $result;
+}
+
+function createEntryObjectList( $file, $columns, $getValue )
+{
+    $result = [];
+    $row = fgetcsv( $file );
+    $index = 0;
+    while ( $row !== false )
+    {
+        $result[$columns['iIndex']] = $getValue( $row, $columns );
+        $row = fgetcsv( $file );
+        $index++;
     }
     return $result;
 }

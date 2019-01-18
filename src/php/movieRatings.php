@@ -5,15 +5,15 @@ function getList( $fileName )
 {
     $file = fopen( $fileName, "r" );
     $columns = getColumns( fgetcsv( $file ) );
-
-    $movies = [];
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        $id = $row[$columns['iIndex']];
-        $movies[$id] = [ "title" => $row[$columns['tIndex']], "year" => $row[$columns['yIndex']], "review" => $row[$columns['cIndex']], "rating" => $row[$columns['rIndex']], "poster" => $row[$columns['pIndex']] ];
-        $row = fgetcsv( $file );
-    }
+    $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {
+        return [
+            "title"  => $row[$columns['tIndex']],
+            "year"   => $row[$columns['yIndex']],
+            "review" => $row[$columns['cIndex']],
+            "rating" => $row[$columns['rIndex']],
+            "poster" => $row[$columns['pIndex']]
+        ];
+    });
     fclose( $file );
 
     return $movies;
@@ -99,28 +99,27 @@ function getMovieFromFile( $title )
     $file = fopen( "../resources/ratings.csv", "r" );
     $columns = getColumns( fgetcsv( $file ) );
 
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        if ( compareTitles( $title, trim( $row[$columns['tIndex']] ) ) )
-        {
-            $result['isSuccess'] = true;
-            $result['title'] = $row[$columns['tIndex']];
-            $result['year'] = $row[$columns['yIndex']];
-            $result['review'] = $row[$columns['cIndex']];
-            $result['rating'] = $row[$columns['rIndex']];
+    $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {
+        return [
+            "id"     => $row[$columns['iIndex']],
+            "title"  => $row[$columns['tIndex']],
+            "year"   => $row[$columns['yIndex']],
+            "review" => $row[$columns['cIndex']],
+            "rating" => $row[$columns['rIndex']]
+        ];
+    });
 
-            $id = $row[$columns['iIndex']];
-            $movieData = getMovieFromIMDB( $id );
-            $result['poster'] = $movieData['poster'];
-            $result['rtScore'] = $movieData['rtScore'];
-            break;
-        }
-        $row = fgetcsv( $file );
-    }
-
+    $movieId = findEntry( $movies, $title );
     fclose( $file );
 
+    if ( $movieId )
+    {
+        $result = $movies[$movieId];
+        $movieData = getMovieFromIMDB( $result['id'] );
+        $result['poster'] = $movieData['poster'];
+        $result['rtScore'] = $movieData['rtScore'];
+        $result['isSuccess'] = true;
+    }
     return $result;
 }
 

@@ -44,32 +44,6 @@ function getMovieDataById( $id )
     return $result;
 }
 
-function checkOverwrite( $id )
-{
-    $result['isSuccess'] = true;
-
-    $file = fopen( "../resources/ratings.csv", "r" );
-    $headers = fgetcsv( $file );
-    $idIndex = array_search( "ID", $headers, true );
-
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        $rowId = trim( $row[$idIndex] );
-        if ( $id === $rowId )
-        {
-            $result['isSuccess'] = false;
-            $result['message'] = "Duplicate";
-            break;
-        }
-        $row = fgetcsv( $file );
-    }
-
-    fclose( $file );
-
-    return $result;
-}
-
 function getListName( $list )
 {
     $list = strtolower( preg_replace('/\s+/', '', $list) );
@@ -105,23 +79,16 @@ function checkRankedOverwrite( $list, $id )
         $result['list'] = $list;
         $file = fopen( "../resources/$list.csv", "r" );
         $columns = getColumns( fgetcsv( $file ) );
-
-        $rank = 1;
-        $row = fgetcsv( $file );
-        while ( $row !== false )
-        {
-            $rowId = trim( $row[$columns['iIndex']] );
-            if ( $id === $rowId )
-            {
-                $result['isSuccess'] = false;
-                $result['message'] = "Duplicate";
-                $result['rank'] = $rank;
-                break;
-            }
-            $rank++;
-            $row = fgetcsv( $file );
-        }
+        $movies = createEntryList( $file, false, $columns['iIndex'] );
+        $movieIndex = findEntry( $movies, $id );
         fclose( $file );
+
+        if ( $movieIndex )
+        {
+            $result['isSuccess'] = false;
+            $result['message'] = "Duplicate";
+            $result['rank'] = $movieIndex;
+        }
     }
     else
     {
@@ -132,28 +99,30 @@ function checkRankedOverwrite( $list, $id )
     return $result;
 }
 
+function checkOverwrite( $id )
+{
+    $file = fopen( "../resources/ratings.csv", "r" );
+    $columns = getColumns( fgetcsv( $file ) );
+    $movies = createEntryList( $file, $columns['iIndex'], $columns['iIndex'] );
+    $movieId = findEntry( $movies, $id );
+    fclose( $file );
+    return [
+        "isSuccess" => !!$movieId,
+        "message"   => ( $movieId ) ? "Duplicate" : null
+    ];
+}
+
 function findTitle( $fileName, $title )
 {
-    $result['isSuccess'] = false;
     $file = fopen( $fileName, "r" );
     $columns = getColumns( fgetcsv( $file ) );
-
-    $rank = 1;
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        if ( compareTitles( $title, trim( $row[$columns['tIndex']] ) ) )
-        {
-            $result['isSuccess'] = true;
-            $result['rank'] = $rank;
-            break;
-        }
-        $rank++;
-        $row = fgetcsv( $file );
-    }
+    $movies = createEntryList( $file, false, $columns['tIndex'] );
+    $movieIndex = findEntry( $movies, $title );
     fclose( $file );
-
-    return $result;
+    return [
+        'isSuccess' => !!$movieIndex,
+        'rank'      => $movieIndex
+    ];
 }
 
 function validateRank( $list, $answer )

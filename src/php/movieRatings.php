@@ -1,27 +1,5 @@
 <?php
-function getPath( $fileName )
-{
-    $newDirectory = "../archive/";
-    $path = $newDirectory . $fileName;
-    $pathInfo = pathinfo( $path );
-    if ( !file_exists( $pathInfo['dirname'] ) )
-    {
-        mkdir( $pathInfo['dirname'], 0777, true );
-    }
-    return $path;
-}
-
-function getColumns( $firstRow )
-{
-    $result['iIndex'] = array_search( "ID", $firstRow, true );
-    $result['tIndex'] = array_search( "Title", $firstRow, true );
-    $result['yIndex'] = array_search( "Year", $firstRow, true );
-    $result['cIndex'] = array_search( "Review", $firstRow, true );
-    $result['rIndex'] = array_search( "Rating", $firstRow, true );
-    $result['pIndex'] = array_search( "Image", $firstRow, true );
-
-    return $result;
-}
+include_once( "utility.php" );
 
 function getList( $fileName )
 {
@@ -97,13 +75,20 @@ function getStarWarsList()
     return getList( "../resources/StarWars.csv" );
 }
 
-function compareTitles( $searchTitle, $rowTitle )
+function getMovieFromIMDB( $id )
 {
-    $result = false;
-    if ( stripos( $rowTitle, $searchTitle ) !== false ) //todo - develop for more sophisticated search
+    $result['poster'] = "";
+    $result['rtScore'] = "--%";
+
+    $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
+    $response = json_decode( file_get_contents( $url ) );
+
+    if ( $response->Response === "True" )
     {
-        $result = true;
+        $result['poster'] = $response->Poster;
+        $result['rtScore'] = $response->Ratings[1]->Value;
     }
+
     return $result;
 }
 
@@ -139,28 +124,9 @@ function getMovieFromFile( $title )
     return $result;
 }
 
-function getMovieFromIMDB( $id )
-{
-    $result['poster'] = "";
-    $result['rtScore'] = "--%";
-
-    $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
-    $response = json_decode( file_get_contents( $url ) );
-
-    if ( $response->Response === "True" )
-    {
-        $result['poster'] = $response->Poster;
-        $result['rtScore'] = $response->Ratings[1]->Value;
-    }
-
-    return $result;
-}
-
 function saveMovieToWatch( $title )
 {
-    $file = fopen( getPath( "ToWatch.txt" ), "a" );
-    fwrite( $file, $title . "\n" );
-    fclose( $file );
+    saveFailedSearch( "ToWatch", $title );
 }
 
 if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )

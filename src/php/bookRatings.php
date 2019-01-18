@@ -1,28 +1,5 @@
 <?php
-function getPath( $fileName )
-{
-    $newDirectory = "../archive/";
-    $path = $newDirectory . $fileName;
-    $pathInfo = pathinfo( $path );
-    if ( !file_exists( $pathInfo['dirname'] ) )
-    {
-        mkdir( $pathInfo['dirname'], 0777, true );
-    }
-    return $path;
-}
-
-function getColumns( $firstRow )
-{
-    $result['iIndex'] = array_search( "ID", $firstRow, true );
-    $result['tIndex'] = array_search( "Title", $firstRow, true );
-    $result['aIndex'] = array_search( "Author", $firstRow, true );
-    $result['yIndex'] = array_search( "Year", $firstRow, true );
-    $result['cIndex'] = array_search( "Review", $firstRow, true );
-    $result['rIndex'] = array_search( "Rating", $firstRow, true );
-    $result['pIndex'] = array_search( "Image", $firstRow, true );
-
-    return $result;
-}
+include_once( "utility.php" );
 
 function requestGoodReads( $endpoint, array $params = array() )
 {
@@ -34,14 +11,44 @@ function requestGoodReads( $endpoint, array $params = array() )
     return ( empty($xmlArray) || $xmlArray[0] === false ) ? $response : json_decode( json_encode( $xmlArray ), 1 );
 }
 
-function compareTitles( $searchTitle, $rowTitle )
+function getBookIdFromFile( $title )
 {
-    $result = false;
-    if ( stripos( $rowTitle, $searchTitle ) !== false ) //todo - develop for more sophisticated search
+    $bookId = "";
+    $file = fopen( getPath( "TempBookRatings-read.csv" ), "r" );
+    $columns = getColumns( fgetcsv( $file ) );
+
+    $row = fgetcsv( $file );
+    while ( $row !== false )
     {
-        $result = true;
+        if ( compareTitles( $title, trim( $row[$columns['tIndex']] ) ) )
+        {
+            $bookId = $row[$columns['iIndex']];
+            break;
+        }
+        $row = fgetcsv( $file );
     }
-    return $result;
+
+    fclose( $file );
+    return $bookId;
+}
+
+function getBook( $title )
+{
+    $response = requestGoodReads( 'review/show_by_user_and_book', [
+        'user_id' => "55277264",
+        'book_id' => getBookIdFromFile( $title )
+    ]);
+
+    return [
+        'isSuccess' => ($response) ? true : false,
+        'title'     => $response['review']['book']['title'],
+        'year'      => $response['review']['book']['publication_year'],
+        'author'    => $response['review']['book']['authors']['author']['name'],
+        'cover'     => $response['review']['book']['image_url'],
+        'grRating'  => $response['review']['book']['average_rating'],
+        'rating'    => $response['review']['rating'],
+        'review'    => $response['review']['body']
+    ];
 }
 
 function getCleanedReview( $review )
@@ -75,65 +82,6 @@ function getImages()
     fclose( $file );
 
     return $result;
-}
-
-function getBookIdFromFile( $title )
-{
-    $bookId = "";
-    $file = fopen( getPath( "TempBookRatings-read.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        if ( compareTitles( $title, trim( $row[$columns['tIndex']] ) ) )
-        {
-            $bookId = $row[$columns['iIndex']];
-            break;
-        }
-        $row = fgetcsv( $file );
-    }
-
-    fclose( $file );
-    return $bookId;
-}
-
-//function getBookIdFromGR( $title, $author = "" )
-//{
-//    if ( preg_match( '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i', str_replace('-', '', $title), $matches) )
-//    {
-//        $bookId = requestGoodReads( 'book/isbn_to_id', [
-//            'isbn' => $matches[1]
-//        ]);
-//    }
-//    else
-//    {
-//        $bookDetails = requestGoodReads( 'book/title', [
-//            'title' => $title,
-//            'author' => $author
-//        ]);
-//        $bookId = $bookDetails['book']['id'];
-//    }
-//    return $bookId;
-//}
-
-function getBook( $title )
-{
-    $response = requestGoodReads( 'review/show_by_user_and_book', [
-        'user_id' => "55277264",
-        'book_id' => getBookIdFromFile( $title )
-    ]);
-
-    return [
-        'isSuccess' => ($response) ? true : false,
-        'title'     => $response['review']['book']['title'],
-        'year'      => $response['review']['book']['publication_year'],
-        'author'    => $response['review']['book']['authors']['author']['name'],
-        'cover'     => $response['review']['book']['image_url'],
-        'grRating'  => $response['review']['book']['average_rating'],
-        'rating'    => $response['review']['rating'],
-        'review'    => $response['review']['body']
-    ];
 }
 
 function getList( $shelf, $sortType, $includeImages )
@@ -262,10 +210,7 @@ function getTempFavoritesList()
 
 function saveBookToRead( $title )
 {
-    $fileName = getPath( "ToRead.txt" );
-    $file = fopen( $fileName, "a" );
-    fwrite( $file, $title . "\n" );
-    fclose( $file );
+    saveFailedSearch( "ToRead", $title );
 }
 
 if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )

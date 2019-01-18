@@ -21,7 +21,10 @@
             Click to view either movies or books. From here, you can search Daniel&rsquo;s reviews for either category or click to view the whole list.
             Each entry has a rating (out of 10 for movies, out of 5 for books), and some entries have written reviews.<br/><br/>
             In addition, specific rankings are included for Disney&rsquo;s Animated Classics, the MCU, and the Star Wars Franchise.
-            Under books, there is also a list of favorites in order of date read.
+            Under books, there is also a list of favorites in order of date read.<br/><br/>
+            Reviews can also be found on <a href="https://www.goodreads.com/user/show/55277264-daniel-crouch">Goodreads</a>,
+            <a href="https://www.rottentomatoes.com/user/id/807873993/">Rotten Tomatoes</a>, and
+            <a href="https://www.criticker.com/profile/dcrouch1/">Criticker</a>.
         </div>
     </div>
 

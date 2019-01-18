@@ -1,12 +1,32 @@
 <?php
 
-function compareEntry( $searchTitle, $rowTitle )
+function compareEntry( $search, $entry )
 {
-    $result = false;
-    if ( stripos( $rowTitle, $searchTitle ) !== false ) //todo - develop for more sophisticated search
+    $search = trim( $search );
+    $entry = trim( $entry );
+    if ( stripos( $entry, $search ) !== false )
     {
         $result = true;
     }
+    else
+    {
+        $search = preg_replace( '/(,|-|\.)+/',' ', $search );
+        $search = preg_replace('/\s+/', ' ', $search);
+        $search = trim( $search );
+        $searchTerms = explode( ' ', $search );
+        $allMatch = true;
+        foreach ( $searchTerms as $term )
+        {
+            if ( stripos( $entry, $term ) === false )
+            {
+                $allMatch = false;
+                break;
+            }
+        }
+
+        $result = $allMatch;
+    }
+
     return $result;
 }
 
@@ -31,7 +51,8 @@ function createEntryList( $file, $keyIndex, $valueIndex )
     $index = 0;
     while ( $row !== false )
     {
-        $result[ $keyIndex ? $row[$keyIndex] : $index ] = $row[$valueIndex];
+        $key = $keyIndex === false ? $index : $row[$keyIndex];
+        $result[$key] = $row[$valueIndex];
         $row = fgetcsv( $file );
         $index++;
     }
@@ -45,7 +66,7 @@ function createEntryObjectList( $file, $columns, $getValue )
     $index = 0;
     while ( $row !== false )
     {
-        $result[$columns['iIndex']] = $getValue( $row, $columns );
+        $result[$row[$columns['iIndex']]] = $getValue( $row, $columns );
         $row = fgetcsv( $file );
         $index++;
     }

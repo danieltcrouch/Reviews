@@ -62,20 +62,11 @@ function getCDATA( $url )
 
 function getImages()
 {
-    $result = [];
     $file = fopen( "../resources/BookFavorites.csv", "r" );
     $columns = getColumns( fgetcsv( $file ) );
-
-    $row = fgetcsv( $file );
-    while ( $row !== false )
-    {
-        $result[trim( $row[$columns['iIndex']] )] = trim( $row[$columns['pIndex']] );
-        $row = fgetcsv( $file );
-    }
-
+    $images = createEntryList( $file, $columns['iIndex'], $columns['pIndex'] );
     fclose( $file );
-
-    return $result;
+    return $images;
 }
 
 function getList( $shelf, $sortType, $includeImages )
@@ -108,9 +99,7 @@ function getList( $shelf, $sortType, $includeImages )
     $images = [];
     if ( $includeImages )
     {
-        $images = getImages(); //todo - need a way to add image via GUI
-        //todo - need a way to download all files that are alterable (CSVs)
-        //todo - which means I should also be saving these to archives any time they're changed
+        $images = getImages();
     }
 
     $index = 1;
@@ -165,31 +154,33 @@ function getFavoritesList()
 function getTempList( $shelf, $includeImages )
 {
     $result = [];
-    $file = fopen( getPath( "TempBookRatings-$shelf.csv" ), "r" ); //todo - don't freak out if this isn't there
-    $columns = getColumns( fgetcsv( $file ) );
-
-    $index = 1;
-    $row = fgetcsv( $file );
-    while ( $row !== false )
+    $file = fopen( getPath( "TempBookRatings-$shelf.csv" ), "r" );
+    if ( $file )
     {
-        $year = $row[$columns['yIndex']];
-        $year = is_numeric( $year ) ? $year : "";
-        $displayYear = is_numeric( $year ) ? "($year) " : "";
+        $columns = getColumns(fgetcsv($file));
 
-        $title = $row[$columns['tIndex']];
-        $author = $row[$columns['aIndex']];
-        $rating = $row[$columns['rIndex']];
-        $image = $row[$columns['pIndex']];
-        $review = getCleanedReview( $row[$columns['cIndex']] );
-        $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
-        $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
+        $index = 1;
+        $row = fgetcsv($file);
+        while ($row !== false) {
+            $year = $row[$columns['yIndex']];
+            $year = is_numeric($year) ? $year : "";
+            $displayYear = is_numeric($year) ? "($year) " : "";
 
-        $index++;
-        array_push( $result, $item );
-        $row = fgetcsv( $file );
+            $title = $row[$columns['tIndex']];
+            $author = $row[$columns['aIndex']];
+            $rating = $row[$columns['rIndex']];
+            $image = $row[$columns['pIndex']];
+            $review = getCleanedReview($row[$columns['cIndex']]);
+            $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
+            $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
+
+            $index++;
+            array_push($result, $item);
+            $row = fgetcsv($file);
+        }
+
+        fclose($file);
     }
-
-    fclose( $file );
     return $result;
 }
 

@@ -30,6 +30,11 @@ View Watch/Read
 Link to GoodReads
 Build in Later?
 Add book images
+
+Images:
+need a way to add image via GUI
+need a way to download all files that are alterable (CSVs)
+which means I should also be saving these to archives any time they're changed
 -->
 
     <!--Main-->

@@ -18,23 +18,19 @@
 
 <!--
 TODO
-Review entering:
-
-Update movies in list
-Add movies in list (default to top)
-Add movies in ranking
-Update movies in ranking
-(Update any file and archive latest)
+Update movie in list
+Add movie in list (default to top)
+Remove movie in list
+Update movie in ranking
+Add movie in ranking
+Remove movie in ranking
+Archive List (5x), each Ranking, books, book-favorites, watch, read
+    No longer need resources/
 Download all in Zip
 View Watch/Read
-Link to GoodReads
-Build in Later?
-Add book images
-
-Images:
-need a way to add image via GUI
-need a way to download all files that are alterable (CSVs)
-which means I should also be saving these to archives any time they're changed
+Link to GoodReads to Update
+Link to GoodReads to Add
+Add book-favorites images
 -->
 
     <!--Main-->

@@ -1,6 +1,6 @@
 function saveRankedMovie()
 {
-    showPrompt( "Enter List", "Enter the relevant list: \"Disney\" | \"Marvel\" | \"StarWars\" ", function( answer ) {
+    showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
         $.post(
             "php/addRatings.php",
             {

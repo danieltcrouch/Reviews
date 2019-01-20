@@ -302,26 +302,30 @@ function removeMovie( id )
 
 function download()
 {
-    showBinaryChoice( "Download", "Download Ratings or View To-Watch List?", "Download", "To-Watch", function( answer ) {
-        if ( answer )
-        {
-            $.post(
-                "php/addRatings.php",
-                {action: "download"},
-                downloadCallback
-            );
+    showBinaryChoice(
+        "Download",
+        "Download Ratings or View To-Watch List?", "Download", "To-Watch",
+        function( answer ) {
+            if ( answer )
+            {
+                $.post(
+                    "php/addRatings.php",
+                    {action: "download"},
+                    downloadCallback
+                );
+            }
+            else
+            {
+                $.post(
+                    "php/addRatings.php",
+                    {action: "viewToWatch"},
+                    function( response ) {
+                        showMessage( "Movies To-Watch", JSON.parse( response ).text );
+                    }
+                );
+            }
         }
-        else
-        {
-            $.post(
-                "php/addRatings.php",
-                {action: "viewToWatch"},
-                function( response ) {
-                    showMessage( "Movies To-Watch", JSON.parse( response ).text );
-                }
-            );
-        }
-    });
+    );
 }
 
 function downloadCallback( response )

@@ -1,13 +1,40 @@
-function autofillTab( e )
+var enterMovieType;
+
+function setMediaType( mediaType )
+{
+    if ( mediaType === "movie" )
+    {
+        $('#addImage').hide();
+
+        $('#movieInputs').show();
+        $('#movieTypeButtons').show();
+        $('#delete').show();
+    }
+    else
+    {
+        $('#movieInputs').hide();
+        $('#movieTypeButtons').hide();
+        $('#delete').hide();
+
+        $('#addImage').show();
+    }
+}
+
+function setMovieType( movieType )
+{
+    enterMovieType = movieType;
+}
+
+function autoFillTab( e )
 {
     var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
     if ( charCode === 9 )
     {
-        autofill( e );
+        autoFill( e );
     }
 }
 
-function autofill( e )
+function autoFill( e )
 {
     var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
     if ( charCode === 13 || charCode === 9 )
@@ -23,12 +50,12 @@ function autofill( e )
                         action: "getMovieData",
                         title: search
                     },
-                    autofillCallback
+                    autoFillCallback
                 );
             }
             else
             {
-                autofillById( search );
+                autoFillById( search );
             }
         }
         else
@@ -38,7 +65,7 @@ function autofill( e )
     }
 }
 
-function autofillCallback( response )
+function autoFillCallback( response )
 {
     var movieResponse = JSON.parse( response );
     if ( movieResponse.search )
@@ -57,19 +84,19 @@ function autofillCallback( response )
                 else
                 {
                     var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + movieResponse.search + "'>Google</a><br/>Then enter ID:";
-                    showPrompt( "Enter ID", html, autofillById, "tt0082971", true );
+                    showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
                 }
             });
         }
         else
         {
             var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + movieResponse.search + "'>Google</a><br/>Then enter ID:";
-            showPrompt( "Enter ID", html, autofillById, "tt0082971", true );
+            showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
         }
     }
 }
 
-function autofillById( id )
+function autoFillById( id )
 {
     if ( id )
     {
@@ -79,12 +106,12 @@ function autofillById( id )
                 action: "getMovieDataById",
                 id: id
             },
-            autofillByIdCallback
+            autoFillByIdCallback
         );
     }
 }
 
-function autofillByIdCallback( response )
+function autoFillByIdCallback( response )
 {
     response = JSON.parse( response );
     if ( response.isSuccess )
@@ -101,104 +128,10 @@ function fillData( movie )
     $('#id').val( movie.id );
     $('#poster').val( movie.poster );
 
-    loadCallback( $('#id').val() );
+    loadFromFile( $('#id').val() );
 }
 
-function checkSubmit()
-{
-    if ( $('#id').val() )
-    {
-        showBinaryChoice( "Submit Movie", "Submit to Movie Review List or Ranked List?", "Movies", "Rankings", function( answer ) {
-            if ( answer )
-            {
-                saveMovie();
-            }
-            else
-            {
-                saveRankedMovie();
-            }
-        } );
-    }
-    else
-    {
-        showToaster( "No movie ID present." );
-    }
-}
-
-function saveMovie()
-{
-    $.post(
-        "php/addRatings.php",
-        {
-            action: "checkOverwrite",
-            id: $('#id').val()
-        },
-        checkOverwriteCallback
-    );
-}
-
-function checkOverwriteCallback( response )
-{
-    response = JSON.parse( response );
-    if ( response && response.isSuccess )
-    {
-        submit();
-    }
-    else if ( response && response.message === "Duplicate" )
-    {
-        showConfirm( "Entry Exists", "This movie has already been rated. Overwrite?", function( answer ) {
-            if ( answer )
-            {
-                submit( true );
-            }
-        });
-    }
-    else
-    {
-        showToaster( response.message || "An error has occurred." );
-    }
-}
-
-function submit( overwrite )
-{
-    $.post(
-        "php/addRatings.php",
-        {
-            action: "saveMovie",
-            id:     $('#id').val(),
-            title:  $('#title').val(),
-            year:   $('#year').val(),
-            index:  $('#index').val(),
-            rating: $('#rating').val(),
-            review: $('#review').val() || "***",
-            overwrite: overwrite
-        },
-        submitCallback
-    );
-}
-
-function submitCallback()
-{
-    clear();
-    showToaster( "Success!" );
-}
-
-function clear()
-{
-    $('#title').val( "" );
-    $('#year').val( "" );
-    $('#index').val( "" );
-    $('#rating').val( "" );
-    $('#review').val( "" );
-    $('#id').val( "" );
-}
-
-// function load()
-// {
-//     showPrompt( "Load Movie", "Enter a previously rated movie:", loadCallback, "Raiders of the Lost Ark | tt0082971" );
-// }
-
-function loadCallback( response )
+function loadFromFile( response )
 {
     if ( response )
     {
@@ -208,12 +141,12 @@ function loadCallback( response )
                 action: "load",
                 movie: response
             },
-            loadMovie
+            loadFromFileCallback
         );
     }
 }
 
-function loadMovie( response )
+function loadFromFileCallback( response )
 {
     response = JSON.parse( response );
     if ( response.isSuccess )
@@ -229,6 +162,16 @@ function loadMovie( response )
     {
         showToaster( "Movie not previously reviewed." );
     }
+}
+
+function clear()
+{
+    $('#title').val( "" );
+    $('#year').val( "" );
+    $('#index').val( "" );
+    $('#rating').val( "" );
+    $('#review').val( "" );
+    $('#id').val( "" );
 }
 
 function remove()
@@ -346,4 +289,180 @@ function downloadCallback( response )
     a.download = "Ratings.csv";
     a.click();
     window.URL.revokeObjectURL( url );
+}
+
+
+/**********************LIST**********************/
+
+
+function isList()
+{
+    return enterMovieType === "list";
+}
+
+
+function checkSubmit()
+{
+    if ( $('#id').val() )
+    {
+        if ( isList() )
+        {
+            checkListOverwrite();
+        }
+        else
+        {
+            checkRankOverwrite();
+        }
+    }
+    else
+    {
+        showToaster( "No movie ID present." );
+    }
+}
+
+function checkListOverwrite()
+{
+    $.post(
+        "php/addRatings.php",
+        {
+            action: isList() ? "checkOverwrite" : "checkRankOverwrite",
+            id: $('#id').val()
+        },
+        checkOverwriteCallback
+    );
+}
+
+function checkOverwriteCallback( response )
+{
+    response = JSON.parse( response );
+    if ( response && response.isSuccess )
+    {
+        submit();
+    }
+    else if ( response && response.message === "Duplicate" )
+    {
+        var term = isList() ? "rated" : "ranked";
+        showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
+            if ( answer )
+            {
+                if ( isList() )
+                {
+                    submit( true );
+                }
+                else
+                {
+                    getRanking( response, response.rank );
+                }
+            }
+        });
+    }
+    else
+    {
+        showToaster( response.message || "An error has occurred." );
+    }
+}
+
+function submit( overwrite )
+{
+    $.post(
+        "php/addRatings.php",
+        {
+            action: "saveMovie",
+            id:     $('#id').val(),
+            title:  $('#title').val(),
+            year:   $('#year').val(),
+            index:  $('#index').val(),
+            rating: $('#rating').val(),
+            review: $('#review').val() || "***",
+            overwrite: overwrite
+        },
+        submitCallback
+    );
+}
+
+function submitCallback()
+{
+    clear();
+    showToaster( "Success!" );
+}
+
+
+/**********************RANK**********************/
+
+
+function checkRankOverwrite()
+{
+    showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
+        $.post(
+            "php/addRatings.php",
+            {
+                action: "checkRankOverwrite",
+                list:   answer,
+                id:     $('#id').val()
+            },
+            checkOverwriteCallback
+        );
+    }, "", true );
+}
+
+function getRanking( movieData, placeholderRank )
+{
+    var innerHTML = "Where would you like to rank this movie?<br/>" +
+                    "(e.g. 1, 2, 3, top, bottom, above [Movie], below [Movie])";
+    showPrompt( "Where Does It Rank?", innerHTML, function( answer ) {
+        $.post(
+            "php/addRatings.php",
+            {
+                action: "validateRank",
+                list: movieData.list,
+                answer: answer
+            },
+            function( response ) {
+                response = JSON.parse( response );
+                if ( response && response.isSuccess )
+                {
+                    movieData.rank = response.rank;
+                    submitRanked( movieData, !!placeholderRank );
+                }
+                else
+                {
+                    showToaster( response.message || "Invalid Ranking" );
+                }
+            }
+        );
+    }, placeholderRank, true );
+}
+
+function submitRanked( movieData, overwrite )
+{
+    $.post(
+        "php/addRatings.php",
+        {
+            action: "saveRankedMovie",
+            list:   movieData.list,
+            rank:   movieData.rank,
+            id:     $('#id').val(),
+            title:  $('#title').val(),
+            year:   $('#year').val(),
+            image:  $('#poster').val(),
+            review: $('#review').val() || "***",
+            overwrite: overwrite
+        },
+        submitRankedCallback
+    );
+}
+
+function submitRankedCallback()
+{
+    showConfirm( "Save Review", "Would you like to save this review to the Movie Review List?", function( answer ) {
+        if ( answer )
+        {
+            saveMovie();
+        }
+        else
+        {
+            clear();
+            showToaster( "Success!" );
+        }
+    });
 }

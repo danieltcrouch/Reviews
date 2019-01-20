@@ -4,8 +4,8 @@
 <head>
 	<title>New Ratings</title>
     <?php includeHeadInfo(); ?>
-    <script src="javascript/enter.js"></script>
-    <script src="javascript/enterRanked.js"></script>
+    <script src="javascript/enterMovie.js"></script>
+    <script src="javascript/enterBook.js"></script>
 </head>
 
 <body>
@@ -18,15 +18,6 @@
 
 <!--
 TODO
-
-RADIO - Movie or Book (Default Movie)
-    (If Book -> Hide Year, Rating, Index; Hide List/Ranking Radio; Hide Delete Button)
-    (If Movie -> Hide "Add Image" Button)
-
-INPUTS
-
-RADIO - List or Ranking (Default List)
-    (Make all existing logic use this flag instead of prompting)
 
 SUBMIT BUTTON
 [MOVIE]
@@ -62,22 +53,24 @@ VIEW BUTTON
                 <button id="movie" name="mediaType" class="button selectedButton" style="width: 5em; margin: .25em;">Movies</button>
                 <button id="book"  name="mediaType" class="button inverseButton" style="width: 5em; margin: .25em;">Books</button>
             </div>
-            <input id="title" type="search" class="input" onkeydown="autofillTab( event )" onkeyup="autofill( event )" placeholder="Title (or ID)">
+            <input id="title" type="search" class="input" onkeydown="autoFillTab( event )" onkeyup="autoFill( event )" placeholder="Title (or ID)">
         </div>
-        <div class="col-3r center" style="padding-bottom: 0">
-            <input id="year" type="number" class="input" placeholder="Year">
-        </div>
-        <div class="col-3r center" style="padding-bottom: 0">
-            <input id="rating" type="number" class="input" placeholder="Rating">
-        </div>
-        <div class="col-3r center" style="padding-bottom: 0">
-            <input id="index" type="number" class="input" placeholder="Index">
+        <div id="movieInputs">
+            <div class="col-3r center" style="padding-bottom: 0">
+                <input id="year" type="number" class="input" placeholder="Year">
+            </div>
+            <div class="col-3r center" style="padding-bottom: 0">
+                <input id="rating" type="number" class="input" placeholder="Rating">
+            </div>
+            <div class="col-3r center" style="padding-bottom: 0">
+                <input id="index" type="number" class="input" placeholder="Index">
+            </div>
         </div>
         <div class="col-10 center">
             <div><textarea id="review" class="input" placeholder="Review"></textarea></div>
-            <div class="center" style="margin-bottom: 1em">
-                <button id="listType" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
-                <button id="rankType" name="movieType" class="button inverseButton" style="width: 5em; margin: .25em;">Ranked</button>
+            <div id="movieTypeButtons" class="center" style="margin-bottom: 1em">
+                <button id="list" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
+                <button id="rank" name="movieType" class="button inverseButton" style="width: 5em; margin: .25em;">Ranked</button>
             </div>
             <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkSubmit()" value="Submit"></div>
             <div><input id="delete" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="remove()" value="Delete"></div>
@@ -91,14 +84,15 @@ VIEW BUTTON
 </body>
 
 <script>
-    //showSection();
+    setRadioCallback( "mediaType", function( mediaType ) {
+        setMediaType( mediaType );
+    });
+    setRadioCallback( "movieType", function( movieType ) {
+        setMovieType( movieType );
+    });
 
-    //setRadioCallback( "mediaType", function( sortType ) {
-    //    alert( sortType );
-    //});
-    //setRadioCallback( "movieType", function( sortType ) {
-    //    alert( sortType );
-    //});
-</script>
+    setMediaType( getSelectedRadioButton( "mediaType" ).id );
+    setMovieType( getSelectedRadioButton( "movieType" ).id );
+    </script>
 <?php includeModals(); ?>
 </html>

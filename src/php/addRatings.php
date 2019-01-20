@@ -69,7 +69,7 @@ function getListName( $list )
     return $list;
 }
 
-function checkRankedOverwrite( $list, $id )
+function checkRankOverwrite( $list, $id )
 {
     $result['isSuccess'] = true;
 

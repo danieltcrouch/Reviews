@@ -301,7 +301,12 @@ function populateBookList()
         "php/reviewsBook.php",
         { action: "getTempBookList" },
         function( response ) {
-            try { $( '#Books' ).html( JSON.parse( response ) ); } catch (e) {}
+            try {
+                var books = JSON.parse( response );
+                $( '#Books' ).html( books );
+                bookList.title = books;
+                bookList.read = "Books are loading... May take a minute...";
+            } catch (e) {}
             $.post(
                 "php/reviewsBook.php",
                 { action: "getBookList" },

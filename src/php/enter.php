@@ -142,13 +142,54 @@ function checkOverwrite( $id )
     $movieId = findEntry( $movies, $id );
     fclose( $file );
     return [
-        "isSuccess" => !!$movieId,
-        "message"   => ( $movieId ) ? "Duplicate" : null
+        "isOverwrite"   => !!$movieId,
+        "message"       => ( $movieId ) ? "Duplicate" : null
     ];
+}
+
+function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
+{
+    $fileName = getPath( "ratings.csv" );
+
+    $isOverwrite = ( isset( $overwrite ) && $overwrite );
+    $loadedMovie = ( $index && $isOverwrite ) ? loadFromListFile( $id ) : array();
+    $index = ( isset($loadedMovie['index']) && $loadedMovie['index'] == $index ) ? null : $index;
+    if ( $index )
+    {
+        if ( $isOverwrite )
+        {
+            deleteMovie( $id );
+        }
+        insertMovie( $fileName, array( $title, $id, $year, $rating, $review ), (int)$index );
+    }
+    elseif ( $isOverwrite )
+    {
+        editMovie( $fileName, array( 'id' => $id, 'title' => $title, 'year' => $year, 'rating' => $rating, 'review' => $review ) );
+    }
+    else
+    {
+        $file = fopen( $fileName, "a" );
+        fputcsv( $file, array( $title, $id, $year, $rating, $review ) );
+        fclose( $file );
+    }
+
+    archive( $fileName );
+}
+
+function archive( $fileName )
+{
+    $fileBase = str_replace( ".csv", "", $fileName );
+    unlink( "$fileBase 5.csv" );
+    rename( "$fileBase 4.csv", "$fileBase 5.csv" );
+    rename( "$fileBase 3.csv", "$fileBase 4.csv" );
+    rename( "$fileBase 2.csv", "$fileBase 3.csv" );
+    rename( "$fileBase 1.csv", "$fileBase 2.csv" );
+    copy( $fileName, "$fileBase 1.csv" );
 }
 
 function insertMovie( $fileName, $movie, $rank )
 {
+    echo $rank;
     if ( $rank < 0 )
     {
         $fileHandle = file( $fileName, FILE_SKIP_EMPTY_LINES );
@@ -206,46 +247,6 @@ function editMovie( $fileName, $movie )
 
     unlink( $fileName );
     rename( $tempName, $fileName );
-}
-
-function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
-{
-    $fileName = getPath( "ratings.csv" );
-
-    $isOverwrite = ( isset( $overwrite ) && $overwrite );
-    $loadedMovie = ( $index && $isOverwrite ) ? loadFromListFile( $id ) : array();
-    $index = ( isset($loadedMovie['index']) && $loadedMovie['index'] == $index ) ? null : $index;
-    if ( $index )
-    {
-        if ( $isOverwrite )
-        {
-            deleteMovie( $id );
-        }
-        insertMovie( $fileName, array( $title, $id, $year, $rating, $review ), (int)$index );
-    }
-    elseif ( $isOverwrite )
-    {
-        editMovie( $fileName, array( 'id' => $id, 'title' => $title, 'year' => $year, 'rating' => $rating, 'review' => $review ) );
-    }
-    else
-    {
-        $file = fopen( $fileName, "a" );
-        fputcsv( $file, array( $title, $id, $year, $rating, $review ) );
-        fclose( $file );
-    }
-
-    archive( "ratings" );
-}
-
-function archive( $fileName )
-{
-    $fileBase = str_replace( $fileName, ".csv", "" );
-    unlink( "$fileBase 5.csv" );
-    rename( "$fileBase 4.csv", "$fileBase 5.csv" );
-    rename( "$fileBase 3.csv", "$fileBase 4.csv" );
-    rename( "$fileBase 2.csv", "$fileBase 3.csv" );
-    rename( "$fileBase 1.csv", "$fileBase 2.csv" );
-    copy( $fileName, "$fileBase 1" );
 }
 
 

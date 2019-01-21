@@ -218,7 +218,7 @@ function checkOverwrite()
         "php/enter.php",
         {
             action: isList() ? "checkOverwrite" : "checkRankOverwrite",
-            list:   isList() ? null : $('#list').val(),
+            list:   isList() ? undefined : $('#list').val(),
             id:     $('#id').val()
         },
         checkOverwriteCallback
@@ -228,11 +228,7 @@ function checkOverwrite()
 function checkOverwriteCallback( response )
 {
     response = JSON.parse( response );
-    if ( response && response.isSuccess )
-    {
-        isList() ? submit() : getList( response );
-    }
-    else if ( response && response.message === "Duplicate" )
+    if ( response && response.isOverwrite )
     {
         var term = isList() ? "rated" : "ranked";
         showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
@@ -244,7 +240,7 @@ function checkOverwriteCallback( response )
     }
     else
     {
-        showToaster( response.message || "An error has occurred." );
+        isList() ? submit() : getList( response );
     }
 }
 
@@ -266,7 +262,7 @@ function submit( overwrite )
     );
 }
 
-function submitCallback()
+function submitCallback( response )
 {
     clear();
     showToaster( "Success!" );
@@ -367,7 +363,7 @@ function deleteMovie()
         "php/enter.php",
         {
             action: isList() ? "deleteMovie" : "deleteRankMovie",
-            list:   isList() ? null : $('#list').val(),
+            list:   isList() ? undefined : $('#list').val(),
             id:     $('#id').val()
         },
         function( response ) {

@@ -4,7 +4,7 @@
 <head>
 	<title>Daniel&rsquo;s Ratings</title>
     <?php includeHeadInfo(); ?>
-    <script src="javascript/ratings.js"></script>
+    <script src="javascript/reviews.js"></script>
     <script src="javascript/compare.js"></script>
 </head>
 

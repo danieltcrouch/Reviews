@@ -59,14 +59,14 @@ function createEntryList( $file, $keyIndex, $valueIndex )
     return $result;
 }
 
-function createEntryObjectList( $file, $columns, $getValue )
+function createEntryObjectList( $file, $columns, $getValueFunction )
 {
     $result = [];
     $row = fgetcsv( $file );
     $index = 0;
     while ( $row !== false )
     {
-        $result[$row[$columns['iIndex']]] = $getValue( $row, $columns );
+        $result[$row[$columns['iIndex']]] = $getValueFunction( $row, $columns );
         $row = fgetcsv( $file );
         $index++;
     }

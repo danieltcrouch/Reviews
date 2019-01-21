@@ -23,6 +23,12 @@ function setMediaType( mediaType )
 function setMovieType( movieType )
 {
     enterMovieType = movieType;
+    autoFillById( $('#id').val() );
+}
+
+function isList()
+{
+    return enterMovieType === "list";
 }
 
 function autoFillTab( e )
@@ -42,20 +48,13 @@ function autoFill( e )
         var search = $('#title').val();
         if ( search )
         {
-            if ( search.search( /tt\d{7}/i ) === -1 )
+            if ( search.search(/tt\d{7}/i) >= 0 )
             {
-                $.post(
-                    "php/addRatings.php",
-                    {
-                        action: "getMovieData",
-                        title: search
-                    },
-                    autoFillCallback
-                );
+                autoFillById( search );
             }
             else
             {
-                autoFillById( search );
+                autoFillByTitle( search );
             }
         }
         else
@@ -65,50 +64,16 @@ function autoFill( e )
     }
 }
 
-function autoFillCallback( response )
-{
-    var movieResponse = JSON.parse( response );
-    if ( movieResponse.search )
-    {
-        if ( movieResponse.isSuccess )
-        {
-            var innerHTML = "Is this the correct movie?<br/><br/>" +
-                            "<strong>" + movieResponse.title + "</strong> (" + movieResponse.year + ")<br/>" +
-                            "(" + movieResponse.id + ")<br/><br/>" +
-                            "<img src='" + movieResponse.poster + "' height='300px' alt='Movie Poster'>";
-            showConfirm( "Movie Match", innerHTML, function( answer ) {
-                if ( answer )
-                {
-                    fillData( movieResponse );
-                }
-                else
-                {
-                    var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + movieResponse.search + "'>Google</a><br/>Then enter ID:";
-                    showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
-                }
-            });
-        }
-        else
-        {
-            var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + movieResponse.search + "'>Google</a><br/>Then enter ID:";
-            showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
-        }
-    }
-}
-
 function autoFillById( id )
 {
-    if ( id )
-    {
-        $.post(
-            "php/addRatings.php",
-            {
-                action: "getMovieDataById",
-                id: id
-            },
-            autoFillByIdCallback
-        );
-    }
+    $.post(
+        "php/enter.php",
+        {
+            action: "getMovieDataById",
+            id: id
+        },
+        autoFillByIdCallback
+    );
 }
 
 function autoFillByIdCallback( response )
@@ -120,6 +85,50 @@ function autoFillByIdCallback( response )
     }
 }
 
+function autoFillByTitle( title )
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "getMovieData",
+            title: title
+        },
+        autoFillByTitleCallback
+    );
+}
+
+function autoFillByTitleCallback( response )
+{
+    var movieResponse = JSON.parse( response );
+    if ( movieResponse && movieResponse.isSuccess )
+    {
+        var innerHTML = "Is this the correct movie?<br/><br/>" +
+                        "<strong>" + movieResponse.title + "</strong> (" + movieResponse.year + ")<br/>" +
+                        "(" + movieResponse.id + ")<br/><br/>" +
+                        "<img src='" + movieResponse.poster + "' height='300px' alt='Movie Poster'>";
+        showConfirm( "Movie Match", innerHTML, function( answer ) {
+            if ( answer )
+            {
+                fillData( movieResponse );
+            }
+            else
+            {
+                promptGoogle( movieResponse.search );
+            }
+        });
+    }
+    else
+    {
+        promptGoogle( movieResponse.search );
+    }
+}
+
+function promptGoogle( search )
+{
+    var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + search + "'>Google</a><br/>Then enter ID:";
+    showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
+}
+
 function fillData( movie )
 {
     clear();
@@ -128,22 +137,19 @@ function fillData( movie )
     $('#id').val( movie.id );
     $('#poster').val( movie.poster );
 
-    loadFromFile( $('#id').val() );
+    loadFromFile( movie.id );
 }
 
-function loadFromFile( response )
+function loadFromFile( id )
 {
-    if ( response )
-    {
-        $.post(
-            "php/addRatings.php",
-            {
-                action: "load",
-                movie: response
-            },
-            loadFromFileCallback
-        );
-    }
+    $.post(
+        "php/enter.php",
+        {
+            action: isList() ? "loadFromListFile" : "loadFromRankFile",
+            id:     id
+        },
+        loadFromFileCallback
+    );
 }
 
 function loadFromFileCallback( response )
@@ -157,10 +163,12 @@ function loadFromFileCallback( response )
         $('#rating').val( response.rating );
         $('#review').val( response.review );
         $('#id').val( response.id );
+        $('#list').val( response.list );
     }
     else
     {
-        showToaster( "Movie not previously reviewed." );
+        var term = isList() ? "rated" : "ranked";
+        showToaster( "Movie not previously " + term + "." );
     }
 }
 
@@ -174,67 +182,179 @@ function clear()
     $('#id').val( "" );
 }
 
-function remove()
-{
-    showPrompt( "Delete Movie", "Enter a previously rated movie:", removeCallback, "Raiders of the Lost Ark | tt0082971" );
-}
 
-function removeCallback( response )
+/*********************SUBMIT*********************/
+
+
+function checkSubmit()
 {
-    if ( response )
+    if ( $('#id').val() )
     {
-        if ( response.search( /tt\d{7}/i ) === -1 )
-        {
-            $.post(
-                "php/addRatings.php",
-                {
-                    action: "getMovieData",
-                    title: response
-                },
-                confirmRemoveMovie
-            );
-        }
-        else
-        {
-            removeMovie( response );
-        }
+        checkOverwrite();
+    }
+    else
+    {
+        showToaster( "No movie ID present." );
     }
 }
 
-function confirmRemoveMovie( response )
+function checkOverwrite()
 {
-    var movieResponse = JSON.parse( response );
-    if ( movieResponse && movieResponse.isSuccess )
+    $.post(
+        "php/enter.php",
+        {
+            //combined call for code simplicity; causes redundant logic
+            action: isList() ? "checkOverwrite" : "checkRankOverwrite",
+            id: $('#id').val()
+        },
+        checkOverwriteCallback
+    );
+}
+
+function checkOverwriteCallback( response )
+{
+    response = JSON.parse( response );
+    if ( response && response.isSuccess )
     {
-        var innerHTML = "Is this the correct movie?<br/><br/>" +
-                        "<strong>" + movieResponse.title + "</strong> (" + movieResponse.year + ")<br/>" +
-                        "(" + movieResponse.id + ")<br/><br/>" +
-                        "<img src='" + movieResponse.poster + "' height='300px' alt='Movie Poster'>";
-        showConfirm( "Movie Match", innerHTML, function( answer ) {
+        isList() ? submit() : getList( response );
+    }
+    else if ( response && response.message === "Duplicate" )
+    {
+        var term = isList() ? "rated" : "ranked";
+        showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
             if ( answer )
             {
-                removeMovie( movieResponse.id );
-            }
-            else
-            {
-                var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + movieResponse.search + "'>Google</a><br/>Then enter ID:";
-                showPrompt( "Enter ID", html, removeMovie, "tt0082971", true );
+                isList() ? submit( true ) : getList( response );
             }
         });
     }
     else
     {
-        showToaster( "Movie not found." );
+        showToaster( response.message || "An error has occurred." );
     }
 }
 
-function removeMovie( id )
+function submit( overwrite )
 {
     $.post(
-        "php/addRatings.php",
+        "php/enter.php",
         {
-            action: "remove",
-            id:     id
+            action: "saveMovie",
+            index:  $('#index').val(),
+            title:  $('#title').val(),
+            id:     $('#id').val(),
+            year:   $('#year').val(),
+            rating: $('#rating').val(),
+            review: $('#review').val() || "***",
+            overwrite: overwrite
+        },
+        submitCallback
+    );
+}
+
+function submitCallback()
+{
+    clear();
+    showToaster( "Success!" );
+}
+
+
+/**********************RANK**********************/
+
+
+function getList( movieData )
+{
+    if ( movieData.isSuccess )
+    {
+        showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
+            movieData.list = answer;
+            getRanking( movieData, false );
+        }, "", true );
+    }
+    else
+    {
+        getRanking( movieData, true );
+    }
+}
+
+function getRanking( movieData, isOverwrite )
+{
+    var innerHTML = "Where would you like to rank this movie?<br/>" +
+                    "(e.g. 1, 2, 3, top, bottom, above [Movie], below [Movie])";
+    showPrompt( "Where Does It Rank?", innerHTML, function( answer ) {
+        validateRank( answer, movieData, isOverwrite );
+    }, movieData.rank, true );
+}
+
+function validateRank( rank, movieData, isOverwrite )
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "validateRank",
+            list: movieData.list,
+            answer: rank
+        },
+        function( response ) {
+            response = JSON.parse( response );
+            if ( response && response.isSuccess )
+            {
+                movieData.rank = response.rank;
+                submitRank( movieData, isOverwrite );
+            }
+            else
+            {
+                showToaster( response.message || "Invalid Ranking" );
+            }
+        }
+    );
+}
+
+function submitRank( movieData, isOverwrite )
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "saveRankedMovie",
+            list:   movieData.list,
+            rank:   movieData.rank,
+            title:  $('#title').val(),
+            id:     $('#id').val(),
+            year:   $('#year').val(),
+            image:  $('#poster').val(),
+            review: $('#review').val() || "***",
+            overwrite: isOverwrite
+        },
+        submitCallback
+    );
+}
+
+
+/*********************DELETE********************/
+
+
+function checkDelete()
+{
+    var innerHTML = "Are you sure you would like to delete this movie?<br/><br/>" +
+                    "<strong>" + $('#title').val() + "</strong> (" + $('#year').val() + ")<br/>" +
+                    "(" + $('#id').val() + ")<br/><br/>" +
+                    "<img src='" + $('#poster').val() + "' height='300px' alt='Movie Poster'>";
+    showConfirm( "Delete Movie", innerHTML, function( answer ) {
+        if ( answer )
+        {
+            deleteMovie();
+        }
+    });
+}
+
+function deleteMovie()
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "deleteMovie",
+            isList: isList(),
+            id:     $('#id').val()
         },
         function( response ) {
             response = JSON.parse( response );
@@ -243,16 +363,20 @@ function removeMovie( id )
     );
 }
 
+
+/********************DOWNLOAD********************/
+
+
 function download()
 {
     showBinaryChoice(
         "Download",
-        "Download Ratings or View To-Watch List?", "Download", "To-Watch",
+        "Download Ratings or View To-Watch List?", "Download All", "View Searches",
         function( answer ) {
             if ( answer )
             {
                 $.post(
-                    "php/addRatings.php",
+                    "php/enter.php",
                     {action: "download"},
                     downloadCallback
                 );
@@ -260,7 +384,7 @@ function download()
             else
             {
                 $.post(
-                    "php/addRatings.php",
+                    "php/enter.php",
                     {action: "viewToWatch"},
                     function( response ) {
                         showMessage( "Movies To-Watch", JSON.parse( response ).text );
@@ -289,180 +413,4 @@ function downloadCallback( response )
     a.download = "Ratings.csv";
     a.click();
     window.URL.revokeObjectURL( url );
-}
-
-
-/**********************LIST**********************/
-
-
-function isList()
-{
-    return enterMovieType === "list";
-}
-
-
-function checkSubmit()
-{
-    if ( $('#id').val() )
-    {
-        if ( isList() )
-        {
-            checkListOverwrite();
-        }
-        else
-        {
-            checkRankOverwrite();
-        }
-    }
-    else
-    {
-        showToaster( "No movie ID present." );
-    }
-}
-
-function checkListOverwrite()
-{
-    $.post(
-        "php/addRatings.php",
-        {
-            action: isList() ? "checkOverwrite" : "checkRankOverwrite",
-            id: $('#id').val()
-        },
-        checkOverwriteCallback
-    );
-}
-
-function checkOverwriteCallback( response )
-{
-    response = JSON.parse( response );
-    if ( response && response.isSuccess )
-    {
-        submit();
-    }
-    else if ( response && response.message === "Duplicate" )
-    {
-        var term = isList() ? "rated" : "ranked";
-        showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
-            if ( answer )
-            {
-                if ( isList() )
-                {
-                    submit( true );
-                }
-                else
-                {
-                    getRanking( response, response.rank );
-                }
-            }
-        });
-    }
-    else
-    {
-        showToaster( response.message || "An error has occurred." );
-    }
-}
-
-function submit( overwrite )
-{
-    $.post(
-        "php/addRatings.php",
-        {
-            action: "saveMovie",
-            id:     $('#id').val(),
-            title:  $('#title').val(),
-            year:   $('#year').val(),
-            index:  $('#index').val(),
-            rating: $('#rating').val(),
-            review: $('#review').val() || "***",
-            overwrite: overwrite
-        },
-        submitCallback
-    );
-}
-
-function submitCallback()
-{
-    clear();
-    showToaster( "Success!" );
-}
-
-
-/**********************RANK**********************/
-
-
-function checkRankOverwrite()
-{
-    showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
-        $.post(
-            "php/addRatings.php",
-            {
-                action: "checkRankOverwrite",
-                list:   answer,
-                id:     $('#id').val()
-            },
-            checkOverwriteCallback
-        );
-    }, "", true );
-}
-
-function getRanking( movieData, placeholderRank )
-{
-    var innerHTML = "Where would you like to rank this movie?<br/>" +
-                    "(e.g. 1, 2, 3, top, bottom, above [Movie], below [Movie])";
-    showPrompt( "Where Does It Rank?", innerHTML, function( answer ) {
-        $.post(
-            "php/addRatings.php",
-            {
-                action: "validateRank",
-                list: movieData.list,
-                answer: answer
-            },
-            function( response ) {
-                response = JSON.parse( response );
-                if ( response && response.isSuccess )
-                {
-                    movieData.rank = response.rank;
-                    submitRanked( movieData, !!placeholderRank );
-                }
-                else
-                {
-                    showToaster( response.message || "Invalid Ranking" );
-                }
-            }
-        );
-    }, placeholderRank, true );
-}
-
-function submitRanked( movieData, overwrite )
-{
-    $.post(
-        "php/addRatings.php",
-        {
-            action: "saveRankedMovie",
-            list:   movieData.list,
-            rank:   movieData.rank,
-            id:     $('#id').val(),
-            title:  $('#title').val(),
-            year:   $('#year').val(),
-            image:  $('#poster').val(),
-            review: $('#review').val() || "***",
-            overwrite: overwrite
-        },
-        submitRankedCallback
-    );
-}
-
-function submitRankedCallback()
-{
-    showConfirm( "Save Review", "Would you like to save this review to the Movie Review List?", function( answer ) {
-        if ( answer )
-        {
-            saveMovie();
-        }
-        else
-        {
-            clear();
-            showToaster( "Success!" );
-        }
-    });
 }

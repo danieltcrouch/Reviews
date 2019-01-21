@@ -13,7 +13,7 @@ function requestGoodReads( $endpoint, array $params = array() )
 
 function getBookIdFromFile( $title )
 {
-    $file = fopen( getPath( "TempBookRatings-read.csv" ), "r" );
+    $file = fopen( getPath( "book-read.csv" ), "r" );
     $columns = getColumns( fgetcsv( $file ) );
     $books = createEntryList( $file, $columns['iIndex'], $columns['tIndex'] );
     $bookId = findEntry( $books, $title );
@@ -62,7 +62,7 @@ function getCDATA( $url )
 
 function getImages()
 {
-    $file = fopen( "../resources/BookFavorites.csv", "r" );
+    $file = fopen( "../archive/book-images.csv", "r" );
     $columns = getColumns( fgetcsv( $file ) );
     $images = createEntryList( $file, $columns['iIndex'], $columns['pIndex'] );
     fclose( $file );
@@ -92,7 +92,7 @@ function getList( $shelf, $sortType, $includeImages )
     $file = null;
     if ( $shelf )
     {
-        $file = fopen( getPath( "TempBookRatings-$shelf.csv" ), "w" );
+        $file = fopen( getPath( "book-$shelf.csv" ), "w" );
         fputcsv( $file, array( "Title", "Author", "ID", "Year", "Rating", "Review", "Image" ) );
     }
 
@@ -154,7 +154,7 @@ function getFavoritesList()
 function getTempList( $shelf, $includeImages )
 {
     $result = [];
-    $file = fopen( getPath( "TempBookRatings-$shelf.csv" ), "r" );
+    $file = fopen( getPath( "book-$shelf.csv" ), "r" );
     if ( $file )
     {
         $columns = getColumns(fgetcsv($file));

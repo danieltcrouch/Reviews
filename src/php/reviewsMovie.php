@@ -21,7 +21,7 @@ function getList( $fileName )
 
 function getRatingsIfCleared()
 {
-    $fileHandle = file( "../resources/ratings.csv", FILE_SKIP_EMPTY_LINES );
+    $fileHandle = file( "../archive/ratings.csv", FILE_SKIP_EMPTY_LINES );
     $count = count( $fileHandle );
 
     if ( $count < 2 )
@@ -49,7 +49,7 @@ function getRatingsIfCleared()
 
         if ( $ratingsFile )
         {
-            copy( $archiveDirectory . $ratingsFile, "../resources/ratings.csv" );
+            copy( $archiveDirectory . $ratingsFile, "../archive/ratings.csv" );
         }
     }
 }
@@ -57,22 +57,22 @@ function getRatingsIfCleared()
 function getMovieList()
 {
     getRatingsIfCleared();
-    return getList( "../resources/ratings.csv" );
+    return getList( "../archive/ratings.csv" );
 }
 
 function getDisneyList()
 {
-    return getList( "../resources/Disney.csv" );
+    return getList( "../archive/rank-Disney.csv" );
 }
 
 function getMarvelList()
 {
-    return getList( "../resources/Marvel.csv" );
+    return getList( "../archive/rank-Marvel.csv" );
 }
 
 function getStarWarsList()
 {
-    return getList( "../resources/StarWars.csv" );
+    return getList( "../archive/rank-StarWars.csv" );
 }
 
 function getMovieFromIMDB( $id )
@@ -96,7 +96,7 @@ function getMovieFromFile( $title )
 {
     $result['isSuccess'] = false;
 
-    $file = fopen( "../resources/ratings.csv", "r" );
+    $file = fopen( "../archive/ratings.csv", "r" );
     $columns = getColumns( fgetcsv( $file ) );
 
     $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {

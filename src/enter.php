@@ -26,21 +26,14 @@ SUBMIT BUTTON
         (Link to GoodReads to Add)      -> https://www.goodreads.com/review/list/55277264-daniel-crouch?utf8=%E2%9C%93&search%5Bquery%5D=tech-wise+family
     (Type review and add to clipboard; toaster to remind) -> https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
 
-DELETE BUTTON
-    (Use title and ID from inputs rather than prompt)
-    (Delete Button allows remove movie in ranking)
-
 ADD IMAGE BUTTON
-    (Check book ID and title match or retrieve ID from title as with Submit)
+    (Work for Books and Movies)
     (If review is image URL, use it, else prompt for image URL)
-        (Always overwrite if existing)
+        (Always overwrite if existing--only touch image, nothing else)
 
 VIEW BUTTON
     Download All -> https://www.allphptricks.com/create-a-zip-file-using-php-and-download-multiple-files/
     View Searches
-
-(Archive List (5x), each Ranking, books, book-favorites, watch, read)
-    No longer need resources/
 
 -->
 
@@ -72,7 +65,7 @@ VIEW BUTTON
             </div>
             <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkSubmit()" value="Submit"></div>
             <div><input id="delete" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkDelete()" value="Delete"></div>
-            <div><input id="addImage" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="alert()" value="Add Image"></div>
+            <div><input id="addImage" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="addImage()" value="Add Image"></div>
             <div><input id="download" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="download()" value="View"></div>
             <input id="id" type="hidden" value="">
             <input id="list" type="hidden" value="">

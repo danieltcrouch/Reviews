@@ -1,11 +1,11 @@
+var enterMediaType;
 var enterMovieType;
 
 function setMediaType( mediaType )
 {
+    enterMediaType = mediaType;
     if ( mediaType === "movie" )
     {
-        $('#addImage').hide();
-
         $('#movieInputs').show();
         $('#movieTypeButtons').show();
         $('#delete').show();
@@ -15,9 +15,14 @@ function setMediaType( mediaType )
         $('#movieInputs').hide();
         $('#movieTypeButtons').hide();
         $('#delete').hide();
-
-        $('#addImage').show();
     }
+
+    clear();
+}
+
+function isMovie()
+{
+    return enterMediaType === "movie";
 }
 
 function setMovieType( movieType )
@@ -183,6 +188,15 @@ function clear()
 }
 
 
+/*********************IMAGE**********************/
+
+
+function addImage()
+{
+
+}
+
+
 /*********************SUBMIT*********************/
 
 
@@ -203,9 +217,9 @@ function checkOverwrite()
     $.post(
         "php/enter.php",
         {
-            //combined call for code simplicity; causes redundant logic
             action: isList() ? "checkOverwrite" : "checkRankOverwrite",
-            id: $('#id').val()
+            list:   isList() ? null : $('#list').val(),
+            id:     $('#id').val()
         },
         checkOverwriteCallback
     );
@@ -293,7 +307,7 @@ function validateRank( rank, movieData, isOverwrite )
         {
             action: "validateRank",
             list: movieData.list,
-            answer: rank
+            rank: rank
         },
         function( response ) {
             response = JSON.parse( response );
@@ -352,8 +366,8 @@ function deleteMovie()
     $.post(
         "php/enter.php",
         {
-            action: "deleteMovie",
-            isList: isList(),
+            action: isList() ? "deleteMovie" : "deleteRankMovie",
+            list:   isList() ? null : $('#list').val(),
             id:     $('#id').val()
         },
         function( response ) {

@@ -1,6 +1,16 @@
 <?php
 include_once( "utility.php" );
 
+
+/**********************BOOK**********************/
+
+
+include_once( "utilityBook.php" );
+
+
+/**********************BOOK**********************/
+
+
 function getList( $fileName )
 {
     $file = fopen( $fileName, "r" );
@@ -97,7 +107,11 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	$action = $_POST['action'];
     $result = null;
 
-    if ( isset( $_POST['title'] ) )
+    if ( isset( $_POST['title'] ) && isset( $_POST['author'] ) )
+    {
+        $result = $action( $_POST['title'], $_POST['author'] );
+    }
+    elseif ( isset( $_POST['title'] ) )
     {
         $result = $action( $_POST['title'] );
     }

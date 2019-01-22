@@ -35,7 +35,7 @@ function findMovieOnEnter( e )
 function findMovie( title )
 {
     $.post(
-        "php/reviewsMovie.php",
+        "php/reviews.php",
         {
             action: "getMovieFromFile",
             title: title
@@ -80,7 +80,7 @@ function findBookOnEnter( e )
 function findBook( title, author )
 {
     $.post(
-        "php/reviewsBook.php",
+        "php/reviews.php",
         {
             action: "getBook",
             title: title,
@@ -114,7 +114,7 @@ function findBookCallback( response )
 function saveMovieToWatch( title )
 {
     $.post(
-        "php/reviewsMovie.php",
+        "php/reviews.php",
         {
             action: "saveMovieToWatch",
             title: title
@@ -125,7 +125,7 @@ function saveMovieToWatch( title )
 function saveBookToRead( title )
 {
     $.post(
-        "php/reviewsBook.php",
+        "php/reviews.php",
         {
             action: "saveBookToRead",
             title: title
@@ -136,7 +136,7 @@ function saveBookToRead( title )
 function populateMovieList()
 {
     $.post(
-        "php/reviewsMovie.php",
+        "php/reviews.php",
         { action: "getMovieList" },
         parseMovies
     );
@@ -145,7 +145,7 @@ function populateMovieList()
 function populateDisneyList()
 {
     $.post(
-        "php/reviewsMovie.php",
+        "php/reviews.php",
         { action: "getDisneyList" },
         function( response ) { parseRankings( "Disney", response ); }
     );
@@ -154,7 +154,7 @@ function populateDisneyList()
 function populateMarvelList()
 {
     $.post(
-        "php/reviewsMovie.php",
+        "php/reviews.php",
         { action: "getMarvelList" },
         function( response ) { parseRankings( "Marvel", response ); }
     );
@@ -163,7 +163,7 @@ function populateMarvelList()
 function populateStarWarsList()
 {
     $.post(
-        "php/reviewsMovie.php",
+        "php/reviews.php",
         { action: "getStarWarsList" },
         function( response ) { parseRankings( "StarWars", response ); }
     );
@@ -298,7 +298,7 @@ function parseRankings( type, response )
 function populateBookList()
 {
     $.post(
-        "php/reviewsBook.php",
+        "php/reviews.php",
         { action: "getTempBookList" },
         function( response ) {
             try {
@@ -308,7 +308,7 @@ function populateBookList()
                 bookList.read = "Books are loading... May take a minute...";
             } catch (e) {}
             $.post(
-                "php/reviewsBook.php",
+                "php/reviews.php",
                 { action: "getBookList" },
                 parseBooks
             );
@@ -319,12 +319,12 @@ function populateBookList()
 function populateFavoritesList()
 {
     $.post(
-        "php/reviewsBook.php",
+        "php/reviews.php",
         { action: "getTempFavoritesList" },
         function( response ) {
             try { $( '#Favorites' ).html( JSON.parse( response ) ); } catch (e) {}
             $.post(
-                "php/reviewsBook.php",
+                "php/reviews.php",
                 { action: "getFavoritesList" },
                 parseFavorites
             );

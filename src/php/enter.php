@@ -466,13 +466,26 @@ function deleteRankMovie( $list, $id )
 /**********************BOOK**********************/
 
 
-include_once( "reviewsBook.php" );
+include_once( "utilityBook.php" );
 
-function checkBookOverwrite( $title )
+function getBookData( $title )
 {
-    $result['id'] = getBookIdFromFile( $title );
-    $result['isOverwrite'] = isset( $result['id'] );
+    $result = getBook( $title );
+    $result['poster'] = $result['cover'];
     return $result;
+}
+
+function getBookDataById( $id )
+{
+    $result = getBookFromId( $id );
+    $result['id'] = $id;
+    $result['poster'] = $result['cover'];
+    return $result;
+}
+
+function loadFromBookFile( $id )
+{
+    return getBookDataById( $id );
 }
 
 function submitBookImage( $id, $url )

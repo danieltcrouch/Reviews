@@ -76,14 +76,17 @@ function autoFill( e )
 
 function autoFillById( id )
 {
-    $.post(
-        "php/enter.php",
-        {
-            action: "getMovieDataById",
-            id: id
-        },
-        autoFillByIdCallback
-    );
+    if ( id )
+    {
+        $.post(
+            "php/enter.php",
+            {
+                action: isMovie() ? "getMovieDataById" : "getBookDataById",
+                id: id
+            },
+            autoFillByIdCallback
+        );
+    }
 }
 
 function autoFillByIdCallback( response )
@@ -100,7 +103,7 @@ function autoFillByTitle( title )
     $.post(
         "php/enter.php",
         {
-            action: "getMovieData",
+            action: isMovie() ? "getMovieData" : "getBookData",
             title: title
         },
         autoFillByTitleCallback
@@ -109,33 +112,34 @@ function autoFillByTitle( title )
 
 function autoFillByTitleCallback( response )
 {
-    var movieResponse = JSON.parse( response );
-    if ( movieResponse && movieResponse.isSuccess )
+    response = JSON.parse( response );
+    if ( response && response.isSuccess )
     {
         var innerHTML = "Is this the correct movie?<br/><br/>" +
-                        "<strong>" + movieResponse.title + "</strong> (" + movieResponse.year + ")<br/>" +
-                        "(" + movieResponse.id + ")<br/><br/>" +
-                        "<img src='" + movieResponse.poster + "' height='300px' alt='Movie Poster'>";
+                        "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
+                        "(" + response.id + ")<br/><br/>" +
+                        "<img src='" + response.poster + "' height='300px' alt='Movie Poster'>";
         showConfirm( "Movie Match", innerHTML, function( answer ) {
             if ( answer )
             {
-                fillData( movieResponse );
+                fillData( response );
             }
             else
             {
-                promptGoogle( movieResponse.search );
+                promptGoogle( response.search );
             }
         });
     }
     else
     {
-        promptGoogle( movieResponse.search );
+        promptGoogle( response.search );
     }
 }
 
 function promptGoogle( search )
 {
-    var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=IMDB%20" + search + "'>Google</a><br/>Then enter ID:";
+    var db = isMovie() ? "IMDB" : "GoodReads";
+    var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=" + db + "%20" + search + "'>Google</a><br/>Then enter ID:";
     showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
 }
 
@@ -152,10 +156,11 @@ function fillData( movie )
 
 function loadFromFile( id )
 {
+    var action = isMovie() ? (isFullList() ? "loadFromFullFile" : "loadFromRankFile") : "loadFromBookFile";
     $.post(
         "php/enter.php",
         {
-            action: isFullList() ? "loadFromFullFile" : "loadFromRankFile",
+            action: action,
             id:     id
         },
         loadFromFileCallback
@@ -379,31 +384,32 @@ function deleteMovie()
 
 function checkBookSubmit()
 {
-    $.post(
-        "php/enter.php",
-        {
-            action: "checkBookOverwrite",
-            title:  $('#title').val()
-        },
-        checkBookCallback
-    );
+    if ( $('#id').val() )
+    {
+        submitBook();
+    }
+    else
+    {
+        showToaster( "No book ID present." );
+    }
 }
 
-function checkBookCallback( response )
+function submitBook()
 {
     document.getElementById("review").select();
     document.execCommand("copy");
     showToaster( "Review copied to clipboard" );
 
-    response = JSON.parse( response );
-    if ( response && response.isOverwrite )
+    if ( isOverwrite )
     {
-        window.open( "https://www.goodreads.com/review/edit/" + response.id );
+        window.open( "https://www.goodreads.com/review/edit/" + $('#id').val() );
     }
     else
     {
         window.open( "https://www.goodreads.com/review/list/55277264-daniel-crouch?utf8=%E2%9C%93&search%5Bquery%5D=" + $('#title').val() );
     }
+
+    clear();
 }
 
 

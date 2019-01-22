@@ -23,9 +23,17 @@ function getBookIdFromFile( $title )
 
 function getBook( $title )
 {
+    $id = getBookIdFromFile( $title );
+    $result = getBookFromId( $id );
+    $result['id'] = $id;
+    return $result;
+}
+
+function getBookFromId( $id )
+{
     $response = requestGoodReads( 'review/show_by_user_and_book', [
         'user_id' => "55277264",
-        'book_id' => getBookIdFromFile( $title )
+        'book_id' => $id
     ]);
 
     return [
@@ -170,7 +178,7 @@ function getTempList( $shelf, $includeImages )
             $author = $row[$columns['aIndex']];
             $rating = $row[$columns['rIndex']];
             $image = $row[$columns['pIndex']];
-            $review = getCleanedReview($row[$columns['cIndex']]);
+            $review = $row[$columns['cIndex']];
             $item = "<div>$index. <strong>$title</strong>, $author $displayYear- <strong>$rating/5</strong> - $review</div>";
             $item .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
 
@@ -197,26 +205,5 @@ function getTempFavoritesList()
 function saveBookToRead( $title )
 {
     saveFailedSearch( "ToRead", $title );
-}
-
-if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
-{
-	$action = $_POST['action'];
-    $result = null;
-
-    if ( isset( $_POST['title'] ) && isset( $_POST['author'] ) )
-	{
-		$result = $action( $_POST['title'], $_POST['author'] );
-	}
-	elseif ( isset( $_POST['title'] ) )
-	{
-		$result = $action( $_POST['title'] );
-	}
-	else
-	{
-		$result = $action();
-	}
-
-	echo json_encode( $result );
 }
 ?>

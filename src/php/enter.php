@@ -501,16 +501,48 @@ function submitBookImage( $id, $url )
 /********************DOWNLOAD********************/
 
 
-function download() //todo - https://www.allphptricks.com/create-a-zip-file-using-php-and-download-multiple-files/
+function downloadAll()
 {
-    $result['text'] = file_get_contents( getPath( "ratings.csv" ) );
-    return $result;
+    if ( extension_loaded('zip') )
+    {
+        $zip = new ZipArchive();
+        $zipName = time() . ".zip";
+
+        $isOpen = $zip->open( $zipName, ZIPARCHIVE::CREATE );
+        if ( $isOpen )
+        {
+            $folder = "../archive";
+            foreach ( scandir($folder) as $file )
+            {
+                $file = "$folder/" . $file;
+                if ( file_exists($file) && is_file($file) )
+                {
+                    $zip->addFile($file);
+                }
+            }
+            $zip->close();
+        }
+
+        if ( file_exists( $zipName ) )
+        {
+            ignore_user_abort(true);
+            header( "Content-type: application/zip" );
+            header( "Content-Length: " . filesize($zipName) );
+            header( "Content-Disposition: attachment; filename='$zipName'" );
+            readfile( $zipName );
+            unlink( $zipName );
+        }
+    }
+    else
+    {
+        echo "ZIP Extension not available";
+    }
 }
 
-function viewToWatch() //todo
+function viewSearches()
 {
     $result = "";
-    $file = fopen( getPath( "ToWatch.txt" ), "r" );
+    $file = fopen( getPath( "searches.txt" ), "r" );
     while ( ($line = fgets( $file )) !== false )
     {
         $result .= "<div>$line</div>";

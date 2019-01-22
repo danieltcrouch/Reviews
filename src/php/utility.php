@@ -98,10 +98,10 @@ function getColumns( $firstRow )
     return $result;
 }
 
-function saveFailedSearch( $file, $title )
+function saveSearch( $title, $type )
 {
-    $file = fopen( getPath( "$file.txt" ), "a" );
-    fwrite( $file, $title . "\n" );
+    $file = fopen( getPath( "searches.txt" ), "a" );
+    fwrite( $file, $type . " - " . $title . "\n" );
     fclose( $file );
 }
 

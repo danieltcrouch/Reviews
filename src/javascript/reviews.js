@@ -63,8 +63,8 @@ function findMovieCallback( response )
     else
     {
         showToaster( "Movie not found!<br />Maybe I should watch it" );
-        saveMovieToWatch( $('#findMovie').val() );
     }
+    saveSearch( $('#findBook').val(), "Movie" );
 }
 
 function findBookOnEnter( e )
@@ -107,28 +107,18 @@ function findBookCallback( response )
     else
     {
         showToaster( "Book not found!<br />Maybe I should read it" );
-        saveBookToRead( $('#findBook').val() );
     }
+    saveSearch( $('#findBook').val(), "Book" );
 }
 
-function saveMovieToWatch( title )
+function saveSearch( title, type )
 {
     $.post(
         "php/reviews.php",
         {
-            action: "saveMovieToWatch",
-            title: title
-        }
-    );
-}
-
-function saveBookToRead( title )
-{
-    $.post(
-        "php/reviews.php",
-        {
-            action: "saveBookToRead",
-            title: title
+            action: "saveSearch",
+            title: title,
+            type: type
         }
     );
 }

@@ -97,9 +97,9 @@ function getMovieFromFile( $title )
     return $result;
 }
 
-function saveMovieToWatch( $title )
+function saveSearch( $title, $type )
 {
-    saveFailedSearch( "ToWatch", $title );
+    saveSearch( $title, $type );
 }
 
 if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
@@ -110,6 +110,10 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
     if ( isset( $_POST['title'] ) && isset( $_POST['author'] ) )
     {
         $result = $action( $_POST['title'], $_POST['author'] );
+    }
+    elseif ( isset( $_POST['title'] ) && isset( $_POST['type'] ) )
+    {
+        $result = $action( $_POST['title'] );
     }
     elseif ( isset( $_POST['title'] ) )
     {

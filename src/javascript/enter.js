@@ -490,38 +490,26 @@ function viewSearches()
 {
     $.post(
         "php/enter.php",
-        {action: "viewToWatch"},
+        {action: "viewSearches"},
         function( response ) {
-            showMessage( "Movies To-Watch", JSON.parse( response ).text );
+            showMessage( "User Searches", JSON.parse( response ).text );
         }
     );
 }
 
 function download()
 {
-    $.post(
-        "php/enter.php",
-        {action: "download"},
-        downloadCallback
-    );
-}
+    var downloadForm = document.createElement('FORM');
+    downloadForm.name='downloadForm';
+    downloadForm.method='POST';
+    downloadForm.action='php/enter.php';
 
-function downloadCallback( response )
-{
-    var text = JSON.parse( response ).text;
-    var url = null;
-    var blob = new Blob( [text], {type: 'text/csv'} );
-    if ( url !== null )
-    {
-        window.URL.revokeObjectURL( url );
-    }
-    url = window.URL.createObjectURL( blob );
+    var formAction = document.createElement('INPUT');
+    formAction.type='HIDDEN';
+    formAction.name='action';
+    formAction.value='downloadAll';
+    downloadForm.appendChild( formAction );
 
-    var a = document.createElement( "a" );
-    document.body.appendChild( a );
-    a.href = url;
-    a.style = "display: none";
-    a.download = "Ratings.csv";
-    a.click();
-    window.URL.revokeObjectURL( url );
+    document.body.appendChild( downloadForm );
+    downloadForm.submit();
 }

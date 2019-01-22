@@ -201,9 +201,4 @@ function getTempFavoritesList()
 {
     return getTempList( "favorites", true );
 }
-
-function saveBookToRead( $title )
-{
-    saveFailedSearch( "ToRead", $title );
-}
 ?>

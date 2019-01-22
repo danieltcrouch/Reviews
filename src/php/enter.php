@@ -471,6 +471,7 @@ include_once( "utilityBook.php" );
 function getBookData( $title )
 {
     $result = getBook( $title );
+    $result['review'] = getCleanedReview( $result['review'] );
     $result['poster'] = $result['cover'];
     return $result;
 }
@@ -479,6 +480,7 @@ function getBookDataById( $id )
 {
     $result = getBookFromId( $id );
     $result['id'] = $id;
+    $result['review'] = getCleanedReview( $result['review'] );
     $result['poster'] = $result['cover'];
     return $result;
 }

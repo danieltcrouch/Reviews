@@ -115,11 +115,15 @@ function autoFillByTitleCallback( response )
     response = JSON.parse( response );
     if ( response && response.isSuccess )
     {
-        var innerHTML = "Is this the correct movie?<br/><br/>" +
+        var title = isMovie() ? "Movie Match" : "Library Look-up";
+        var term = isMovie() ? "movie" : "book";
+        var info = isMovie() ? ("ID: " + response.id) : response.author;
+        var imageAlt = isMovie() ? "Movie Poster" : "Book Cover";
+        var innerHTML = "Is this the correct " + term + "?<br/><br/>" +
                         "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
-                        "(" + response.id + ")<br/><br/>" +
-                        "<img src='" + response.poster + "' height='300px' alt='Movie Poster'>";
-        showConfirm( "Movie Match", innerHTML, function( answer ) {
+                        info + "<br/><br/>" +
+                        "<img src='" + response.poster + "' height='300px' alt='" + imageAlt + "'>";
+        showConfirm( title, innerHTML, function( answer ) {
             if ( answer )
             {
                 fillData( response );
@@ -424,14 +428,14 @@ function addImage()
         var url = $('#review').val();
         var isImage = url.match(/\.(jpeg|jpg|gif|png)$/) != null &&
             url.startsWith("http") &&
-            !url.contains(" ");
+            !url.includes(" ");
 
         if (!isImage)
         {
             showPrompt(
                 "Enter Image URL",
                 "Enter an image URL to use for this book:",
-                submitImage,
+                function ( response ) { response ? submitImage( response ) : null; },
                 "",
                 true
             );

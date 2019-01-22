@@ -77,7 +77,7 @@ function getImages()
     return $images;
 }
 
-function getList( $shelf, $sortType, $includeImages )
+function getListHTML( $shelf, $sortType, $includeImages )
 {
     $result = [];
 
@@ -149,14 +149,14 @@ function getList( $shelf, $sortType, $includeImages )
 function getBookList()
 {
     return (object)[
-        "read"  => getList( "read", "date_read", false ),
-        "title" => getList( "read", "title", false )
+        "read"  => getListHTML( "read", "date_read", false ),
+        "title" => getListHTML( "read", "title", false )
     ];
 }
 
 function getFavoritesList()
 {
-    return getList( "favorites", "date_read", true );
+    return getListHTML( "favorites", "date_read", true );
 }
 
 function getTempList( $shelf, $includeImages )

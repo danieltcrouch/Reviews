@@ -8,7 +8,7 @@ include_once( "utility.php" );
 include_once( "utilityBook.php" );
 
 
-/**********************BOOK**********************/
+/**********************MOVIE*********************/
 
 
 function getList( $fileName )

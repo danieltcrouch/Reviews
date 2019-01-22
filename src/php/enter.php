@@ -134,16 +134,6 @@ function closeRankFiles( $files )
 /*********************SUBMIT*********************/
 
 
-function checkOverwrite( $id )
-{
-    $file = fopen( getPath( "ratings.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $movies = createEntryList( $file, $columns['iIndex'], $columns['iIndex'] );
-    $movieId = findEntry( $movies, $id );
-    fclose( $file );
-    return [ "isOverwrite" => !!$movieId ];
-}
-
 function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 {
     $fileName = getPath( "ratings.csv" );
@@ -249,20 +239,6 @@ function editMovie( $fileName, $movie )
 
 /**********************RANK**********************/
 
-
-function checkRankOverwrite( $list, $id )
-{
-    $file = fopen( getPath( "rank-$list.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $movies = createEntryList( $file, false, $columns['iIndex'] );
-    $movieIndex = findEntry( $movies, $id );
-
-    $isOverwrite = $movieIndex !== null;
-    return [
-        "isOverwrite"   => $isOverwrite,
-        "list"          => $list
-    ];
-}
 
 function validateRank( $list, $rank )
 {

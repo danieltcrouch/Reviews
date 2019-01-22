@@ -60,7 +60,7 @@ VIEW BUTTON
         <div class="col-10 center">
             <div><textarea id="review" class="input" placeholder="Review"></textarea></div>
             <div id="movieTypeButtons" class="center" style="margin-bottom: 1em">
-                <button id="list" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
+                <button id="full" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
                 <button id="rank" name="movieType" class="button inverseButton" style="width: 5em; margin: .25em;">Ranked</button>
             </div>
             <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkSubmit()" value="Submit"></div>

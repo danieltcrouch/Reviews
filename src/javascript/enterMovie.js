@@ -1,5 +1,6 @@
 var enterMediaType;
 var enterMovieType;
+var isOverwrite;
 
 function setMediaType( mediaType )
 {
@@ -31,9 +32,9 @@ function setMovieType( movieType )
     autoFillById( $('#id').val() );
 }
 
-function isList()
+function isFullList()
 {
-    return enterMovieType === "list";
+    return enterMovieType === "full";
 }
 
 function autoFillTab( e )
@@ -150,7 +151,7 @@ function loadFromFile( id )
     $.post(
         "php/enter.php",
         {
-            action: isList() ? "loadFromListFile" : "loadFromRankFile",
+            action: isFullList() ? "loadFromListFile" : "loadFromRankFile",
             id:     id
         },
         loadFromFileCallback
@@ -172,9 +173,10 @@ function loadFromFileCallback( response )
     }
     else
     {
-        var term = isList() ? "rated" : "ranked";
+        var term = isFullList() ? "rated" : "ranked";
         showToaster( "Movie not previously " + term + "." );
     }
+    isOverwrite = response.isSuccess;
 }
 
 function clear()
@@ -185,6 +187,7 @@ function clear()
     $('#rating').val( "" );
     $('#review').val( "" );
     $('#id').val( "" );
+    isOverwrite = null;
 }
 
 
@@ -204,7 +207,20 @@ function checkSubmit()
 {
     if ( $('#id').val() )
     {
-        checkOverwrite();
+        if ( isOverwrite )
+        {
+            var term = isFullList() ? "rated" : "ranked";
+            showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
+                if ( answer )
+                {
+                    isFullList() ? submit() : getList();
+                }
+            });
+        }
+        else
+        {
+            isFullList() ? submit() : getList();
+        }
     }
     else
     {
@@ -212,39 +228,7 @@ function checkSubmit()
     }
 }
 
-function checkOverwrite()
-{
-    $.post(
-        "php/enter.php",
-        {
-            action: isList() ? "checkOverwrite" : "checkRankOverwrite",
-            list:   isList() ? undefined : $('#list').val(),
-            id:     $('#id').val()
-        },
-        checkOverwriteCallback
-    );
-}
-
-function checkOverwriteCallback( response )
-{
-    response = JSON.parse( response );
-    if ( response && response.isOverwrite )
-    {
-        var term = isList() ? "rated" : "ranked";
-        showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
-            if ( answer )
-            {
-                isList() ? submit( true ) : getList( response.list, true );
-            }
-        });
-    }
-    else
-    {
-        isList() ? submit() : getList( null, false );
-    }
-}
-
-function submit( overwrite )
+function submit()
 {
     $.post(
         "php/enter.php",
@@ -256,7 +240,7 @@ function submit( overwrite )
             year:   $('#year').val(),
             rating: $('#rating').val(),
             review: $('#review').val() || "***",
-            overwrite: overwrite
+            overwrite: isOverwrite
         },
         submitCallback
     );
@@ -272,60 +256,58 @@ function submitCallback( response )
 /**********************RANK**********************/
 
 
-function getList( list, isOverwrite )
+function getList()
 {
-    if ( list )
+    if ( $('#list').val() )
     {
-        getRanking( list, isOverwrite );
+        getRanking();
     }
     else
     {
         showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
-            movieData.list = answer;
-            getRanking( answer, isOverwrite );
+            $('#list').val( answer );
+            getRanking();
         }, "", true );
     }
 }
 
-function getRanking( list, isOverwrite )
+function getRanking()
 {
     var innerHTML = "Where would you like to rank this movie?<br/>" +
                     "(e.g. 1, 2, 3, top, bottom, above [Movie], below [Movie])";
     showPrompt( "Where Does It Rank?", innerHTML, function( answer ) {
-        validateRank( answer, list, isOverwrite );
+        $.post(
+            "php/enter.php",
+            {
+                action: "validateRank",
+                list: $('#list').val(),
+                rank: answer
+            },
+            getRankingCallback
+        );
     }, $('#index').val(), true );
 }
 
-function validateRank( rank, list, isOverwrite )
+function getRankingCallback( response )
 {
-    $.post(
-        "php/enter.php",
-        {
-            action: "validateRank",
-            list: list,
-            rank: rank
-        },
-        function( response ) {
-            response = JSON.parse( response );
-            if ( response && response.isSuccess )
-            {
-                submitRank( list, response.rank, isOverwrite );
-            }
-            else
-            {
-                showToaster( response.message || "Invalid Ranking" );
-            }
-        }
-    );
+    response = JSON.parse( response );
+    if ( response && response.isSuccess )
+    {
+        submitRank( response.rank );
+    }
+    else
+    {
+        showToaster( response.message || "Invalid Ranking" );
+    }
 }
 
-function submitRank( list, rank, isOverwrite )
+function submitRank( rank )
 {
     $.post(
         "php/enter.php",
         {
             action: "saveRankedMovie",
-            list:   list,
+            list:   $('#list').val(),
             rank:   rank,
             title:  $('#title').val(),
             id:     $('#id').val(),
@@ -361,8 +343,8 @@ function deleteMovie()
     $.post(
         "php/enter.php",
         {
-            action: isList() ? "deleteMovie" : "deleteRankMovie",
-            list:   isList() ? undefined : $('#list').val(),
+            action: isFullList() ? "deleteMovie" : "deleteRankMovie",
+            list:   isFullList() ? undefined : $('#list').val(),
             id:     $('#id').val()
         },
         function( response ) {

@@ -19,60 +19,24 @@ function getList( $fileName )
     return $movies;
 }
 
-function getRatingsIfCleared()
-{
-    $fileHandle = file( "../archive/ratings.csv", FILE_SKIP_EMPTY_LINES );
-    $count = count( $fileHandle );
-
-    if ( $count < 2 )
-    {
-        $ratingsFile = "";
-        $ratingsDate = date( "Y-m-d H:i:s", strtotime("-1 year") );
-        $archiveDirectory = "../archive/";
-
-        if ( is_dir( $archiveDirectory ) && $dirHandle = opendir( $archiveDirectory ) )
-        {
-            while ( ( $file = readdir( $dirHandle ) ) !== false )
-            {
-                if ( stripos( $file, "ratings " ) !== false )
-                {
-                    $fileDate = substr( $file, strlen( "ratings " ) );
-                    $fileDate = str_replace( ".csv", "", $fileDate );
-                    if ( $fileDate > $ratingsDate )
-                    {
-                        $ratingsFile = $file;
-                    }
-                }
-            }
-            closedir( $dirHandle );
-        }
-
-        if ( $ratingsFile )
-        {
-            copy( $archiveDirectory . $ratingsFile, "../archive/ratings.csv" );
-        }
-    }
-}
-
 function getMovieList()
 {
-    getRatingsIfCleared();
-    return getList( "../archive/ratings.csv" );
+    return getList( getPath( "ratings.csv" ) );
 }
 
 function getDisneyList()
 {
-    return getList( "../archive/rank-Disney.csv" );
+    return getList( getPath( "rank-Disney.csv" ) );
 }
 
 function getMarvelList()
 {
-    return getList( "../archive/rank-Marvel.csv" );
+    return getList( getPath( "rank-Marvel.csv" ) );
 }
 
 function getStarWarsList()
 {
-    return getList( "../archive/rank-StarWars.csv" );
+    return getList( getPath( "rank-StarWars.csv" ) );
 }
 
 function getMovieFromIMDB( $id )
@@ -96,7 +60,7 @@ function getMovieFromFile( $title )
 {
     $result['isSuccess'] = false;
 
-    $file = fopen( "../archive/ratings.csv", "r" );
+    $file = fopen( getPath( "ratings.csv" ), "r" );
     $columns = getColumns( fgetcsv( $file ) );
 
     $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {

@@ -10,9 +10,13 @@ function setMediaType( mediaType )
         $('#movieInputs').show();
         $('#movieTypeButtons').show();
         $('#delete').show();
+
+        $('#addImage').hide();
     }
     else
     {
+        $('#addImage').show();
+
         $('#movieInputs').hide();
         $('#movieTypeButtons').hide();
         $('#delete').hide();
@@ -192,21 +196,26 @@ function clear()
     $('#rating').val( "" );
     $('#review').val( "" );
     $('#id').val( "" );
+    $('#list').val( "" );
+    $('#poster').val( "" );
     isOverwrite = null;
-}
-
-
-/*********************IMAGE**********************/
-
-
-function addImage()
-{
-
 }
 
 
 /*********************SUBMIT*********************/
 
+
+function submit()
+{
+    if ( isMovie() )
+    {
+        checkSubmit();
+    }
+    else
+    {
+        checkBookSubmit();
+    }
+}
 
 function checkSubmit()
 {
@@ -218,13 +227,13 @@ function checkSubmit()
             showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
                 if ( answer )
                 {
-                    isFullList() ? submit() : getList();
+                    isFullList() ? submitMovie() : getList();
                 }
             });
         }
         else
         {
-            isFullList() ? submit() : getList();
+            isFullList() ? submitMovie() : getList();
         }
     }
     else
@@ -233,7 +242,7 @@ function checkSubmit()
     }
 }
 
-function submit()
+function submitMovie()
 {
     $.post(
         "php/enter.php",
@@ -271,7 +280,7 @@ function getList()
     {
         showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
             $('#list').val( answer );
-            isOverwrite ? getRanking() : submitRank( $('#index').val() );
+            ( isOverwrite || Number($('#index').val()) <= 0 ) ? getRanking() : submitRank( $('#index').val() );
         }, "", true );
     }
 }
@@ -354,8 +363,94 @@ function deleteMovie()
         },
         function( response ) {
             response = JSON.parse( response );
-            showToaster( ( response && response.isSuccess ) ? "Movie removed." : "Movie not found." );
+            var success = ( response && response.isSuccess );
+            showToaster( success ? "Movie removed." : "Movie not found." );
+            if ( success )
+            {
+                clear();
+            }
         }
+    );
+}
+
+
+/*********************BOOK***********************/
+
+
+function checkBookSubmit()
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "checkBookOverwrite",
+            title:  $('#title').val()
+        },
+        checkBookCallback
+    );
+}
+
+function checkBookCallback( response )
+{
+    document.getElementById("review").select();
+    document.execCommand("copy");
+    showToaster( "Review copied to clipboard" );
+
+    response = JSON.parse( response );
+    if ( response && response.isOverwrite )
+    {
+        window.open( "https://www.goodreads.com/review/edit/" + response.id );
+    }
+    else
+    {
+        window.open( "https://www.goodreads.com/review/list/55277264-daniel-crouch?utf8=%E2%9C%93&search%5Bquery%5D=" + $('#title').val() );
+    }
+}
+
+
+/*********************IMAGE**********************/
+
+
+function addImage()
+{
+    //In the future, I may allow this button to be used for Rank Movies
+    if ( $('#id').val() )
+    {
+        var url = $('#review').val();
+        var isImage = url.match(/\.(jpeg|jpg|gif|png)$/) != null &&
+            url.startsWith("http") &&
+            !url.contains(" ");
+
+        if (!isImage)
+        {
+            showPrompt(
+                "Enter Image URL",
+                "Enter an image URL to use for this book:",
+                submitImage,
+                "",
+                true
+            );
+        }
+        else
+        {
+            submitImage( url );
+        }
+    }
+    else
+    {
+        showToaster( "No book ID present." );
+    }
+}
+
+function submitImage( url )
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "submitBookImage",
+            id:     $('#id').val(),
+            url:    url
+        },
+        submitCallback
     );
 }
 
@@ -363,7 +458,7 @@ function deleteMovie()
 /********************DOWNLOAD********************/
 
 
-function download()
+function view()
 {
     showBinaryChoice(
         "Download",
@@ -371,23 +466,33 @@ function download()
         function( answer ) {
             if ( answer )
             {
-                $.post(
-                    "php/enter.php",
-                    {action: "download"},
-                    downloadCallback
-                );
+                download();
             }
             else
             {
-                $.post(
-                    "php/enter.php",
-                    {action: "viewToWatch"},
-                    function( response ) {
-                        showMessage( "Movies To-Watch", JSON.parse( response ).text );
-                    }
-                );
+                viewSearches();
             }
         }
+    );
+}
+
+function viewSearches()
+{
+    $.post(
+        "php/enter.php",
+        {action: "viewToWatch"},
+        function( response ) {
+            showMessage( "Movies To-Watch", JSON.parse( response ).text );
+        }
+    );
+}
+
+function download()
+{
+    $.post(
+        "php/enter.php",
+        {action: "download"},
+        downloadCallback
     );
 }
 

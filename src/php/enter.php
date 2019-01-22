@@ -18,8 +18,8 @@ function getMovieData( $title )
         $result['isSuccess'] = true;
         $result['id'] = $response->imdbID;
         $result['title'] = $response->Title;
-        $result['poster'] = $response->Poster;
         $result['year'] = $response->Year;
+        $result['poster'] = $response->Poster;
     }
 
     return $result;
@@ -39,6 +39,7 @@ function getMovieDataById( $id )
         $result['id'] = $response->imdbID;
         $result['title'] = $response->Title;
         $result['year'] = $response->Year;
+        $result['poster'] = $response->Poster;
     }
 
     return $result;
@@ -48,7 +49,7 @@ function loadFromFullFile( $id )
 {
     $result['isSuccess'] = false;
 
-    $file = fopen( "../archive/ratings.csv", "r" );
+    $file = fopen( getPath( "ratings.csv" ), "r" );
     $columns = getColumns( fgetcsv( $file ) );
 
     $index = 1;
@@ -117,9 +118,9 @@ function loadFromRankFile( $id )
 function getRankFiles()
 {
     return [
-        "Disney"    => fopen( "../archive/rank-Disney.csv", "r" ),
-        "Marvel"    => fopen( "../archive/rank-Marvel.csv", "r" ),
-        "StarWars"  => fopen( "../archive/rank-StarWars.csv", "r" )
+        "Disney"    => fopen( getPath( "rank-Disney.csv" ), "r" ),
+        "Marvel"    => fopen( getPath( "rank-Marvel.csv" ), "r" ),
+        "StarWars"  => fopen( getPath( "rank-StarWars.csv" ), "r" )
     ];
 }
 
@@ -286,9 +287,11 @@ function validateRank( $list, $rank )
         if ( stripos( $rank, "before" ) === 0 || stripos( $rank, "after" ) === 0 ||
              stripos( $rank, "above" )  === 0 || stripos( $rank, "below" ) === 0 )
         {
-            $rankOfMovieResult = findTitle( $fileName, explode( ' ', $rank, 2 )[1] );
+            $title = explode( ' ', $rank, 2 )[1];
+            $rankOfMovieResult = findTitle( $fileName, $title );
             if ( $rankOfMovieResult['isSuccess'] )
             {
+                $rankOfMovieResult['rank']++; //start at 1
                 $atPosition = stripos( $rank, "before" ) === 0 || stripos( $rank, "above" ) === 0;
                 $result['rank'] = $atPosition ? $rankOfMovieResult['rank'] : $rankOfMovieResult['rank'] + 1;
             }
@@ -341,7 +344,7 @@ function findTitle( $fileName, $title )
     $movieIndex = findEntry( $movies, $title );
     fclose( $file );
     return [
-        'isSuccess' => !!$movieIndex,
+        'isSuccess' => $movieIndex !== null,
         'rank'      => $movieIndex
     ];
 }
@@ -426,7 +429,7 @@ function deleteMovie( $id )
     return $result;
 }
 
-function deleteRankMovie( $list, $id ) //todo
+function deleteRankMovie( $list, $id )
 {
     $result['isSuccess'] = false;
 
@@ -460,16 +463,36 @@ function deleteRankMovie( $list, $id ) //todo
 }
 
 
-/********************DOWNLOAD********************/
+/**********************BOOK**********************/
 
 
-function download()
+include_once( "reviewsBook.php" );
+
+function checkBookOverwrite( $title )
 {
-    $result['text'] = file_get_contents( "../archive/ratings.csv" );
+    $result['id'] = getBookIdFromFile( $title );
+    $result['isOverwrite'] = isset( $result['id'] );
     return $result;
 }
 
-function viewToWatch()
+function submitBookImage( $id, $url )
+{
+    $file = fopen( getPath( "book-images.csv" ), "a" );
+    fputcsv( $file, array( $id, $url ) );
+    fclose( $file );
+}
+
+
+/********************DOWNLOAD********************/
+
+
+function download() //todo - https://www.allphptricks.com/create-a-zip-file-using-php-and-download-multiple-files/
+{
+    $result['text'] = file_get_contents( getPath( "ratings.csv" ) );
+    return $result;
+}
+
+function viewToWatch() //todo
 {
     $result = "";
     $file = fopen( getPath( "ToWatch.txt" ), "r" );
@@ -506,6 +529,10 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	{
 		$result = $action( $_POST['list'], $_POST['rank'] );
 	}
+    elseif ( isset( $_POST['id'] ) && isset( $_POST['url'] ) )
+   	{
+   		$result = $action( $_POST['id'], $_POST['url'] );
+   	}
 	elseif ( isset( $_POST['id'] ) )
 	{
 		$result = $action( $_POST['id'] );

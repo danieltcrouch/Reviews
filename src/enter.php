@@ -4,8 +4,7 @@
 <head>
 	<title>New Ratings</title>
     <?php includeHeadInfo(); ?>
-    <script src="javascript/enterMovie.js"></script>
-    <script src="javascript/enterBook.js"></script>
+    <script src="javascript/enter.js"></script>
 </head>
 
 <body>
@@ -15,27 +14,6 @@
     <div class="col-10 header">
         <div class="title center">New Ratings</div>
     </div>
-
-<!--
-TODO
-
-SUBMIT BUTTON
-[BOOK]
-    (Check book list to determine add or update)
-        (Link to GoodReads to Update)   -> https://www.goodreads.com/review/edit/30259180
-        (Link to GoodReads to Add)      -> https://www.goodreads.com/review/list/55277264-daniel-crouch?utf8=%E2%9C%93&search%5Bquery%5D=tech-wise+family
-    (Type review and add to clipboard; toaster to remind) -> https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
-
-ADD IMAGE BUTTON
-    (Work for Books and Movies)
-    (If review is image URL, use it, else prompt for image URL)
-        (Always overwrite if existing--only touch image, nothing else)
-
-VIEW BUTTON
-    Download All -> https://www.allphptricks.com/create-a-zip-file-using-php-and-download-multiple-files/
-    View Searches
-
--->
 
     <!--Main-->
     <div class="main">
@@ -63,10 +41,10 @@ VIEW BUTTON
                 <button id="full" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
                 <button id="rank" name="movieType" class="button inverseButton" style="width: 5em; margin: .25em;">Ranked</button>
             </div>
-            <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkSubmit()" value="Submit"></div>
+            <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="submit()" value="Submit"></div>
             <div><input id="delete" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkDelete()" value="Delete"></div>
             <div><input id="addImage" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="addImage()" value="Add Image"></div>
-            <div><input id="download" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="download()" value="View"></div>
+            <div><input id="download" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="view()" value="View"></div>
             <input id="id" type="hidden" value="">
             <input id="list" type="hidden" value="">
             <input id="poster" type="hidden" value="">

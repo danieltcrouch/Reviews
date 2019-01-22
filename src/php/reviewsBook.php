@@ -62,7 +62,7 @@ function getCDATA( $url )
 
 function getImages()
 {
-    $file = fopen( "../archive/book-images.csv", "r" );
+    $file = fopen( getPath( "book-images.csv" ), "r" );
     $columns = getColumns( fgetcsv( $file ) );
     $images = createEntryList( $file, $columns['iIndex'], $columns['pIndex'] );
     fclose( $file );

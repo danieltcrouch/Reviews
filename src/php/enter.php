@@ -141,10 +141,7 @@ function checkOverwrite( $id )
     $movies = createEntryList( $file, $columns['iIndex'], $columns['iIndex'] );
     $movieId = findEntry( $movies, $id );
     fclose( $file );
-    return [
-        "isOverwrite"   => !!$movieId,
-        "message"       => ( $movieId ) ? "Duplicate" : null
-    ];
+    return [ "isOverwrite" => !!$movieId ];
 }
 
 function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
@@ -255,22 +252,16 @@ function editMovie( $fileName, $movie )
 
 function checkRankOverwrite( $list, $id )
 {
-    $result['isSuccess'] = true;
-
     $file = fopen( getPath( "rank-$list.csv" ), "r" );
     $columns = getColumns( fgetcsv( $file ) );
     $movies = createEntryList( $file, false, $columns['iIndex'] );
     $movieIndex = findEntry( $movies, $id );
 
-    if ( $movieIndex )
-    {
-        $result['isSuccess'] = false;
-        $result['message'] = "Duplicate";
-        $result['list'] = $list;
-        $result['rank'] = $movieIndex;
-    }
-
-    return $result;
+    $isOverwrite = $movieIndex !== null;
+    return [
+        "isOverwrite"   => $isOverwrite,
+        "list"          => $list
+    ];
 }
 
 function validateRank( $list, $rank )
@@ -382,11 +373,13 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $ov
 {
     $isOverwrite = ( isset( $overwrite ) && $overwrite );
 
+    $list = getListName( $list );
     $fileName = getPath( "rank-$list.csv" );
     $tempName = "temp.csv";
     $input = fopen( $fileName, "r" );
     $output = fopen( $tempName, "w" );
 
+    $adjust = 0;
     $index = 0;
     $row = fgetcsv( $input );
     $columns = getColumns( $row );
@@ -395,13 +388,18 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $ov
     while ( $row !== false )
     {
         $row = fgetcsv( $input );
+        $isSelf = ( $isOverwrite && $row[$columns['iIndex']] === $id );
         $index++;
 
-        if ( $index == $rank )
+        if ( $isSelf )
+        {
+            $adjust = 1;
+        }
+        if ( $index == $rank + $adjust )
         {
             fputcsv( $output, array( $title, $id, $year, $image, $review ) );
         }
-        if ( !( $isOverwrite && $row[$columns['iIndex']] === $id ) )
+        if ( !$isSelf && $row )
         {
             fputcsv( $output, $row );
         }

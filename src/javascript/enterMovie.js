@@ -234,13 +234,13 @@ function checkOverwriteCallback( response )
         showConfirm( "Entry Exists", "This movie has already been " + term + ". Overwrite?", function( answer ) {
             if ( answer )
             {
-                isList() ? submit( true ) : getList( response );
+                isList() ? submit( true ) : getList( response.list, true );
             }
         });
     }
     else
     {
-        isList() ? submit() : getList( response );
+        isList() ? submit() : getList( null, false );
     }
 }
 
@@ -272,45 +272,44 @@ function submitCallback( response )
 /**********************RANK**********************/
 
 
-function getList( movieData )
+function getList( list, isOverwrite )
 {
-    if ( movieData.isSuccess )
+    if ( list )
     {
-        showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
-            movieData.list = answer;
-            getRanking( movieData, false );
-        }, "", true );
+        getRanking( list, isOverwrite );
     }
     else
     {
-        getRanking( movieData, true );
+        showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
+            movieData.list = answer;
+            getRanking( answer, isOverwrite );
+        }, "", true );
     }
 }
 
-function getRanking( movieData, isOverwrite )
+function getRanking( list, isOverwrite )
 {
     var innerHTML = "Where would you like to rank this movie?<br/>" +
                     "(e.g. 1, 2, 3, top, bottom, above [Movie], below [Movie])";
     showPrompt( "Where Does It Rank?", innerHTML, function( answer ) {
-        validateRank( answer, movieData, isOverwrite );
-    }, movieData.rank, true );
+        validateRank( answer, list, isOverwrite );
+    }, $('#index').val(), true );
 }
 
-function validateRank( rank, movieData, isOverwrite )
+function validateRank( rank, list, isOverwrite )
 {
     $.post(
         "php/enter.php",
         {
             action: "validateRank",
-            list: movieData.list,
+            list: list,
             rank: rank
         },
         function( response ) {
             response = JSON.parse( response );
             if ( response && response.isSuccess )
             {
-                movieData.rank = response.rank;
-                submitRank( movieData, isOverwrite );
+                submitRank( list, response.rank, isOverwrite );
             }
             else
             {
@@ -320,14 +319,14 @@ function validateRank( rank, movieData, isOverwrite )
     );
 }
 
-function submitRank( movieData, isOverwrite )
+function submitRank( list, rank, isOverwrite )
 {
     $.post(
         "php/enter.php",
         {
             action: "saveRankedMovie",
-            list:   movieData.list,
-            rank:   movieData.rank,
+            list:   list,
+            rank:   rank,
             title:  $('#title').val(),
             id:     $('#id').val(),
             year:   $('#year').val(),

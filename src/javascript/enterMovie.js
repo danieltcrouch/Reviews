@@ -151,7 +151,7 @@ function loadFromFile( id )
     $.post(
         "php/enter.php",
         {
-            action: isFullList() ? "loadFromListFile" : "loadFromRankFile",
+            action: isFullList() ? "loadFromFullFile" : "loadFromRankFile",
             id:     id
         },
         loadFromFileCallback
@@ -169,7 +169,12 @@ function loadFromFileCallback( response )
         $('#rating').val( response.rating );
         $('#review').val( response.review );
         $('#id').val( response.id );
-        $('#list').val( response.list );
+
+        if ( !isFullList() )
+        {
+            $('#list').val( response.list );
+            $('#poster').val( response.image );
+        }
     }
     else
     {
@@ -266,7 +271,7 @@ function getList()
     {
         showPrompt( "Enter List", "Enter the relevant list: &ldquo;Disney&rdquo; | &ldquo;Marvel&rdquo; | &ldquo;StarWars&rdquo; ", function( answer ) {
             $('#list').val( answer );
-            getRanking();
+            isOverwrite ? getRanking() : submitRank( $('#index').val() );
         }, "", true );
     }
 }

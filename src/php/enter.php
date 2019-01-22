@@ -44,7 +44,7 @@ function getMovieDataById( $id )
     return $result;
 }
 
-function loadFromListFile( $id )
+function loadFromFullFile( $id )
 {
     $result['isSuccess'] = false;
 
@@ -95,6 +95,7 @@ function loadFromRankFile( $id )
                 $result['year'] = trim( $row[ $columns['yIndex'] ] );
                 $result['rating'] = trim( $row[ $columns['rIndex'] ] );
                 $result['review'] = trim( $row[ $columns['cIndex'] ] );
+                $result['image'] = trim( $row[ $columns['pIndex'] ] );
                 $result['list'] = $name;
                 $result['index'] = $index;
                 break;

@@ -47,7 +47,7 @@
             <div><input id="download" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="view()" value="View"></div>
             <input id="id" type="hidden" value="">
             <input id="list" type="hidden" value="">
-            <input id="poster" type="hidden" value="">
+            <input id="image" type="hidden" value="">
         </div>
     </div>
 

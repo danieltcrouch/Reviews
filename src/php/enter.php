@@ -3,45 +3,36 @@ include_once( "utility.php" );
 
 function getMovieData( $title )
 {
-    $result['isSuccess'] = false;
-    $result['search'] = $title;
-
     $title = trim( $title );
     $searchTitle = preg_replace('/\'/', '%27', $title);
     $searchTitle = preg_replace('/\s+/', '+', $searchTitle);
     //OMDB API now requires an API Key (&apikey=8f0ce8a6) -> go to their site if this one stops working
     $url = "http://www.omdbapi.com/?t=$searchTitle&y=&plot=short&r=json&apikey=8f0ce8a6";
     $response = json_decode( file_get_contents( $url ) );
-
-    if ( $response->Response === "True" )
-    {
-        $result['isSuccess'] = true;
-        $result['id'] = $response->imdbID;
-        $result['title'] = $response->Title;
-        $result['year'] = $response->Year;
-        $result['poster'] = $response->Poster;
-    }
-
+    $result = getDataFromResponse( $response );
+    $result['search'] = $title;
     return $result;
 }
 
 function getMovieDataById( $id )
 {
-    $result['isSuccess'] = false;
-
     //OMDB API now requires an API Key (&apikey=8f0ce8a6) -> go to their site if this one stops working
     $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
     $response = json_decode( file_get_contents( $url ) );
+    return getDataFromResponse( $response );
+}
 
+function getDataFromResponse( $response )
+{
+    $result['isSuccess'] = false;
     if ( $response->Response === "True" )
     {
         $result['isSuccess'] = true;
         $result['id'] = $response->imdbID;
         $result['title'] = $response->Title;
         $result['year'] = $response->Year;
-        $result['poster'] = $response->Poster;
+        $result['image'] = $response->Poster;
     }
-
     return $result;
 }
 
@@ -472,7 +463,6 @@ function getBookData( $title )
 {
     $result = getBook( $title );
     $result['review'] = getCleanedReview( $result['review'] );
-    $result['poster'] = $result['image'];
     return $result;
 }
 
@@ -481,7 +471,6 @@ function getBookDataById( $id )
     $result = getBookFromGoodreads( $id );
     $result['id'] = $id;
     $result['review'] = getCleanedReview( $result['review'] );
-    $result['poster'] = $result['image'];
     return $result;
 }
 

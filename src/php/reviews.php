@@ -25,18 +25,11 @@ function getFullMovieList()
 
 function getMovieFromIMDB( $id )
 {
-    $result['poster'] = "";
-    $result['rtScore'] = "--%";
-
     $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
     $response = json_decode( file_get_contents( $url ) );
-
-    if ( $response->Response === "True" )
-    {
-        $result['poster'] = $response->Poster;
-        $result['rtScore'] = $response->Ratings[1]->Value;
-    }
-
+    $success = $response->Response === "True";
+    $result['image']    = $success ? $response->Poster : "";
+    $result['rtScore']  = $success ? $response->Ratings[1]->Value : "--%";
     return $result;
 }
 
@@ -61,7 +54,7 @@ function getMovie( $title )
     {
         $result = $movie;
         $movieData = getMovieFromIMDB( $result['id'] );
-        $result['poster'] = $movieData['poster'];
+        $result['image'] = $movieData['image'];
         $result['rtScore'] = $movieData['rtScore'];
         $result['isSuccess'] = true;
     }
@@ -78,7 +71,7 @@ function getList( $fileName )
             "year"   => $row[$columns['yIndex']],
             "review" => $row[$columns['cIndex']],
             "rating" => $row[$columns['rIndex']],
-            "poster" => $row[$columns['pIndex']]
+            "image" => $row[$columns['pIndex']]
         ];
     });
     fclose( $file );

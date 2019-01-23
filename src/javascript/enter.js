@@ -122,7 +122,7 @@ function autoFillByTitleCallback( response )
         var innerHTML = "Is this the correct " + term + "?<br/><br/>" +
                         "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
                         info + "<br/><br/>" +
-                        "<img src='" + response.poster + "' height='300px' alt='" + imageAlt + "'>";
+                        "<img src='" + response.image + "' height='300px' alt='" + imageAlt + "'>";
         showConfirm( title, innerHTML, function( answer ) {
             if ( answer )
             {
@@ -153,7 +153,7 @@ function fillData( movie )
     $('#title').val( movie.title );
     $('#year').val( movie.year );
     $('#id').val( movie.id );
-    $('#poster').val( movie.poster );
+    $('#image').val( movie.image );
 
     loadFromFile( movie.id );
 }
@@ -186,7 +186,7 @@ function loadFromFileCallback( response )
         if ( !isFullList() )
         {
             $('#list').val( response.list );
-            $('#poster').val( response.image );
+            $('#image').val( response.image );
         }
     }
     else
@@ -206,7 +206,7 @@ function clear()
     $('#review').val( "" );
     $('#id').val( "" );
     $('#list').val( "" );
-    $('#poster').val( "" );
+    $('#image').val( "" );
     isOverwrite = null;
 }
 
@@ -335,7 +335,7 @@ function submitRank( rank )
             title:  $('#title').val(),
             id:     $('#id').val(),
             year:   $('#year').val(),
-            image:  $('#poster').val(),
+            image:  $('#image').val(),
             review: $('#review').val() || "***",
             overwrite: isOverwrite
         },
@@ -352,7 +352,7 @@ function checkDelete()
     var innerHTML = "Are you sure you would like to delete this movie?<br/><br/>" +
                     "<strong>" + $('#title').val() + "</strong> (" + $('#year').val() + ")<br/>" +
                     "(" + $('#id').val() + ")<br/><br/>" +
-                    "<img src='" + $('#poster').val() + "' height='300px' alt='Movie Poster'>";
+                    "<img src='" + $('#image').val() + "' height='300px' alt='Movie Poster'>";
     showConfirm( "Delete Movie", innerHTML, function( answer ) {
         if ( answer )
         {

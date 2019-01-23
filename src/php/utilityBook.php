@@ -18,7 +18,7 @@ function getFullBookList()
     global $fullBookList;
     if ( empty($fullBookList) )
     {
-        $fullBookList = getTempListFromFile(); //updates list
+        $fullBookList = getTempListFromFile( "read" ); //updates list
     }
     return $fullBookList;
 }
@@ -26,7 +26,7 @@ function getFullBookList()
 function getBookIdFromFile( $title )
 {
     $bookTitles = [];
-    array_walk( getFullBookList(), function($value, $key) {
+    array_walk( getFullBookList(), function($value, $key) use( &$bookTitles ) {
         $bookTitles[$key] = $value['title'];
     });
     $bookId = findEntry( $bookTitles, $title );
@@ -165,7 +165,7 @@ function getListHTML( $shelf, $sortType, $includeImages )
 function getBookList()
 {
     global $fullBookList;
-    $result = (object)[
+    $result = [
         "read"  => getListHTML( "read", "date_read", false ),
         "title" => getListHTML( "read", "title", false )
     ];

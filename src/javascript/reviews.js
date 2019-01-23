@@ -57,7 +57,7 @@ function findMovieCallback( response )
                         "<strong>" + response.rating + "/10</strong> (" + response.rtScore +
                         ( (response.rtScore === "--%") ? ")" : "<img src='" + rtImage + "' height='24px' alt='RT Logo'>)" ) +
                         "<br/><br/>" +
-                        "<img src='" + response.poster + "' height='300px' alt='Movie Poster'>";
+                        "<img src='" + response.image + "' height='300px' alt='Movie Poster'>";
         showMessage( "Movie Found", innerHTML );
     }
     else
@@ -102,7 +102,7 @@ function findBookCallback( response )
                         review + "<br/>" +
                         "<strong>" + response.rating + "/5</strong> (GoodReads: " + response.grRating + "/5)" +
                         "<br/><br/>" +
-                        "<img src='" + response.cover + "' height='300px' alt='Book Cover'>";
+                        "<img src='" + response.image + "' height='300px' alt='Book Cover'>";
         showMessage( "Book Found", innerHTML );
     }
     else
@@ -280,7 +280,7 @@ function parseRankings( type, response )
             }
             movie.review = ( movie.review === "***" ) ? "No Review" : movie.review;
             movieDisplay += "<div>" + (index+1) + ". <strong>" + movie.title + "</strong> (" + movie.year + ") - " + movie.review + "</div>" +
-                            "<img src='" + movie.poster + "' height='300px' alt='Movie Poster' /><br/><br/>";
+                            "<img src='" + movie.image + "' height='300px' alt='Movie Poster' /><br/><br/>";
         }
     }
     $('#' + type).html( movieDisplay );

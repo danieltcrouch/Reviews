@@ -349,16 +349,23 @@ function submitRank( rank )
 
 function checkDelete()
 {
-    var innerHTML = "Are you sure you would like to delete this movie?<br/><br/>" +
-                    "<strong>" + $('#title').val() + "</strong> (" + $('#year').val() + ")<br/>" +
-                    "(" + $('#id').val() + ")<br/><br/>" +
-                    "<img src='" + $('#image').val() + "' height='300px' alt='Movie Poster'>";
-    showConfirm( "Delete Movie", innerHTML, function( answer ) {
-        if ( answer )
-        {
-            deleteMovie();
-        }
-    });
+    if ( $('#id').val() )
+    {
+        var innerHTML = "Are you sure you would like to delete this movie?<br/><br/>" +
+                        "<strong>" + $('#title').val() + "</strong> (" + $('#year').val() + ")<br/>" +
+                        "(" + $('#id').val() + ")<br/><br/>" +
+                        "<img src='" + $('#image').val() + "' height='300px' alt='Movie Poster'>";
+        showConfirm( "Delete Movie", innerHTML, function( answer ) {
+            if ( answer )
+            {
+                deleteMovie();
+            }
+        });
+    }
+    else
+    {
+        showToaster( "No movie ID present." );
+    }
 }
 
 function deleteMovie()

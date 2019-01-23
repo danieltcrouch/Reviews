@@ -1,8 +1,6 @@
 <?php
 include_once( "utility.php" );
 
-$fullBookList = [];
-
 function requestGoodReads( $endpoint, array $params = array() )
 {
     $params['key'] = "nyo2HHxoCfMtYFnzaGzaaQ"; //https://www.goodreads.com/api/keys
@@ -15,12 +13,11 @@ function requestGoodReads( $endpoint, array $params = array() )
 
 function getFullBookList()
 {
-    global $fullBookList;
-    if ( empty($fullBookList) )
+    if ( empty($_SESSION['fullBookList']) )
     {
-        $fullBookList = getTempListFromFile( "read" ); //updates list
+        $_SESSION['fullBookList'] = getTempListFromFile( "read" ); //updates list
     }
-    return $fullBookList;
+    return $_SESSION['fullBookList'];
 }
 
 function getBookIdFromFile( $title )
@@ -164,12 +161,11 @@ function getListHTML( $shelf, $sortType, $includeImages )
 
 function getBookList()
 {
-    global $fullBookList;
     $result = [
         "read"  => getListHTML( "read", "date_read", false ),
         "title" => getListHTML( "read", "title", false )
     ];
-    $fullBookList = $result['read'];
+    $_SESSION['fullBookList'] = $result['read'];
     return $result;
 }
 

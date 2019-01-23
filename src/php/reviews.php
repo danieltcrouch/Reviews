@@ -1,7 +1,6 @@
 <?php
 include_once( "utility.php" );
 
-
 /**********************BOOK**********************/
 
 
@@ -11,16 +10,13 @@ include_once( "utilityBook.php" );
 /**********************MOVIE*********************/
 
 
-$fullMovieList = [];
-
 function getFullMovieList()
 {
-    global $fullMovieList;
-    if ( empty($fullMovieList) )
+    if ( empty($_SESSION['fullMovieList']) )
     {
         getMovieList(); //updates list
     }
-    return $fullMovieList;
+    return $_SESSION['fullMovieList'];
 }
 
 function getMovieFromIMDB( $id )
@@ -82,9 +78,8 @@ function getList( $fileName )
 
 function getMovieList()
 {
-    global $fullMovieList;
-    $fullMovieList = getList( getPath( "ratings.csv" ) );
-    return $fullMovieList;
+    $_SESSION['fullMovieList'] = getList( getPath( "ratings.csv" ) );
+    return $_SESSION['fullMovieList'];
 }
 
 function getDisneyList()

@@ -127,12 +127,15 @@ function closeRankFiles( $files )
 /*********************SUBMIT*********************/
 
 
+//todo - clean this function up; it's needlessly complicated
+//  you could save everything to a php array and then write to file at the end
+//  that logic could possibly be re-used by rank
 function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 {
     $fileName = getPath( "ratings.csv" );
 
-    $isOverwrite = ( isset( $overwrite ) && $overwrite );
-    $loadedMovie = ( $index && $isOverwrite ) ? loadFromListFile( $id ) : array();
+    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
+    $loadedMovie = ( $index && $isOverwrite ) ? loadFromFullFile( $id ) : [];
     $index = ( isset($loadedMovie['index']) && $loadedMovie['index'] == $index ) ? null : $index;
     if ( $index )
     {
@@ -169,7 +172,6 @@ function archive( $fileName )
 
 function insertMovie( $fileName, $movie, $rank )
 {
-    echo $rank;
     if ( $rank < 0 )
     {
         $fileHandle = file( $fileName, FILE_SKIP_EMPTY_LINES );
@@ -342,7 +344,7 @@ function findTitle( $fileName, $title )
 
 function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $overwrite )
 {
-    $isOverwrite = ( isset( $overwrite ) && $overwrite );
+    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
 
     $list = getListName( $list );
     $fileName = getPath( "rank-$list.csv" );

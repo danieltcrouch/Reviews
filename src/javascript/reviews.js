@@ -53,9 +53,9 @@ function findMovieCallback( response )
                       "https://techpolicyinstitute.org/wp-content/uploads/2017/09/la-fi-ct-rotten-tomatoes-pictures-20170723-004.jpg" :
                       "https://techpolicyinstitute.org/wp-content/uploads/2017/09/la-fi-ct-rotten-tomatoes-pictures-20170723-005.jpg" ;
         var innerHTML = "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
-                        response.review + "<br/>" +
+                        ( (response.review === "***" ) ? "No Review" : response.review ) + "<br/>" +
                         "<strong>" + response.rating + "/10</strong> (" + response.rtScore +
-                        ( (response.rtScore === "--%") ? ")" : "<img src='" + rtImage + "' height='24px' alt='RT Logo'>)" ) +
+                        ( (response.rtScore === "--%") ? ")" : " <img src='" + rtImage + "' style='position: relative; top: 5px' height='24px' alt='RT Logo'>)" ) +
                         "<br/><br/>" +
                         "<img src='" + response.image + "' height='300px' alt='Movie Poster'>";
         showMessage( "Movie Found", innerHTML );

@@ -37,7 +37,7 @@ function getMovieFromFile( $title )
 {
     $movies = getFullMovieList();
     $movieTitles = [];
-    array_walk( $movies, function($value, $key) {
+    array_walk( $movies, function($value, $key) use( &$movieTitles ) {
         $movieTitles[$key] = $value['title'];
     });
 
@@ -67,11 +67,12 @@ function getList( $fileName )
     $columns = getColumns( fgetcsv( $file ) );
     $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {
         return [
+            "id"     => $row[$columns['iIndex']],
             "title"  => $row[$columns['tIndex']],
             "year"   => $row[$columns['yIndex']],
             "review" => $row[$columns['cIndex']],
             "rating" => $row[$columns['rIndex']],
-            "image" => $row[$columns['pIndex']]
+            "image"  => $row[$columns['pIndex']]
         ];
     });
     fclose( $file );

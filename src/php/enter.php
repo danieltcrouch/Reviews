@@ -472,16 +472,16 @@ function getBookData( $title )
 {
     $result = getBook( $title );
     $result['review'] = getCleanedReview( $result['review'] );
-    $result['poster'] = $result['cover'];
+    $result['poster'] = $result['image'];
     return $result;
 }
 
 function getBookDataById( $id )
 {
-    $result = getBookFromId( $id );
+    $result = getBookFromGoodreads( $id );
     $result['id'] = $id;
     $result['review'] = getCleanedReview( $result['review'] );
-    $result['poster'] = $result['cover'];
+    $result['poster'] = $result['image'];
     return $result;
 }
 

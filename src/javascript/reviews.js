@@ -37,7 +37,7 @@ function findMovie( title )
     $.post(
         "php/reviews.php",
         {
-            action: "getMovieFromFile",
+            action: "getMovie",
             title: title
         },
         findMovieCallback
@@ -64,7 +64,7 @@ function findMovieCallback( response )
     {
         showToaster( "Movie not found!<br />Maybe I should watch it" );
     }
-    saveSearch( $('#findBook').val(), "Movie" );
+    saveSearch( $('#findMovie').val(), "Movie" );
 }
 
 function findBookOnEnter( e )

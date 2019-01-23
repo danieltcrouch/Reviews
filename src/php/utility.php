@@ -94,15 +94,9 @@ function getColumns( $firstRow )
     $result['cIndex'] = array_search( "Review", $firstRow, true );
     $result['rIndex'] = array_search( "Rating", $firstRow, true );
     $result['pIndex'] = array_search( "Image", $firstRow, true );
+    $result['uIndex'] = array_search( "URL", $firstRow, true );
 
     return $result;
-}
-
-function saveSearch( $title, $type )
-{
-    $file = fopen( getPath( "searches.txt" ), "a" );
-    fwrite( $file, $type . " - " . $title . "\n" );
-    fclose( $file );
 }
 
 ?>

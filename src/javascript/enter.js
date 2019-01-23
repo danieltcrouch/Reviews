@@ -492,7 +492,7 @@ function viewSearches()
         "php/enter.php",
         {action: "viewSearches"},
         function( response ) {
-            showMessage( "User Searches", JSON.parse( response ).text );
+            showMessage( "User Searches", JSON.parse( response ) );
         }
     );
 }

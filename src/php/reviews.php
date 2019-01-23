@@ -16,11 +16,54 @@ $fullMovieList = [];
 function getFullMovieList()
 {
     global $fullMovieList;
-    $result = $fullMovieList;
-    if ( empty($result) )
+    if ( empty($fullMovieList) )
     {
-        $result = getList( getPath( "ratings.csv" ) );
-        $fullMovieList = $result;
+        getMovieList(); //updates list
+    }
+    return $fullMovieList;
+}
+
+function getMovieFromIMDB( $id )
+{
+    $result['poster'] = "";
+    $result['rtScore'] = "--%";
+
+    $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
+    $response = json_decode( file_get_contents( $url ) );
+
+    if ( $response->Response === "True" )
+    {
+        $result['poster'] = $response->Poster;
+        $result['rtScore'] = $response->Ratings[1]->Value;
+    }
+
+    return $result;
+}
+
+function getMovieFromFile( $title )
+{
+    $movies = getFullMovieList();
+    $movieTitles = [];
+    array_walk( $movies, function($value, $key) {
+        $movieTitles[$key] = $value['title'];
+    });
+
+    $movieId = findEntry( $movieTitles, $title );
+    return ( $movieId ) ? $movies[$movieId] : null;
+}
+
+function getMovie( $title )
+{
+    $result['isSuccess'] = false;
+
+    $movie = getMovieFromFile( $title );
+    if ( $movie )
+    {
+        $result = $movie;
+        $movieData = getMovieFromIMDB( $result['id'] );
+        $result['poster'] = $movieData['poster'];
+        $result['rtScore'] = $movieData['rtScore'];
+        $result['isSuccess'] = true;
     }
     return $result;
 }
@@ -45,7 +88,9 @@ function getList( $fileName )
 
 function getMovieList()
 {
-    return getFullMovieList();
+    global $fullMovieList;
+    $fullMovieList = getList( getPath( "ratings.csv" ) );
+    return $fullMovieList;
 }
 
 function getDisneyList()
@@ -63,50 +108,11 @@ function getStarWarsList()
     return getList( getPath( "rank-StarWars.csv" ) );
 }
 
-function getMovieFromIMDB( $id )
-{
-    $result['poster'] = "";
-    $result['rtScore'] = "--%";
-
-    $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
-    $response = json_decode( file_get_contents( $url ) );
-
-    if ( $response->Response === "True" )
-    {
-        $result['poster'] = $response->Poster;
-        $result['rtScore'] = $response->Ratings[1]->Value;
-    }
-
-    return $result;
-}
-
-function getMovieFromFile( $title )
-{
-    $result['isSuccess'] = false;
-
-    $movies = getFullMovieList(); //todo - do the same thing for books?
-
-    $movieTitles = [];
-    array_walk( $movies, function($value, $key) {
-        $movieTitles[$key] = $value['title'];
-    });
-
-    $movieId = findEntry( $movieTitles, $title );
-
-    if ( $movieId )
-    {
-        $result = $movies[$movieId];
-        $movieData = getMovieFromIMDB( $result['id'] );
-        $result['poster'] = $movieData['poster'];
-        $result['rtScore'] = $movieData['rtScore'];
-        $result['isSuccess'] = true;
-    }
-    return $result;
-}
-
 function saveSearch( $title, $type )
 {
-    saveSearch( $title, $type );
+    $file = fopen( getPath( "searches.txt" ), "a" );
+    fwrite( $file, $type . " - " . $title . "\n" );
+    fclose( $file );
 }
 
 if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
@@ -120,7 +126,7 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
     }
     elseif ( isset( $_POST['title'] ) && isset( $_POST['type'] ) )
     {
-        $result = $action( $_POST['title'] );
+        $result = $action( $_POST['title'], $_POST['type'] );
     }
     elseif ( isset( $_POST['title'] ) )
     {

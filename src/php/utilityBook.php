@@ -98,7 +98,7 @@ function getListHTML( $shelf, $sortType, $includeImages )
     } while ( $total > count( $books ) );
 
     $file = null;
-    if ( $shelf )
+    if ( $shelf )  //todo - no "if" needed
     {
         $file = fopen( getPath( "book-$shelf.csv" ), "w" );
         fputcsv( $file, array( "Title", "Author", "ID", "Year", "Rating", "Review", "Image" ) );
@@ -159,7 +159,7 @@ function getFavoritesList()
     return getListHTML( "favorites", "date_read", true );
 }
 
-function getTempList( $shelf, $includeImages )
+function getTempList( $shelf, $includeImages ) //todo - clean this more (consolidate with main function)
 {
     $result = [];
     $file = fopen( getPath( "book-$shelf.csv" ), "r" );

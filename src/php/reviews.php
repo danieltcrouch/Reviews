@@ -11,6 +11,20 @@ include_once( "utilityBook.php" );
 /**********************MOVIE*********************/
 
 
+$fullMovieList = [];
+
+function getFullMovieList()
+{
+    global $fullMovieList;
+    $result = $fullMovieList;
+    if ( empty($result) )
+    {
+        $result = getList( getPath( "ratings.csv" ) );
+        $fullMovieList = $result;
+    }
+    return $result;
+}
+
 function getList( $fileName )
 {
     $file = fopen( $fileName, "r" );
@@ -31,7 +45,7 @@ function getList( $fileName )
 
 function getMovieList()
 {
-    return getList( getPath( "ratings.csv" ) );
+    return getFullMovieList();
 }
 
 function getDisneyList()
@@ -70,21 +84,14 @@ function getMovieFromFile( $title )
 {
     $result['isSuccess'] = false;
 
-    $file = fopen( getPath( "ratings.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
+    $movies = getFullMovieList(); //todo - do the same thing for books?
 
-    $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {
-        return [
-            "id"     => $row[$columns['iIndex']],
-            "title"  => $row[$columns['tIndex']],
-            "year"   => $row[$columns['yIndex']],
-            "review" => $row[$columns['cIndex']],
-            "rating" => $row[$columns['rIndex']]
-        ];
+    $movieTitles = [];
+    array_walk( $movies, function($value, $key) {
+        $movieTitles[$key] = $value['title'];
     });
 
-    $movieId = findEntry( $movies, $title );
-    fclose( $file );
+    $movieId = findEntry( $movieTitles, $title );
 
     if ( $movieId )
     {

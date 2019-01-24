@@ -120,7 +120,7 @@ function saveListToFile( $shelf, $books )
     fputcsv( $file, array( "Title", "Author", "ID", "Year", "Rating", "Review", "Image", "URL" ) );
     foreach ( $books as $book )
     {
-        fputcsv( $file, $book );
+        fputcsv( $file, array( $book['title'], $book['author'], $book['id'], $book['year'], $book['rating'], $book['review'], $book['image'], $book['url'] ) );
     }
     fclose( $file );
 }
@@ -149,12 +149,25 @@ function getListHTML( $shelf, $sortType, $includeImages )
             $image  = ( $images[$id] ) ? $images[$id] : $book['book']['image_url'];
 
             array_push( $result, getHTML( $index, $url, $title, $author, $displayYear, $rating, $review, $includeImages, $image ) );
-            array_push( $bookData, array( $title, $author, $id, $year, $rating, $review, $image, $url ) );
+            $bookData[$id] = [
+                "title"  => $title,
+                "author" => $author,
+                "id"     => $id,
+                "year"   => $year,
+                "rating" => $rating,
+                "review" => $review,
+                "image"  => $image,
+                "url"    => $url
+            ];
 
             $index++;
         }
     }
 
+    if ( $shelf === "read" )
+    {
+        $_SESSION['fullBookList'] = $bookData;
+    }
     saveListToFile( $shelf, $bookData );
     return $result;
 }
@@ -165,7 +178,6 @@ function getBookList()
         "read"  => getListHTML( "read", "date_read", false ),
         "title" => getListHTML( "read", "title", false )
     ];
-    $_SESSION['fullBookList'] = $result['read'];
     return $result;
 }
 

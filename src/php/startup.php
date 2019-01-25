@@ -1,12 +1,22 @@
 <?php
 session_start();
 
-$project = "reviews";
-$homeUrl = "https://reviews.religionandstory.com";
-$style = "red";
+$project    = "reviews";
+$siteTitle  = "R&S Reviews";
+$pageTitle  = "R&S Reviews";
+$image      = "https://reviews.religionandstory.com/images/reviews.jpg";
+$description= "View all of Daniel Crouch's movie and book reviews. See rankings for Disney Classics, the MCU, and the Start Wars Franchise.";
+$keywords   = "review,ranking,rating,movie,movies,lists,criticism,Disney,Marvel,MCU,Avengers,Star Wars";
+$homeUrl    = "https://reviews.religionandstory.com";
+$style      = "red";
 
 function includeHeadInfo()
 {
+    global $siteTitle;
+    global $pageTitle;
+    global $image;
+    global $description;
+    global $keywords;
     global $style;
     include("$_SERVER[DOCUMENT_ROOT]/../common/html/head.php");
     echo '<link href="https://fonts.googleapis.com/css?family=Abril+Fatface" rel="stylesheet">';

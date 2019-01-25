@@ -11,8 +11,9 @@ function compareEntry( $search, $entry )
     }
     else
     {
-        $search = preg_replace( '/(,|-|\.)+/',' ', $search );
-        $search = preg_replace('/\s+/', ' ', $search);
+        $search = preg_replace( '/\b(a|an|and|for|from|the)\b/g',' ', $search );
+        $search = preg_replace( '/(,|-|\.)/g',' ', $search );
+        $search = preg_replace('/\s+/g', ' ', $search);
         $search = trim( $search );
         $searchTerms = explode( ' ', $search );
         $allMatch = true;

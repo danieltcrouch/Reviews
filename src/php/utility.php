@@ -3,17 +3,24 @@ session_start();
 
 function compareEntry( $search, $entry )
 {
+    $matchScore = -1;
+
     $search = trim( $search );
     $entry = trim( $entry );
-    if ( stripos( $entry, $search ) !== false )
+    if ( strcasecmp( $entry, $search ) === 0 )
     {
-        $result = true;
+        $matchScore = 1;
+    }
+    elseif ( stripos( $entry, $search ) !== false )
+    {
+        similar_text( $entry, $search, $matchScore );
+        $matchScore /= 100;
     }
     else
     {
-        $search = preg_replace( '/\b(a|an|and|for|from|the)\b/g',' ', $search );
-        $search = preg_replace( '/(,|-|\.)/g',' ', $search );
-        $search = preg_replace('/\s+/g', ' ', $search);
+        $search = preg_replace( '/\b(a|an|and|for|from|the)\b/',' ', $search );
+        $search = preg_replace( '/("|,|-|\.)/',' ', $search );
+        $search = preg_replace('/\s+/', ' ', $search);
         $search = trim( $search );
         $searchTerms = explode( ' ', $search );
         $allMatch = true;
@@ -26,21 +33,31 @@ function compareEntry( $search, $entry )
             }
         }
 
-        $result = $allMatch;
+        if ( $allMatch )
+        {
+            similar_text( $entry, $search, $matchScore );
+            $matchScore /= 100;
+        }
     }
 
-    return $result;
+    return $matchScore;
 }
 
 function findEntry( $list, $searchItem )
 {
     $result = null;
+    $highScore = 0;
     foreach( $list as $key => $value )
     {
-        if ( compareEntry( $searchItem, $value ) )
+        $score = compareEntry( $searchItem, $value );
+        if ( $score >= $highScore )
         {
+            $highScore = $score;
             $result = $key;
-            break;
+            if ( $score === 1 )
+            {
+                break;
+            }
         }
     }
     return $result;

@@ -34,6 +34,7 @@ function findMovieOnEnter( e )
 
 function findMovie( title )
 {
+    showWarning();
     $.post(
         "php/reviews.php",
         {
@@ -79,7 +80,7 @@ function findBookOnEnter( e )
 
 function findBook( title, author )
 {
-
+    showWarning();
     $.post(
         "php/reviews.php",
         {
@@ -110,6 +111,14 @@ function findBookCallback( response )
         showToaster( "Book not found!<br />Maybe I should read it" );
     }
     saveSearch( $('#findBook').val(), "Book" );
+}
+
+function showWarning()
+{
+    if ( !( bookList.read instanceof Array ) )
+    {
+        showToaster( "Background information loading...<br />Response time may be slow..." );
+    }
 }
 
 function saveSearch( title, type )

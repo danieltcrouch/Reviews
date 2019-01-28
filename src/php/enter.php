@@ -1,248 +1,171 @@
 <?php
 include_once( "utility.php" );
 
-function getMovieData( $title )
+
+/*******************BOOK LOAD********************/
+
+
+include_once( "utilityBook.php" );
+
+function getBookByTitle( $title )
 {
-    $title = trim( $title );
-    $searchTitle = preg_replace('/\'/', '%27', $title);
-    $searchTitle = preg_replace('/\s+/', '+', $searchTitle);
-    //OMDB API now requires an API Key (&apikey=8f0ce8a6) -> go to their site if this one stops working
-    $url = "http://www.omdbapi.com/?t=$searchTitle&y=&plot=short&r=json&apikey=8f0ce8a6";
-    $response = json_decode( file_get_contents( $url ) );
-    $result = getDataFromResponse( $response );
-    $result['search'] = $title;
+    $id = getBookIdFromFile( $title );
+    return getBookById( $id );
+}
+
+function getBookById( $id )
+{
+    $result = getBookFromGoodreads( $id );
+    $result['id'] = $id;
     return $result;
 }
 
-function getMovieDataById( $id )
-{
-    //OMDB API now requires an API Key (&apikey=8f0ce8a6) -> go to their site if this one stops working
-    $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
-    $response = json_decode( file_get_contents( $url ) );
-    return getDataFromResponse( $response );
-}
 
-function getDataFromResponse( $response )
+/******************MOVIE LOAD********************/
+
+
+include_once( "utilityMovie.php" );
+
+function getMovieByTitle( $title )
 {
-    $result['isSuccess'] = false;
-    if ( $response->Response === "True" )
+    $movie = getMovieFromImdbByTitle( $title );
+    $movie['isPreviouslyReviewed'] = false;
+    $previouslyRatedMovie = getMovieList()[ $movie['id'] ];
+    if ( $previouslyRatedMovie )
     {
-        $result['isSuccess'] = true;
-        $result['id'] = $response->imdbID;
-        $result['title'] = $response->Title;
-        $result['year'] = $response->Year;
-        $result['image'] = $response->Poster;
+        $movie['isPreviouslyReviewed'] = true;
+        $movie['rating'] = $previouslyRatedMovie['rating'];
+        $movie['review'] = $previouslyRatedMovie['review'];
+        $movie['index'] = $previouslyRatedMovie['index'];
     }
-    return $result;
+    return $movie;
 }
 
-function loadFromFullFile( $id )
+function getMovieById( $id )
 {
-    $result['isSuccess'] = false;
-
-    $file = fopen( getPath( "ratings.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-
-    $index = 1;
-    $row = fgetcsv( $file );
-    while ( $row !== false )
+    $movie = getMovieFromImdbById( $id );
+    $movie['isPreviouslyReviewed'] = false;
+    $previouslyRatedMovie = getMovieList()[ $movie['id'] ];
+    if ( $previouslyRatedMovie )
     {
-        $rowId = trim( $row[ $columns['iIndex'] ] );
-        if ( $id === $rowId )
-        {
-            $result['isSuccess'] = true;
-            $result['id'] = $rowId;
-            $result['title'] = trim( $row[ $columns['tIndex'] ] );
-            $result['year'] = trim( $row[ $columns['yIndex'] ] );
-            $result['rating'] = trim( $row[ $columns['rIndex'] ] );
-            $result['review'] = trim( $row[ $columns['cIndex'] ] );
-            $result['index'] = $index;
-        }
-        $index++;
-        $row = fgetcsv( $file );
+        $movie['isPreviouslyReviewed'] = true;
+        $movie['rating'] = $previouslyRatedMovie['rating'];
+        $movie['review'] = $previouslyRatedMovie['review'];
+        $movie['index'] = $previouslyRatedMovie['index'];
     }
-
-    return $result;
+    return $movie;
 }
 
-function loadFromRankFile( $id )
-{
-    $result['isSuccess'] = false;
 
-    $files = getRankFiles();
-    foreach ( $files as $name => $file )
+/*******************RANK LOAD********************/
+
+
+function getRankMovieByTitle( $title )
+{
+    $movie = getMovieFromImdbByTitle( $title );
+    $movie['isPreviouslyReviewed'] = false;
+    $previouslyRankedMovie = getRankMovieFromFilesById( $movie['id'] );
+    if ( $previouslyRankedMovie )
     {
-        $columns = getColumns( fgetcsv( $file ) );
-
-        $index = 1;
-        $row = fgetcsv( $file );
-        while ( $row !== false )
-        {
-            $rowId = trim( $row[ $columns['iIndex'] ] );
-            if ( $id === $rowId )
-            {
-                $result['isSuccess'] = true;
-                $result['id'] = $rowId;
-                $result['title'] = trim( $row[ $columns['tIndex'] ] );
-                $result['year'] = trim( $row[ $columns['yIndex'] ] );
-                $result['rating'] = trim( $row[ $columns['rIndex'] ] );
-                $result['review'] = trim( $row[ $columns['cIndex'] ] );
-                $result['image'] = trim( $row[ $columns['pIndex'] ] );
-                $result['list'] = $name;
-                $result['index'] = $index;
-                break;
-            }
-            $index++;
-            $row = fgetcsv( $file );
-        }
-
-        if ( $result['isSuccess'] )
-        {
-            closeRankFiles( $files );
-            break;
-        }
+        $movie['isPreviouslyReviewed'] = true;
+        $movie['rating'] = $previouslyRankedMovie['rating'];
+        $movie['review'] = $previouslyRankedMovie['review'];
+        $movie['index'] = $previouslyRankedMovie['index'];
+        $movie['list'] = $previouslyRankedMovie['list'];
+        $movie['image'] = $previouslyRankedMovie['image'];
     }
-
-    return $result;
+    return $movie;
 }
 
-function getRankFiles()
+function getRankMovieById( $id )
 {
-    return [
-        "Disney"    => fopen( getPath( "rank-Disney.csv" ), "r" ),
-        "Marvel"    => fopen( getPath( "rank-Marvel.csv" ), "r" ),
-        "StarWars"  => fopen( getPath( "rank-StarWars.csv" ), "r" )
-    ];
-}
-
-function closeRankFiles( $files )
-{
-    foreach ( $files as $file )
+    $movie = getMovieFromImdbById( $id );
+    $movie['isPreviouslyReviewed'] = false;
+    $previouslyRankedMovie = getRankMovieFromFilesById( $id );
+    if ( $previouslyRankedMovie )
     {
-        fclose( $file );
+        $movie['isPreviouslyReviewed'] = true;
+        $movie['rating'] = $previouslyRankedMovie['rating'];
+        $movie['review'] = $previouslyRankedMovie['review'];
+        $movie['index'] = $previouslyRankedMovie['index'];
+        $movie['list'] = $previouslyRankedMovie['list'];
+        $movie['image'] = $previouslyRankedMovie['image'];
     }
+    return $movie;
 }
 
 
-/*********************SUBMIT*********************/
+/*****************MOVIE SUBMIT*******************/
 
 
-//todo - clean this function up; it's needlessly complicated
-//  you could save everything to a php array and then write to file at the end
-//  that logic could possibly be re-used by rank
 function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 {
     $fileName = getPath( "ratings.csv" );
-
     $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
-    $loadedMovie = ( $index && $isOverwrite ) ? loadFromFullFile( $id ) : [];
-    $index = ( isset($loadedMovie['index']) && $loadedMovie['index'] == $index ) ? null : $index;
+    $movie = [
+        'title'     => $title,
+        'id'        => $id,
+        'year'      => $year,
+        'rating'    => $rating,
+        'review'    => $review
+    ];
+
+    $movies = getMovieList();
+
+    if ( $isOverwrite )
+    {
+        $originalIndex = getIndexFromListById( $movies, $id );
+        unset( $movies[$originalIndex] );
+    }
+
     if ( $index )
     {
-        if ( $isOverwrite )
-        {
-            deleteMovie( $id );
-        }
-        insertMovie( $fileName, array( $title, $id, $year, $rating, $review ), (int)$index );
-    }
-    elseif ( $isOverwrite )
-    {
-        editMovie( $fileName, array( 'id' => $id, 'title' => $title, 'year' => $year, 'rating' => $rating, 'review' => $review ) );
+        array_splice( $movies, $index, 0, array( $movie ) );
     }
     else
     {
-        $file = fopen( $fileName, "a" );
-        fputcsv( $file, array( $title, $id, $year, $rating, $review ) );
-        fclose( $file );
+        array_push( $movies, $movie );
     }
 
+    saveFullMoviesToFile( $movies );
     archive( $fileName );
 }
 
-function archive( $fileName )
-{
-    $fileBase = str_replace( ".csv", "", $fileName );
-    unlink( "$fileBase 5.csv" );
-    rename( "$fileBase 4.csv", "$fileBase 5.csv" );
-    rename( "$fileBase 3.csv", "$fileBase 4.csv" );
-    rename( "$fileBase 2.csv", "$fileBase 3.csv" );
-    rename( "$fileBase 1.csv", "$fileBase 2.csv" );
-    copy( $fileName, "$fileBase 1.csv" );
-}
 
-function insertMovie( $fileName, $movie, $rank )
+/******************RANK SUBMIT*******************/
+
+
+function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $overwrite )
 {
-    if ( $rank < 0 )
+    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
+    $movie = [
+        'title'     => $title,
+        'id'        => $id,
+        'year'      => $year,
+        'image'     => $image,
+        'review'    => $review
+    ];
+
+    $list = getListName( $list );
+    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+
+    if ( $isOverwrite )
     {
-        $fileHandle = file( $fileName, FILE_SKIP_EMPTY_LINES );
-        $count = count( $fileHandle );
-        $rank = $count + $rank + 1;
+        $originalIndex = getIndexFromListById( $movies, $id );
+        unset( $movies[$originalIndex] );
     }
 
-    $tempName = "temp.csv";
-    $input = fopen( $fileName, "r" );
-    $output = fopen( $tempName, "w" );
-
-    $row = fgetcsv( $input );
-    $index = 1;
-    while ( $row !== false )
-    {
-        fputcsv( $output, $row );
-        if ( $index === $rank )
-        {
-            fputcsv( $output, $movie );
-        }
-
-        $index++;
-        $row = fgetcsv( $input );
-    }
-
-    fclose( $input );
-    fclose( $output );
-
-    unlink( $fileName );
-    rename( $tempName, $fileName );
+    array_splice( $movies, $rank, 0, array( $movie ) );
+    saveRankMoviesToFile( $list, $movies );
 }
-
-function editMovie( $fileName, $movie )
-{
-    $tempName = "temp.csv";
-    $input = fopen( $fileName, "r" );
-    $output = fopen( $tempName, "w" );
-
-    $row = fgetcsv( $input );
-    $columns = getColumns( $row );
-
-    while ( $row !== false )
-    {
-        if ( $row[ $columns['iIndex'] ] === $movie['id'] )
-        {
-            $row[ $columns['rIndex'] ] = $movie['rating'];
-            $row[ $columns['cIndex'] ] = $movie['review'];
-        }
-        fputcsv( $output, $row );
-        $row = fgetcsv( $input );
-    }
-
-    fclose( $input );
-    fclose( $output );
-
-    unlink( $fileName );
-    rename( $tempName, $fileName );
-}
-
-
-/**********************RANK**********************/
-
 
 function validateRank( $list, $rank )
 {
     $result['isSuccess'] = false;
 
     $list = getListName( $list );
-    $fileName = getPath( "rank-$list.csv" );
-    $fileHandle = file( $fileName, FILE_SKIP_EMPTY_LINES );
-    $count = count( $fileHandle ); //including added title
+    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+    $count = count( $movies );
 
     $rank = strtolower( $rank );
     if ( is_numeric( $rank ) )
@@ -281,12 +204,12 @@ function validateRank( $list, $rank )
              stripos( $rank, "above" )  === 0 || stripos( $rank, "below" ) === 0 )
         {
             $title = explode( ' ', $rank, 2 )[1];
-            $rankOfMovieResult = findTitle( $fileName, $title );
+            $rankOfMovieResult = getIndexFromListByTitle( $movies, $title );
             if ( $rankOfMovieResult['isSuccess'] )
             {
-                $rankOfMovieResult['rank']++; //start at 1
+                $rankOfMovieResult['index']++; //start at 1
                 $atPosition = stripos( $rank, "before" ) === 0 || stripos( $rank, "above" ) === 0;
-                $result['rank'] = $atPosition ? $rankOfMovieResult['rank'] : $rankOfMovieResult['rank'] + 1;
+                $result['rank'] = $atPosition ? $rankOfMovieResult['index'] : $rankOfMovieResult['index'] + 1;
             }
         }
     }
@@ -303,183 +226,32 @@ function validateRank( $list, $rank )
     return $result;
 }
 
-function getListName( $list )
-{
-    $list = strtolower( preg_replace('/\s+/', '', $list) );
-    switch ( $list )
-    {
-        case "d":
-        case "disney":
-            $list = "Disney";
-            break;
-        case "m":
-        case "mcu":
-        case "marvel":
-            $list = "Marvel";
-            break;
-        case "s":
-        case "sw":
-        case "starwars":
-        case "star wars":
-            $list = "StarWars";
-            break;
-        default:
-            $list = null;
-    }
-    return $list;
-}
-
-function findTitle( $fileName, $title )
-{
-    $file = fopen( $fileName, "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $movies = createEntryList( $file, false, $columns['tIndex'] );
-    $movieIndex = findEntry( $movies, $title );
-    fclose( $file );
-    return [
-        'isSuccess' => $movieIndex !== null,
-        'rank'      => $movieIndex
-    ];
-}
-
-function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $overwrite )
-{
-    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
-
-    $list = getListName( $list );
-    $fileName = getPath( "rank-$list.csv" );
-    $tempName = "temp.csv";
-    $input = fopen( $fileName, "r" );
-    $output = fopen( $tempName, "w" );
-
-    $adjust = 0;
-    $index = 0;
-    $row = fgetcsv( $input );
-    $columns = getColumns( $row );
-    fputcsv( $output, $row );
-
-    while ( $row !== false )
-    {
-        $row = fgetcsv( $input );
-        $isSelf = ( $isOverwrite && $row[$columns['iIndex']] === $id );
-        $index++;
-
-        if ( $isSelf )
-        {
-            $adjust = 1;
-        }
-        if ( $index == $rank + $adjust )
-        {
-            fputcsv( $output, array( $title, $id, $year, $image, $review ) );
-        }
-        if ( !$isSelf && $row )
-        {
-            fputcsv( $output, $row );
-        }
-    }
-
-    fclose( $input );
-    fclose( $output );
-
-    unlink( $fileName );
-    rename( $tempName, $fileName );
-}
-
 
 /*********************DELETE********************/
 
 
 function deleteMovie( $id )
 {
-    $result['isSuccess'] = false;
-
-    $fileName = getPath( "ratings.csv" );
-    $tempName = "temp.csv";
-    $input = fopen( $fileName, "r" );
-    $output = fopen( $tempName, "w" );
-
-    $row = fgetcsv( $input );
-    $columns = getColumns( $row );
-    while ( $row !== false )
-    {
-        if ( $row[ $columns['iIndex'] ] !== $id )
-        {
-            fputcsv( $output, $row );
-        }
-        else
-        {
-            $result['isSuccess'] = true;
-        }
-        $row = fgetcsv( $input );
-    }
-
-    fclose( $input );
-    fclose( $output );
-
-    unlink( $fileName );
-    rename( $tempName, $fileName );
-
+    $movies = getMovieList();
+    $result['isSuccess'] = isset( $movies[$id] );
+    unset( $movies[$id] );
+    saveFullMoviesToFile( $movies );
     return $result;
 }
 
 function deleteRankMovie( $list, $id )
 {
-    $result['isSuccess'] = false;
-
-    $fileName = getPath( "rank-$list.csv" );
-    $tempName = "temp.csv";
-    $input = fopen( $fileName, "r" );
-    $output = fopen( $tempName, "w" );
-
-    $row = fgetcsv( $input );
-    $columns = getColumns( $row );
-    while ( $row !== false )
-    {
-        if ( $row[ $columns['iIndex'] ] !== $id )
-        {
-            fputcsv( $output, $row );
-        }
-        else
-        {
-            $result['isSuccess'] = true;
-        }
-        $row = fgetcsv( $input );
-    }
-
-    fclose( $input );
-    fclose( $output );
-
-    unlink( $fileName );
-    rename( $tempName, $fileName );
-
+    $list = getListName( $list );
+    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+    $result['isSuccess'] = isset( $movies[$id] );
+    unset( $movies[$id] );
+    saveRankMoviesToFile( $list, $movies );
     return $result;
 }
 
 
-/**********************BOOK**********************/
+/**********************IMAGE*********************/
 
-
-include_once( "utilityBook.php" );
-
-function getBookData( $title )
-{
-    $result = getBook( $title );
-    $result['review'] = getCleanedReview( $result['review'] );
-    return $result;
-}
-
-function getBookDataById( $id )
-{
-    $result = getBookFromGoodreads( $id );
-    $result['id'] = $id;
-    $result['review'] = getCleanedReview( $result['review'] );
-    return $result;
-}
-
-function loadFromBookFile( $id )
-{
-    return getBookDataById( $id );
-}
 
 function submitBookImage( $id, $url )
 {

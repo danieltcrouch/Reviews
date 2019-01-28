@@ -55,8 +55,8 @@
     <div class="col-10 main">
         <div id="MovieContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button id="title" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
-                <button id="year" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
+                <button id="title"  name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
+                <button id="year"   name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
                 <button id="rating" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
             <div id="Movies" class="center textBlock"></div>
@@ -82,14 +82,13 @@
 
         <div id="BookContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button id="title" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
-                <button id="read" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Read</button>
+                <button id="title"  name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
+                <button id="year"   name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
+                <button id="rating" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
             <div id="Books" class="center textBlock">Books are loading... May take a minute...</div>
         </div>
         <div id="FavoritesContainer" style="display: none">
-            <!--div class="center" style="margin-bottom: 1em">
-            </div-->
             <div id="Favorites" class="center textBlock">Favorites are loading... May take a minute...</div>
         </div>
     </div>

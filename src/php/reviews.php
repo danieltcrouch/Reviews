@@ -1,47 +1,71 @@
 <?php
 include_once( "utility.php" );
 
+function saveSearch( $title, $type )
+{
+    appendToFile( getPath( "searches.txt" ), $type . " - " . $title . "\n", false );
+}
+
 /**********************BOOK**********************/
 
 
 include_once( "utilityBook.php" );
 
+function getFullBookList()
+{
+    return getBookListFromGoodreads( "read" );
+}
+
+function getFavoritesList()
+{
+    return getBookListFromGoodreads( "favorites" );
+}
+
+function getTempFullBookList()
+{
+    return getBookListFromFileByShelf( "read" );
+}
+
+function getTempFavoritesList()
+{
+    return getBookListFromFileByShelf( "favorites" );
+}
+
+function getBookByTitle( $title )
+{
+    $id = getBookIdFromFile( $title );
+    $result = getBookFromGoodreads( $id );
+    $result['id'] = $id;
+    return $result;
+}
+
 
 /**********************MOVIE*********************/
 
 
+include_once( "utilityMovie.php" );
+
 function getFullMovieList()
 {
-    if ( empty($_SESSION['fullMovieList']) )
-    {
-        getMovieList(); //updates list
-    }
-    return $_SESSION['fullMovieList'];
+    return array_reverse( getMovieListFromFile( getPath( "ratings.csv" ) ) );
 }
 
-function getMovieFromIMDB( $id )
+function getDisneyList()
 {
-    $url = "http://www.omdbapi.com/?i=$id&y=&plot=short&r=json&apikey=8f0ce8a6";
-    $response = json_decode( file_get_contents( $url ) );
-    $success = $response->Response === "True";
-    $result['image']    = $success ? $response->Poster : "";
-    $result['rtScore']  = $success ? $response->Ratings[1]->Value : "--%";
-    return $result;
+    return getMovieListFromFile( getPath( "rank-Disney.csv" ) );
 }
 
-function getMovieFromFile( $title )
+function getMarvelList()
 {
-    $movies = getFullMovieList();
-    $movieTitles = [];
-    array_walk( $movies, function($value, $key) use( &$movieTitles ) {
-        $movieTitles[$key] = $value['title'];
-    });
-
-    $movieId = findEntry( $movieTitles, $title );
-    return ( $movieId ) ? $movies[$movieId] : null;
+    return getMovieListFromFile( getPath( "rank-Marvel.csv" ) );
 }
 
-function getMovie( $title )
+function getStarWarsList()
+{
+    return getMovieListFromFile( getPath( "rank-StarWars.csv" ) );
+}
+
+function getMovieByTitle( $title )
 {
     $result['isSuccess'] = false;
 
@@ -49,7 +73,7 @@ function getMovie( $title )
     if ( $movie )
     {
         $result = $movie;
-        $movieData = getMovieFromIMDB( $result['id'] );
+        $movieData = getMovieFromImdbById( $result['id'] );
         $result['image'] = $movieData['image'];
         $result['rtScore'] = $movieData['rtScore'];
         $result['isSuccess'] = true;
@@ -57,52 +81,9 @@ function getMovie( $title )
     return $result;
 }
 
-function getList( $fileName )
-{
-    $file = fopen( $fileName, "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $movies = createEntryObjectList( $file, $columns, function( $row, $columns ) {
-        return [
-            "id"     => $row[$columns['iIndex']],
-            "title"  => $row[$columns['tIndex']],
-            "year"   => $row[$columns['yIndex']],
-            "review" => $row[$columns['cIndex']],
-            "rating" => $row[$columns['rIndex']],
-            "image"  => $row[$columns['pIndex']]
-        ];
-    });
-    fclose( $file );
 
-    return $movies;
-}
+/*********************************************************************************************************************/
 
-function getMovieList()
-{
-    $_SESSION['fullMovieList'] = getList( getPath( "ratings.csv" ) );
-    return $_SESSION['fullMovieList'];
-}
-
-function getDisneyList()
-{
-    return getList( getPath( "rank-Disney.csv" ) );
-}
-
-function getMarvelList()
-{
-    return getList( getPath( "rank-Marvel.csv" ) );
-}
-
-function getStarWarsList()
-{
-    return getList( getPath( "rank-StarWars.csv" ) );
-}
-
-function saveSearch( $title, $type )
-{
-    $file = fopen( getPath( "searches.txt" ), "a" );
-    fwrite( $file, $type . " - " . $title . "\n" );
-    fclose( $file );
-}
 
 if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 {

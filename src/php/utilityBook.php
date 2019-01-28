@@ -1,34 +1,27 @@
 <?php
 include_once( "utility.php" );
 
+function getBookList()
+{
+    if ( empty($GLOBALS['fullBookList']) )
+    {
+        $GLOBALS['fullBookList'] = getBookListFromFile( getPath( "book-read.csv" ) );
+    }
+    return $GLOBALS['fullBookList'];
+}
+
+
+/********************INTERNET********************/
+
+
 function requestGoodReads( $endpoint, array $params = array() )
 {
     $params['key'] = "nyo2HHxoCfMtYFnzaGzaaQ"; //https://www.goodreads.com/api/keys
-    $url = "https://www.goodreads.com/" . $endpoint . "?" . ( !empty( $params ) ? http_build_query( $params, "", "&" ) : "" );
+    $paramString = ( !empty( $params ) ? http_build_query( $params, "", "&" ) : "" );
+    $url = "https://www.goodreads.com/$endpoint?$paramString";
     $response = file_get_contents( $url );
-
     $xmlArray = (array)simplexml_load_string( $response, 'SimpleXMLElement', LIBXML_NOCDATA );
     return ( empty($xmlArray) || $xmlArray[0] === false ) ? $response : json_decode( json_encode( $xmlArray ), 1 );
-}
-
-function getFullBookList()
-{
-    if ( empty($_SESSION['fullBookList']) )
-    {
-        $_SESSION['fullBookList'] = getTempListFromFile( "read" ); //updates list
-    }
-    return $_SESSION['fullBookList'];
-}
-
-function getBookIdFromFile( $title )
-{
-    $bookTitles = [];
-    array_walk( getFullBookList(), function($value, $key) use( &$bookTitles ) {
-        $bookTitles[$key] = $value['title'];
-    });
-    $bookId = findEntry( $bookTitles, $title );
-
-    return $bookId;
 }
 
 function getBookFromGoodreads( $id )
@@ -46,16 +39,122 @@ function getBookFromGoodreads( $id )
         'image'     => $response['review']['book']['image_url'],
         'grRating'  => $response['review']['book']['average_rating'],
         'rating'    => $response['review']['rating'],
-        'review'    => $response['review']['body']
+        'review'    => getCleanedReview( $response['review']['body'] )
     ];
 }
 
-function getBook( $title )
+function getListFromGoodreads( $shelf, $sortType )
 {
-    $id = getBookIdFromFile( $title );
-    $result = getBookFromGoodreads( $id );
-    $result['id'] = $id;
+    $index = 1;
+    $books = [];
+    do {
+        $response = requestGoodReads('review/list', [
+            'v' => "2",
+            'id' => "55277264",
+            'shelf' => $shelf,
+            'sort' => $sortType,
+            'page' => $index,
+            'per_page' => "100"
+        ]);
+        $books = array_merge( $books, $response['reviews']['review'] );
+        $total = $response['reviews']['@attributes']['total'];
+        $index++;
+    } while ( $total > count($books) );
+    return $books;
+}
+
+function getBookListFromGoodreads( $shelf )
+{
+    $result = [];
+    $books = getListFromGoodreads( $shelf, "date_read" );
+    $images = getImages();
+
+    $index = 0;
+    foreach ( $books as $book )
+    {
+        if ( $book['book']['id'] )
+        {
+            $id = $book['book']['id'];
+            $result[$index] = [
+                "title"  => $book['book']['title'],
+                "author" => $book['book']['authors']['author']['name'],
+                "id"     => $id,
+                "year"   => is_numeric( $book['book']['publication_year'] ) ? $book['book']['publication_year'] : "",
+                "rating" => $book['rating'],
+                "review" => getCleanedReview( $book['body'] ),
+                "image"  => ( $images[$id] ) ? $images[$id] : $book['book']['image_url'],
+                "url"    => getCDATA( $book['url'] )
+            ];
+            $index++;
+        }
+    }
+
+    if ( $shelf === "read" )
+    {
+        $GLOBALS['fullBookList'] = $result;
+    }
+    saveFullBooksToFile( $result );
     return $result;
+}
+
+
+/********************FILE I/O********************/
+
+
+function saveFullBooksToFile( $books )
+{
+    saveListToFile(
+        getPath( "book-read.csv" ),
+        array( "Title", "Author", "ID", "Year", "Rating", "Review", "Image", "URL" ),
+        $books,
+        function( $book ) {
+            return array( $book['title'], $book['author'], $book['id'], $book['year'], $book['rating'], $book['review'], $book['image'], $book['url'] );
+    } );
+}
+
+function getBookIdFromFile( $title )
+{
+    $bookTitles = [];
+    array_walk( getBookList(), function($value) use( &$bookTitles ) {
+        $bookTitles[$value['id']] = $value['title'];
+    });
+    $bookId = findEntry( $bookTitles, $title );
+
+    return $bookId;
+}
+
+function getBookListFromFileByShelf( $shelf )
+{
+    return array_values( ( $shelf === "read" ) ? getBookList() : getBookListFromFile( getPath( "book-$shelf.csv" ) ) );
+}
+
+function getBookListFromFile( $fileName )
+{
+    return getListFromFile( $fileName, function( $row, $columns ) {
+        return [
+            "id"     => $row[$columns['iIndex']],
+            "title"  => $row[$columns['tIndex']],
+            "author" => $row[$columns['aIndex']],
+            "year"   => $row[$columns['yIndex']],
+            "review" => $row[$columns['cIndex']],
+            "rating" => $row[$columns['rIndex']],
+            "image"  => $row[$columns['pIndex']],
+            "url"    => $row[$columns['uIndex']]
+        ];
+    } );
+}
+
+
+/*********************OTHER**********************/
+
+
+function getImages()
+{
+    $file = fopen( getPath( "book-images.csv" ), "r" );
+    $columns = getColumns( fgetcsv( $file ) );
+    $images = createEntryList( $file, $columns['iIndex'], $columns['pIndex'] );
+    fclose( $file );
+    return $images;
 }
 
 function getCleanedReview( $review )
@@ -76,159 +175,5 @@ function getCleanedReview( $review )
 function getCDATA( $url )
 {
     return preg_replace( '/^\s*\/\/<!\[CDATA\[([\s\S]*)\/\/\]\]>\s*\z/', '$1', $url );
-}
-
-function getImages()
-{
-    $file = fopen( getPath( "book-images.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $images = createEntryList( $file, $columns['iIndex'], $columns['pIndex'] );
-    fclose( $file );
-    return $images;
-}
-
-function getHTML( $index, $url, $title, $author, $year, $rating, $review, $includeImages, $image )
-{
-    $result = "<div>$index. <a class='link' href='$url'>$title</a>, $author $year- <strong>$rating/5</strong> - $review</div>";
-    $result .= $includeImages ? "<img src='$image' height='300px' alt='Book Cover' /><br/><br/>" : "";
-    return $result;
-}
-
-function getBookListFromGoodreads( $shelf, $sortType )
-{
-    $index = 1;
-    $books = [];
-    do {
-        $response = requestGoodReads('review/list', [
-            'v' => "2",
-            'id' => "55277264",
-            'shelf' => $shelf,
-            'sort' => $sortType,
-            'page' => $index,
-            'per_page' => "100"
-        ]);
-        $books = array_merge( $books, $response['reviews']['review'] );
-        $total = $response['reviews']['@attributes']['total'];
-        $index++;
-    } while ( $total > count($books) );
-    return $books;
-}
-
-function saveListToFile( $shelf, $books )
-{
-    $file = fopen( getPath( "book-$shelf.csv" ), "w" );
-    fputcsv( $file, array( "Title", "Author", "ID", "Year", "Rating", "Review", "Image", "URL" ) );
-    foreach ( $books as $book )
-    {
-        fputcsv( $file, array( $book['title'], $book['author'], $book['id'], $book['year'], $book['rating'], $book['review'], $book['image'], $book['url'] ) );
-    }
-    fclose( $file );
-}
-
-function getListHTML( $shelf, $sortType, $includeImages )
-{
-    $result = [];
-    $bookData = [];
-    $books = getBookListFromGoodreads( $shelf, $sortType );
-    $images = $includeImages ? getImages() : [];
-
-    $index = 1;
-    foreach ( $books as $book )
-    {
-        if ( $book['book']['id'] )
-        {
-            $year        = is_numeric( $book['book']['publication_year'] ) ? $book['book']['publication_year'] : "";
-            $displayYear = is_numeric( $year ) ? "($year) " : "";
-
-            $id     = $book['book']['id'];
-            $title  = $book['book']['title'];
-            $author = $book['book']['authors']['author']['name'];
-            $rating = $book['rating'];
-            $review = getCleanedReview( $book['body'] );
-            $url    = getCDATA( $book['url'] );
-            $image  = ( $images[$id] ) ? $images[$id] : $book['book']['image_url'];
-
-            array_push( $result, getHTML( $index, $url, $title, $author, $displayYear, $rating, $review, $includeImages, $image ) );
-            $bookData[$id] = [
-                "title"  => $title,
-                "author" => $author,
-                "id"     => $id,
-                "year"   => $year,
-                "rating" => $rating,
-                "review" => $review,
-                "image"  => $image,
-                "url"    => $url
-            ];
-
-            $index++;
-        }
-    }
-
-    if ( $shelf === "read" )
-    {
-        $_SESSION['fullBookList'] = $bookData;
-    }
-    saveListToFile( $shelf, $bookData );
-    return $result;
-}
-
-function getBookList()
-{
-    $result = [
-        "read"  => getListHTML( "read", "date_read", false ),
-        "title" => getListHTML( "read", "title", false )
-    ];
-    return $result;
-}
-
-function getFavoritesList()
-{
-    return getListHTML( "favorites", "date_read", true );
-}
-
-function getTempListFromFile( $shelf )
-{
-    $file = fopen( getPath( "book-$shelf.csv" ), "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $result = createEntryObjectList( $file, $columns, function( $row, $columns ) {
-        return [
-            "id"     => $row[$columns['iIndex']],
-            "title"  => $row[$columns['tIndex']],
-            "author" => $row[$columns['aIndex']],
-            "year"   => $row[$columns['yIndex']],
-            "review" => $row[$columns['cIndex']],
-            "rating" => $row[$columns['rIndex']],
-            "image"  => $row[$columns['pIndex']],
-            "url"    => $row[$columns['uIndex']]
-        ];
-    });
-    fclose( $file );
-    return $result;
-}
-
-function getTempList( $shelf, $includeImages )
-{
-    $result = [];
-    $books = ( $shelf === "read" ) ? getFullBookList() : getTempListFromFile( $shelf );
-
-    $index = 1;
-    foreach ( $books as $book )
-    {
-        $displayYear = is_numeric( $book['year'] ) ? "($book[year]) " : "";
-        array_push( $result, getHTML( $index, $book['url'], $book['title'], $book['author'], $displayYear, $book['rating'], $book['review'], $includeImages, $book['image'] ) );
-        $index++;
-    }
-
-    return $result;
-}
-
-function getTempBookList()
-{
-    return getTempList( "read", false );
-}
-
-function getTempFavoritesList()
-{
-    return getTempList( "favorites", true );
 }
 ?>

@@ -41,6 +41,10 @@ function isFullList()
     return enterMovieType === "full";
 }
 
+
+/********************AUTOFILL********************/
+
+
 function autoFillTab( e )
 {
     var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
@@ -81,7 +85,7 @@ function autoFillById( id )
         $.post(
             "php/enter.php",
             {
-                action: isMovie() ? "getMovieDataById" : "getBookDataById",
+                action: isMovie() ? ( isFullList() ? "getMovieById" : "getRankMovieById" ) : "getBookById",
                 id: id
             },
             autoFillByIdCallback
@@ -103,7 +107,7 @@ function autoFillByTitle( title )
     $.post(
         "php/enter.php",
         {
-            action: isMovie() ? "getMovieData" : "getBookData",
+            action: isMovie() ? ( isFullList() ? "getMovieByTitle" : "getRankMovieByTitle" ) : "getBookByTitle",
             title: title
         },
         autoFillByTitleCallback
@@ -147,54 +151,25 @@ function promptGoogle( search )
     showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
 }
 
-function fillData( movie )
+function fillData( response )
 {
     clear();
-    $('#title').val( movie.title );
-    $('#year').val( movie.year );
-    $('#id').val( movie.id );
-    $('#image').val( movie.image );
+    $('#title').val( response.title );
+    $('#year').val( response.year );
 
-    loadFromFile( movie.id );
-}
+    $('#rating').val( response.rating );
+    $('#review').val( response.review );
+    $('#index').val( response.index );
 
-function loadFromFile( id )
-{
-    var action = isMovie() ? (isFullList() ? "loadFromFullFile" : "loadFromRankFile") : "loadFromBookFile";
-    $.post(
-        "php/enter.php",
-        {
-            action: action,
-            id:     id
-        },
-        loadFromFileCallback
-    );
-}
+    $('#id').val( response.id );
+    $('#list').val( response.list );
+    $('#image').val( response.image );
 
-function loadFromFileCallback( response )
-{
-    response = JSON.parse( response );
-    if ( response.isSuccess )
+    isOverwrite = response.isPreviouslyReviewed;
+    if ( !isOverwrite )
     {
-        $('#title').val( response.title );
-        $('#year').val( response.year );
-        $('#index').val( response.index );
-        $('#rating').val( response.rating );
-        $('#review').val( response.review );
-        $('#id').val( response.id );
-
-        if ( !isFullList() )
-        {
-            $('#list').val( response.list );
-            $('#image').val( response.image );
-        }
+        showToaster( "Movie not previously reviewed." );
     }
-    else
-    {
-        var term = isFullList() ? "rated" : "ranked";
-        showToaster( "Movie not previously " + term + "." );
-    }
-    isOverwrite = response.isSuccess;
 }
 
 function clear()

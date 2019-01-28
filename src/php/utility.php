@@ -1,6 +1,76 @@
 <?php
 session_start();
 
+function getPath( $fileName )
+{
+    $newDirectory = "../archive/";
+    $path = $newDirectory . $fileName;
+    $pathInfo = pathinfo( $path );
+    if ( !file_exists( $pathInfo['dirname'] ) )
+    {
+        mkdir( $pathInfo['dirname'], 0777, true );
+    }
+    return $path;
+}
+
+function getColumns( $firstRow )
+{
+    $result['iIndex'] = array_search( "ID", $firstRow, true );
+    $result['tIndex'] = array_search( "Title", $firstRow, true );
+    $result['aIndex'] = array_search( "Author", $firstRow, true );
+    $result['yIndex'] = array_search( "Year", $firstRow, true );
+    $result['cIndex'] = array_search( "Review", $firstRow, true );
+    $result['rIndex'] = array_search( "Rating", $firstRow, true );
+    $result['pIndex'] = array_search( "Image", $firstRow, true );
+    $result['uIndex'] = array_search( "URL", $firstRow, true );
+
+    return $result;
+}
+
+
+/*****************LIST & SEARCH*******************/
+
+
+function findEntryAdvanced( $list, $searchItem, $customSearch )
+{
+    $result = null;
+    $highScore = 0;
+    foreach( $list as $key => $value )
+    {
+        $score = $customSearch( $searchItem, $value );
+        if ( $score >= $highScore )
+        {
+            $highScore = $score;
+            $result = $key;
+            if ( $score === 1 )
+            {
+                break;
+            }
+        }
+    }
+    return $result;
+}
+
+function findEntry( $list, $searchItem )
+{
+    $result = null;
+    $highScore = 0;
+    foreach( $list as $key => $value )
+    {
+        $score = compareEntry( $searchItem, $value );
+        if ( $score >= $highScore )
+        {
+            $highScore = $score;
+            $result = $key;
+            if ( $score === 1 )
+            {
+                break;
+            }
+        }
+    }
+    return $result;
+}
+
 function compareEntry( $search, $entry )
 {
     $matchScore = -1;
@@ -43,26 +113,6 @@ function compareEntry( $search, $entry )
     return $matchScore;
 }
 
-function findEntry( $list, $searchItem )
-{
-    $result = null;
-    $highScore = 0;
-    foreach( $list as $key => $value )
-    {
-        $score = compareEntry( $searchItem, $value );
-        if ( $score >= $highScore )
-        {
-            $highScore = $score;
-            $result = $key;
-            if ( $score === 1 )
-            {
-                break;
-            }
-        }
-    }
-    return $result;
-}
-
 function createEntryList( $file, $keyIndex, $valueIndex )
 {
     $result = [];
@@ -81,41 +131,58 @@ function createEntryList( $file, $keyIndex, $valueIndex )
 function createEntryObjectList( $file, $columns, $getValueFunction )
 {
     $result = [];
-    $row = fgetcsv( $file );
     $index = 0;
+    $row = fgetcsv( $file );
     while ( $row !== false )
     {
-        $result[$row[$columns['iIndex']]] = $getValueFunction( $row, $columns );
+        $result[$index] = $getValueFunction( $row, $columns );
         $row = fgetcsv( $file );
         $index++;
     }
     return $result;
 }
 
-function getPath( $fileName )
+function getIndexFromListByTitle( $list, $title )
 {
-    $newDirectory = "../archive/";
-    $path = $newDirectory . $fileName;
-    $pathInfo = pathinfo( $path );
-    if ( !file_exists( $pathInfo['dirname'] ) )
-    {
-        mkdir( $pathInfo['dirname'], 0777, true );
-    }
-    return $path;
+    return findEntry( $list, $title );
 }
 
-function getColumns( $firstRow )
+function getIndexFromListById( $list, $id )
 {
-    $result['iIndex'] = array_search( "ID", $firstRow, true );
-    $result['tIndex'] = array_search( "Title", $firstRow, true );
-    $result['aIndex'] = array_search( "Author", $firstRow, true );
-    $result['yIndex'] = array_search( "Year", $firstRow, true );
-    $result['cIndex'] = array_search( "Review", $firstRow, true );
-    $result['rIndex'] = array_search( "Rating", $firstRow, true );
-    $result['pIndex'] = array_search( "Image", $firstRow, true );
-    $result['uIndex'] = array_search( "URL", $firstRow, true );
+    return findEntryAdvanced( $list, $id, function( $value ) {
+        return $value['id'];
+    } );
+}
 
-    return $result;
+
+/*****************LIST FILE IO********************/
+
+
+function getListFromFile( $fileName, $mapperFunction )
+{
+    $file = fopen( $fileName, "r" );
+    $columns = getColumns( fgetcsv( $file ) );
+    $list = createEntryObjectList( $file, $columns, $mapperFunction );
+    fclose( $file );
+    return $list;
+}
+
+function saveListToFile( $fileName, $titles, $list, $mapperFunction )
+{
+    $file = fopen( $fileName, "w" );
+    fputcsv( $file, $titles );
+    foreach ( $list as $item )
+    {
+        fputcsv( $file, $mapperFunction( $item ) );
+    }
+    fclose( $file );
+}
+
+function appendToFile( $fileName, $content, $isCSV )
+{
+    $file = fopen( $fileName, "a" );
+    $isCSV ? fputcsv( $file, $content ) : fwrite( $file, $content );
+    fclose( $file );
 }
 
 ?>

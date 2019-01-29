@@ -24,15 +24,52 @@ function requestGoodReads( $endpoint, array $params = array() )
     return ( empty($xmlArray) || $xmlArray[0] === false ) ? $response : json_decode( json_encode( $xmlArray ), 1 );
 }
 
-function getBookFromGoodreads( $id )
+function getBookFromGoodreadsById( $id )
 {
-    $response = requestGoodReads( 'review/show_by_user_and_book', [
-        'user_id' => "55277264",
-        'book_id' => $id
+    $response = requestGoodReads( "book/show/$id.xml", [] );
+
+    return [
+        'isSuccess' => ($response) ? true : false,
+        'id'        => $response['book']['id'],
+        'title'     => $response['book']['title'],
+        'year'      => $response['book']['publication_year'],
+        'author'    => $response['book']['authors']['author']['name'],
+        'image'     => $response['book']['image_url'],
+        'grRating'  => $response['book']['average_rating']
+    ];
+}
+
+function getBookFromGoodreadsByTitle( $title )
+{
+    $response = requestGoodReads( 'book/title.xml', [
+        'title' => $title
     ]);
 
     return [
         'isSuccess' => ($response) ? true : false,
+        'id'        => $response['book']['id'],
+        'title'     => $response['book']['title'],
+        'year'      => $response['book']['publication_year'],
+        'author'    => $response['book']['authors']['author']['name'],
+        'image'     => $response['book']['image_url'],
+        'grRating'  => $response['book']['average_rating']
+    ];
+}
+
+function getReviewedBookFromGoodreads( $id )
+{
+    $response = null;
+    if ( $id )
+    {
+        $response = requestGoodReads( 'review/show_by_user_and_book', [
+            'user_id' => "55277264",
+            'book_id' => $id
+        ]);
+    }
+
+    return [
+        'isSuccess' => ($response) ? true : false,
+        'id'        => $response['review']['book']['id'],
         'title'     => $response['review']['book']['title'],
         'year'      => $response['review']['book']['publication_year'],
         'author'    => $response['review']['book']['authors']['author']['name'],
@@ -93,7 +130,7 @@ function getBookListFromGoodreads( $shelf )
     {
         $GLOBALS['fullBookList'] = $result;
     }
-    saveFullBooksToFile( $result );
+    saveFullBooksToFile( $shelf, $result );
     return $result;
 }
 
@@ -101,10 +138,10 @@ function getBookListFromGoodreads( $shelf )
 /********************FILE I/O********************/
 
 
-function saveFullBooksToFile( $books )
+function saveFullBooksToFile( $shelf, $books )
 {
     saveListToFile(
-        getPath( "book-read.csv" ),
+        getPath( "book-$shelf.csv" ),
         array( "Title", "Author", "ID", "Year", "Rating", "Review", "Image", "URL" ),
         $books,
         function( $book ) {

@@ -62,7 +62,9 @@ function autoFill( e )
         var search = $('#title').val();
         if ( search )
         {
-            if ( search.search(/tt\d{7}/i) >= 0 )
+            var isImdbId = isMovie() && search.search(/tt\d{7}/i) >= 0;
+            var isGoodreadsId = !isMovie() && !isNaN( search ) && !["300", "1984", "2001", "11/22/63", "1408" ].includes( search ) ;
+            if ( isImdbId || isGoodreadsId )
             {
                 autoFillById( search );
             }
@@ -168,7 +170,8 @@ function fillData( response )
     isOverwrite = response.isPreviouslyReviewed;
     if ( !isOverwrite )
     {
-        showToaster( "Movie not previously reviewed." );
+        var term = isMovie() ? "Movie" : "Book";
+        showToaster( term + " not previously reviewed." );
     }
 }
 
@@ -279,7 +282,8 @@ function getRanking()
             {
                 action: "validateRank",
                 list: $('#list').val(),
-                rank: answer
+                rank: answer,
+                overwrite: isOverwrite
             },
             getRankingCallback
         );

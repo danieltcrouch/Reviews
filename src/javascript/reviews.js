@@ -16,6 +16,8 @@ var bookList = {
 };
 var favoritesList = [];
 
+var hasFinalBookListReturned = false;
+
 function toggleMovieSubMenu()
 {
     $('#movieSubMenu').toggle();
@@ -121,7 +123,7 @@ function findBookCallback( response )
 
 function showWarning()
 {
-    if ( !( bookList.read instanceof Array ) )
+    if ( !hasFinalBookListReturned )
     {
         showToaster( "Background information loading...<br />Response time may be slow..." );
     }
@@ -157,7 +159,7 @@ function populateDisneyList()
     $.post(
         "php/reviews.php",
         { action: "getDisneyList" },
-        function( response ) { parseRankings( disneyList, "Disney", response ); }
+        function( response ) { parseRankings( "Disney", response ); }
     );
 }
 
@@ -166,7 +168,7 @@ function populateMarvelList()
     $.post(
         "php/reviews.php",
         { action: "getMarvelList" },
-        function( response ) { parseRankings( marvelList, "Marvel", response ); }
+        function( response ) { parseRankings( "Marvel", response ); }
     );
 }
 
@@ -175,7 +177,7 @@ function populateStarWarsList()
     $.post(
         "php/reviews.php",
         { action: "getStarWarsList" },
-        function( response ) { parseRankings( starWarsList, "StarWars", response ); }
+        function( response ) { parseRankings( "StarWars", response ); }
     );
 }
 
@@ -189,7 +191,7 @@ function populateBookList()
             $.post(
                 "php/reviews.php",
                 { action: "getFullBookList" },
-                parseBooks
+                function( response ) { hasFinalBookListReturned = true; parseBooks( response ); }
             );
         }
     );
@@ -262,9 +264,21 @@ function displayMovies( sortType )
     $('#Movies').html( movieDisplay );
 }
 
-function parseRankings( list, type, response )
+function parseRankings( type, response )
 {
-    list = JSON.parse( response );
+    var list = JSON.parse( response );
+    switch ( type )
+    {
+    case "Disney":
+        disneyList = list;
+        break;
+    case "Marvel":
+        marvelList = list;
+        break;
+    case "StarWars":
+        starWarsList = list;
+        break;
+    }
 
     for ( var index = 0; index < list.length; index++ )
     {

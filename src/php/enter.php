@@ -9,14 +9,19 @@ include_once( "utilityBook.php" );
 
 function getBookByTitle( $title )
 {
+    $result = null;
     $id = getBookIdFromFile( $title );
-    return getBookById( $id );
+    $result = $id ? getBookById( $id ) : getBookFromGoodreadsByTitle( $title );
+    return $result;
 }
 
 function getBookById( $id )
 {
-    $result = getBookFromGoodreads( $id );
-    $result['id'] = $id;
+    $result = getReviewedBookFromGoodreads( $id );
+    if ( !$result['isSuccess'] )
+    {
+        $result = getBookFromGoodreadsById( $id );
+    }
     return $result;
 }
 
@@ -28,30 +33,34 @@ include_once( "utilityMovie.php" );
 
 function getMovieByTitle( $title )
 {
+    $movies = getMovieList();
     $movie = getMovieFromImdbByTitle( $title );
     $movie['isPreviouslyReviewed'] = false;
-    $previouslyRatedMovie = getMovieList()[ $movie['id'] ];
+    $prevIndex = getIndexFromListById( $movies, $movie['id'] );
+    $previouslyRatedMovie = $movies[$prevIndex];
     if ( $previouslyRatedMovie )
     {
         $movie['isPreviouslyReviewed'] = true;
         $movie['rating'] = $previouslyRatedMovie['rating'];
         $movie['review'] = $previouslyRatedMovie['review'];
-        $movie['index'] = $previouslyRatedMovie['index'];
+        $movie['index']  = $prevIndex + 1;
     }
     return $movie;
 }
 
 function getMovieById( $id )
 {
+    $movies = getMovieList();
     $movie = getMovieFromImdbById( $id );
     $movie['isPreviouslyReviewed'] = false;
-    $previouslyRatedMovie = getMovieList()[ $movie['id'] ];
+    $prevIndex = getIndexFromListById( $movies, $movie['id'] );
+    $previouslyRatedMovie = $movies[$prevIndex];
     if ( $previouslyRatedMovie )
     {
         $movie['isPreviouslyReviewed'] = true;
         $movie['rating'] = $previouslyRatedMovie['rating'];
         $movie['review'] = $previouslyRatedMovie['review'];
-        $movie['index'] = $previouslyRatedMovie['index'];
+        $movie['index']  = $prevIndex + 1;
     }
     return $movie;
 }
@@ -120,6 +129,8 @@ function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 
     if ( $index )
     {
+        $count = count( $movies );
+        $index = $index > 0 ? $index - 1 : $count + $index + 1;
         array_splice( $movies, $index, 0, array( $movie ) );
     }
     else
@@ -155,12 +166,15 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $ov
         unset( $movies[$originalIndex] );
     }
 
+    //Inserted movies will always appear above the movie currently at that rank
+    $rank = $rank - 1;
     array_splice( $movies, $rank, 0, array( $movie ) );
     saveRankMoviesToFile( $list, $movies );
 }
 
-function validateRank( $list, $rank )
+function validateRank( $list, $rank, $overwrite )
 {
+    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
     $result['isSuccess'] = false;
 
     $list = getListName( $list );
@@ -204,19 +218,20 @@ function validateRank( $list, $rank )
              stripos( $rank, "above" )  === 0 || stripos( $rank, "below" ) === 0 )
         {
             $title = explode( ' ', $rank, 2 )[1];
-            $rankOfMovieResult = getIndexFromListByTitle( $movies, $title );
-            if ( $rankOfMovieResult['isSuccess'] )
+            $titleIndex = getIndexFromListByTitle( $movies, $title );
+            if ( is_numeric( $titleIndex ) )
             {
-                $rankOfMovieResult['index']++; //start at 1
                 $atPosition = stripos( $rank, "before" ) === 0 || stripos( $rank, "above" ) === 0;
-                $result['rank'] = $atPosition ? $rankOfMovieResult['index'] : $rankOfMovieResult['index'] + 1;
+                $result['rank'] = $atPosition ? $titleIndex : $titleIndex + 1;
             }
         }
     }
 
-    if ( is_numeric($result['rank']) && $result['rank'] <= $count )
+    $max = $isOverwrite ? $count : $count + 1;
+    if ( is_numeric($result['rank']) && $result['rank'] <= $max && $result['rank'] >= 0 )
     {
         $result['isSuccess'] = true;
+        $result['rank']++; //Display index starts at 1
     }
     else
     {
@@ -233,9 +248,13 @@ function validateRank( $list, $rank )
 function deleteMovie( $id )
 {
     $movies = getMovieList();
-    $result['isSuccess'] = isset( $movies[$id] );
-    unset( $movies[$id] );
-    saveFullMoviesToFile( $movies );
+    $index = getIndexFromListById( $movies, $id );
+    $result['isSuccess'] = $index !== null;
+    if ( $result['isSuccess'] )
+    {
+        unset( $movies[$index] );
+        saveFullMoviesToFile( $movies );
+    }
     return $result;
 }
 
@@ -243,9 +262,13 @@ function deleteRankMovie( $list, $id )
 {
     $list = getListName( $list );
     $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
-    $result['isSuccess'] = isset( $movies[$id] );
-    unset( $movies[$id] );
-    saveRankMoviesToFile( $list, $movies );
+    $index = getIndexFromListById( $movies, $id );
+    $result['isSuccess'] = $index !== null;
+    if ( $result['isSuccess'] )
+    {
+        unset( $movies[$index] );
+        saveRankMoviesToFile( $list, $movies );
+    }
     return $result;
 }
 
@@ -337,7 +360,7 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	}
 	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) )
 	{
-		$result = $action( $_POST['list'], $_POST['rank'] );
+		$result = $action( $_POST['list'], $_POST['rank'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
 	}
     elseif ( isset( $_POST['id'] ) && isset( $_POST['url'] ) )
    	{

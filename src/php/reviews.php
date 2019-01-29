@@ -34,8 +34,7 @@ function getTempFavoritesList()
 function getBookByTitle( $title )
 {
     $id = getBookIdFromFile( $title );
-    $result = getBookFromGoodreads( $id );
-    $result['id'] = $id;
+    $result = getReviewedBookFromGoodreads( $id );
     return $result;
 }
 

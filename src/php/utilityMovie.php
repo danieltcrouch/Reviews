@@ -113,19 +113,18 @@ function archive( $fileName )
 function getRankMovieFromFileByTitle( $list, $title )
 {
     $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
-    $movieTitles = [];
-    array_walk( $movies, function($value, $key) use( &$movieTitles ) {
-        $movieTitles[$key] = $value['title'];
-    });
-
-    $movieId = findEntry( $movieTitles, $title );
-    return ( $movieId ) ? $movies[$movieId] : null;
+    $index = getIndexFromListByTitle( $movies, $title );
+    return ( $index ) ? $movies[$index] : null;
 }
 
 function getRankMovieFromFileById( $list, $id )
 {
     $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
-    return $movies[$id];
+    $index = getIndexFromListById( $movies, $id );
+    $result = $movies[$index];
+    $result['index'] = $index + 1;
+    $result['list'] = $list;
+    return is_numeric( $index ) ? $result : null;
 }
 
 function getRankMovieFromFilesById( $id )

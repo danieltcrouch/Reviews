@@ -144,13 +144,17 @@ function createEntryObjectList( $file, $columns, $getValueFunction )
 
 function getIndexFromListByTitle( $list, $title )
 {
-    return findEntry( $list, $title );
+    $titles = [];
+    array_walk( $list, function($value, $key) use( &$titles ) {
+        $titles[$key] = $value['title'];
+    });
+    return findEntry( $titles, $title );
 }
 
 function getIndexFromListById( $list, $id )
 {
-    return findEntryAdvanced( $list, $id, function( $value ) {
-        return $value['id'];
+    return findEntryAdvanced( $list, $id, function( $id, $value ) {
+        return ( $value['id'] === $id ) ? 1 : -1;
     } );
 }
 

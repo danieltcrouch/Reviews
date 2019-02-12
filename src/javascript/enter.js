@@ -136,13 +136,13 @@ function autoFillByTitleCallback( response )
             }
             else
             {
-                promptGoogle( response.search );
+                promptGoogle( $('#title').val() );
             }
         });
     }
     else
     {
-        promptGoogle( response.search );
+        promptGoogle( $('#title').val() );
     }
 }
 

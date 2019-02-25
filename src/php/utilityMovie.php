@@ -19,7 +19,7 @@ function requestIMDB( array $params = array() )
     if ( !empty($params) )
     {
         $paramString = http_build_query($params, "", "&");
-        $url = "http://www.omdbapi.com/?$paramString&y=&plot=short&r=json&apikey=8f0ce8a6"; //OMDB API requires API Key -> go to their site if this one stops working
+        $url = "http://www.omdbapi.com/?$paramString&y=&plot=short&r=json&apikey=522c6900"; //OMDB API requires API Key -> go to their site if this one stops working
         $response = json_decode(file_get_contents($url));
         return getDataFromResponse($response);
     }

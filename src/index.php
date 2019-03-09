@@ -22,9 +22,9 @@
             Each entry has a rating (out of 10 for movies, out of 5 for books), and some entries have written reviews.<br/><br/>
             In addition, specific rankings are included for Disney&rsquo;s Animated Classics, the MCU, and the Star Wars Franchise.
             Under books, there is also a list of favorites in order of date read.<br/><br/>
-            Reviews can also be found on <a href="https://www.goodreads.com/user/show/55277264-daniel-crouch">Goodreads</a>,
-            <a href="https://www.rottentomatoes.com/user/id/807873993/">Rotten Tomatoes</a>, and
-            <a href="https://www.criticker.com/profile/dcrouch1/">Criticker</a>.
+            Reviews can also be found on <a href="https://www.goodreads.com/user/show/55277264-daniel-crouch" class="link">Goodreads</a>,
+            <a href="https://www.rottentomatoes.com/user/id/807873993/" class="link">Rotten Tomatoes</a>, and
+            <a href="https://www.criticker.com/profile/dcrouch1/" class="link">Criticker</a>.
         </div>
     </div>
 

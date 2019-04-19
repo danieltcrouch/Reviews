@@ -41,5 +41,6 @@ function scoreRankings( answer )
     score = ( score < 100 ) ? score.toPrecision( 4 ) : 100;
 
     showConfirm( "Comparison Results", "If 0% is the opposite and 100% a total match, our rankings match:" +
-                                       "<div class='center' style='font-size: 1.5em'>" + score + "%</div>" );
+                                       "<div class='center' style='font-size: 1.5em'>" + score + "%</div>\n" +
+                                        answers.join("<br/>") );
 }

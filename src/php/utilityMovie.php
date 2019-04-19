@@ -16,20 +16,21 @@ function getMovieList()
 
 function requestIMDB( array $params = array() )
 {
+    $result = [];
     if ( !empty($params) )
     {
         $paramString = http_build_query($params, "", "&");
         $url = "http://www.omdbapi.com/?$paramString&y=&plot=short&r=json&apikey=522c6900"; //OMDB API requires API Key -> go to their site if this one stops working
         $response = json_decode(file_get_contents($url));
-        return getDataFromResponse($response);
+        $result = getDataFromResponse($response);
     }
+    return $result;
 }
 
 function getMovieFromImdbByTitle( $title )
 {
     $title = trim( $title );
-    $searchTitle = preg_replace('/\'/', '%27', $title);
-    $searchTitle = preg_replace('/\s+/', '+', $searchTitle);
+    $searchTitle = urlencode( $title );
     $result = requestIMDB( [ 't' => $searchTitle ] );
     $result['search'] = $title;
     return $result;

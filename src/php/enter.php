@@ -107,7 +107,7 @@ function getRankMovieById( $id )
 /*****************MOVIE SUBMIT*******************/
 
 
-function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
+function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite ) //todo - integrate with Letterboxd API
 {
     $fileName = getPath( "ratings.csv" );
     $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );

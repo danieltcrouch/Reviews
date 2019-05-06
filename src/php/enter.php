@@ -231,7 +231,6 @@ function validateRank( $list, $rank, $overwrite )
     if ( is_numeric($result['rank']) && $result['rank'] <= $max && $result['rank'] >= 0 )
     {
         $result['isSuccess'] = true;
-        $result['rank']++; //Display index starts at 1
     }
     else
     {

@@ -18,7 +18,7 @@ function getFullBookList()
 
 function getFavoritesList()
 {
-    return getBookListFromGoodreads( "favorites" );
+    return getBookListFromGoodreads( "favorites", "title" );
 }
 
 function getTempFullBookList()

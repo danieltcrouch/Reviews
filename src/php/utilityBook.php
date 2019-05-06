@@ -100,10 +100,10 @@ function getListFromGoodreads( $shelf, $sortType )
     return $books;
 }
 
-function getBookListFromGoodreads( $shelf )
+function getBookListFromGoodreads( $shelf, $sortType = "date_read" )
 {
     $result = [];
-    $books = getListFromGoodreads( $shelf, "date_read" );
+    $books = getListFromGoodreads( $shelf, $sortType );
     $images = getImages();
 
     $index = 0;

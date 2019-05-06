@@ -1,4 +1,4 @@
-var relevantList = [];
+var relevantListTitle = [];
 var relevantListFull = [];
 
 function compareRankings( type )
@@ -12,15 +12,15 @@ function setRelevantList( type )
     switch ( type )
     {
     case "Disney":
-        relevantList = disneyList.map( movie => movie.title );
+        relevantListTitle = disneyList.map(movie => movie.title );
         relevantListFull = disneyList;
         break;
     case "Marvel":
-        relevantList = marvelList.map( movie => movie.title );
+        relevantListTitle = marvelList.map(movie => movie.title );
         relevantListFull = marvelList;
         break;
     case "StarWars":
-        relevantList = starWarsList.map( movie => movie.title );
+        relevantListTitle = starWarsList.map(movie => movie.title );
         relevantListFull = starWarsList;
     }
 }
@@ -35,7 +35,7 @@ function openCompareModal()
     var listDiv = $('#modalList');
     listDiv.empty();
     listDiv.css( "text-align", "center" );
-    for ( var i = 0; i < relevantList.length; i++ )
+    for (var i = 0; i < relevantListTitle.length; i++ )
     {
         listDiv.append( "<div id='listItem" + i + "' style='display: flex; flex-direction: row; justify-content: center; margin-bottom: .5em'></div>" );
         var listItem = $('#listItem' + i);
@@ -47,7 +47,7 @@ function openCompareModal()
 
         listItem.append( "<div id='item" + i + "'></div>" );
         var itemDiv = $('#item' + i);
-        itemDiv.append( "<img style='width: 6em' src='" + relevantListFull[i].image + "' title='" + relevantList[i] + "' alt='" + relevantList[i] + "'>" );
+        itemDiv.append( "<img style='width: 6em' src='" + relevantListFull[i].image + "' title='" + relevantListTitle[i] + "' alt='" + relevantListTitle[i] + "'>" );
     }
 }
 
@@ -61,7 +61,7 @@ function compareText()
 {
     closeModal( $('#compareModal') );
 
-    var placeholder = relevantList.join('\n');
+    var placeholder = relevantListTitle.join('\n');
     showBigPrompt( "Compare Rankings", "Enter your ranking by rearranging the series below:", scoreTextRankings, placeholder );
 }
 
@@ -69,7 +69,7 @@ function scoreRankings()
 {
     var answers = [];
     $('div[id*="listItem"]').each(function(){
-        var title = relevantList[this.id.substring(8)];
+        var title = relevantListTitle[this.id.substring(8)];
         answers.push( title );
     });
 
@@ -83,18 +83,21 @@ function scoreTextRankings( answer )
     scoreAnswers( answers, true );
 }
 
+//Uses SPEARMAN'S COEFFICIENT OF RANK CORRELATION
 function scoreAnswers( answers, isText )
 {
     var sum = 0;
-    var count = relevantList.length;
+    var count = relevantListTitle.length;
+    var answerIndexes = [];
 
     for ( var i = 0; i < count; i++ )
     {
         var diff = 0;
         for ( var j = 0; j < answers.length; j++ )
         {
-            if ( relevantList[i] === answers[j] )
+            if ( relevantListTitle[i] === answers[j] )
             {
+                answerIndexes.push( j );
                 diff = i - j;
                 break;
             }
@@ -106,12 +109,25 @@ function scoreAnswers( answers, isText )
     score = ( score + 1 ) * 50;
     score = ( score < 100 ) ? score.toPrecision( 4 ) : 100;
 
-    displayResults( score, answers, isText );
+    displayResults( score, answerIndexes, isText );
 }
 
-function displayResults( score, rankings, isText )
+function displayResults( score, answerIndexes, isText )
 {
-    var resultsDisplay = rankings.join("<br/>"); //todo - isText ? rankings.join("<br/>") : *Display as side-byside images*
+    var movieList = [];
+    var movieDisplay = "<div style='align-content: center; margin-bottom: .5em'><strong>You&nbsp;|&nbsp;Me&nbsp;</strong></div>";
+    for ( var i = 0; i < answerIndexes.length; i++ )
+    {
+        var yIndex = i;
+        var mIndex = answerIndexes[i];
+        movieList.push( relevantListTitle[mIndex] );
+        movieDisplay += "<div>" +
+                        "<img style='width: 5em; margin-right: 1.5em' src='" + relevantListFull[mIndex].image + "' title='" + relevantListTitle[mIndex] + "' alt='" + relevantListTitle[mIndex] + "'>" +
+                        "<img style='width: 5em'                      src='" + relevantListFull[yIndex].image + "' title='" + relevantListTitle[yIndex] + "' alt='" + relevantListTitle[yIndex] + "'>" +
+                        "</div>";
+    }
+
+    var resultsDisplay = isText ? movieList.join("<br/>") : movieDisplay;
     showConfirm( "Comparison Results", "If 0% is the opposite and 100% a total match, our rankings match:" +
                                        "<div class='center' style='font-size: 1.5em'>" + score + "%</div>\n" +
                                        "<br/>" +

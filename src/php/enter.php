@@ -172,9 +172,10 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $ov
     saveRankMoviesToFile( $list, $movies );
 }
 
-function validateRank( $list, $rank, $overwrite )
+function validateRank( $list, $rank, $currentRank )
 {
-    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
+    $isOverwrite = is_numeric( $currentRank );
+    $currentRank = $isOverwrite ? (int)$currentRank : null;
     $result['isSuccess'] = false;
 
     $list = getListName( $list );
@@ -218,9 +219,16 @@ function validateRank( $list, $rank, $overwrite )
              stripos( $rank, "above" )  === 0 || stripos( $rank, "below" ) === 0 )
         {
             $title = explode( ' ', $rank, 2 )[1];
-            $titleIndex = getIndexFromListByTitle( $movies, $title );
+            $titleIndex = getIndexFromListByTitle( $movies, $title ) + 1;
+            $result['tIndex'] = $titleIndex;
+            $result['cIndex'] = $currentRank;
             if ( is_numeric( $titleIndex ) )
             {
+                if ( $isOverwrite && $titleIndex > $currentRank ) //current index is higher on list than given title
+                {
+                    $titleIndex--;
+                }
+                $result['tIndexSlide'] = $titleIndex;
                 $atPosition = stripos( $rank, "before" ) === 0 || stripos( $rank, "above" ) === 0;
                 $result['rank'] = $atPosition ? $titleIndex : $titleIndex + 1;
             }
@@ -357,9 +365,9 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	{
 		$result = $action( $_POST['list'], $_POST['id'] );
 	}
-	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) )
+	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['currentRank'] ) )
 	{
-		$result = $action( $_POST['list'], $_POST['rank'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
+		$result = $action( $_POST['list'], $_POST['rank'], $_POST['currentRank'] );
 	}
     elseif ( isset( $_POST['id'] ) && isset( $_POST['url'] ) )
    	{

@@ -283,7 +283,7 @@ function getRanking()
                 action: "validateRank",
                 list: $('#list').val(),
                 rank: answer,
-                overwrite: isOverwrite
+                currentRank: $('#index').val()
             },
             getRankingCallback
         );

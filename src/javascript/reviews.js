@@ -28,6 +28,30 @@ function toggleBookSubMenu()
     $('#bookSubMenu').toggle();
 }
 
+function getListFromType( type )
+{
+    type = type.toLowerCase();
+    var result;
+    switch ( type )
+    {
+    case "d":
+    case "disney":
+        result = disneyList;
+        break;
+    case "m":
+    case "mcu":
+    case "marvel":
+        result = marvelList;
+        break;
+    case "s":
+    case "sw":
+    case "starwars":
+    case "star wars":
+        result = starWarsList;
+    }
+    return result;
+}
+
 
 /*********************FIND***********************/
 
@@ -428,21 +452,27 @@ function showSection()
         switch (anchor)
         {
         case "Movies":
+        case "MovieContainer":
             showMovieList();
             break;
         case "Disney":
+        case "DisneyContainer":
             showDisneyList();
             break;
         case "Marvel":
+        case "MarvelContainer":
             showMarvelList();
             break;
         case "StarWars":
+        case "StarWarsContainer":
             showSWList();
             break;
         case "Books":
+        case "BookContainer":
             showBookList();
             break;
         case "Favorites":
+        case "FavoritesContainer":
             showFavoritesList();
             break;
         }
@@ -457,28 +487,28 @@ function showMovieList()
     displayMovies( "watch" );
 
     $('#MovieContainer').show();
-    scrollToId( "Movies" );
+    scrollToId( "MovieContainer" );
 }
 
 function showDisneyList()
 {
     hideAll();
     $('#DisneyContainer').show();
-    scrollToId( "Disney" );
+    scrollToId( "DisneyContainer" );
 }
 
 function showMarvelList()
 {
     hideAll();
     $('#MarvelContainer').show();
-    scrollToId( "Marvel" );
+    scrollToId( "MarvelContainer" );
 }
 
 function showSWList()
 {
     hideAll();
     $('#StarWarsContainer').show();
-    scrollToId( "StarWars" );
+    scrollToId( "StarWarsContainer" );
 }
 
 function showBookList()
@@ -489,14 +519,14 @@ function showBookList()
     displayBooks( "read" );
 
     $('#BookContainer').show();
-    scrollToId( "Books" );
+    scrollToId( "BookContainer" );
 }
 
 function showFavoritesList()
 {
     hideAll();
     $('#FavoritesContainer').show();
-    scrollToId( "Favorites" );
+    scrollToId( "FavoritesContainer" );
 }
 
 function hideAll()
@@ -507,4 +537,40 @@ function hideAll()
     $('#StarWarsContainer').hide();
     $('#BookContainer').hide();
     $('#FavoritesContainer').hide();
+}
+
+
+/********************RANKING*********************/
+
+
+//Compare logic found in compare.js
+
+function displayAverageRanking( type )
+{
+    $.post(
+        "php/database.php",
+        {
+            action:    "getAverageRanking",
+            type:      type
+        },
+        function ( response ) {
+            list = JSON.parse( response );
+            displayAverageRankingCallback( list, type );
+        }
+    );
+}
+
+function displayAverageRankingCallback( list, type )
+{
+    var fullList = getListFromType( type );
+    var averageList = list.map( id => fullList.find( movie => { return movie.id === id } ) );
+
+    var rankingImages = "";
+    for ( var i = 0; i < averageList.length; i++ )
+    {
+        var title = averageList[i].title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+        rankingImages += "<div> <img style='width: 5em' src='" + averageList[i].image + "' title='" + title + "' alt='" + title + "'> </div>";
+    }
+
+    showMessage( "Average Rankings", rankingImages );
 }

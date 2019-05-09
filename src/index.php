@@ -31,7 +31,7 @@
     <!--Main-->
     <div class="col-10 main">
         <a href="#main-top"></a>
-        <div class="center" style="font-size: 1.5em">Please Select a Category</div>
+        <div class="center" style="font-size: 1.5em">Select a Category</div>
         <div class="col-5 center">
             <img src="images/movies.png" class="logoImage clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
             <div id="movieSubMenu" style="display: none">
@@ -65,17 +65,26 @@
             <div class="center" style="margin-bottom: 1em">
                 <button class="button" style="width: 10em" onclick="compareRankings('Disney')">Compare</button>
             </div>
+            <div class="center" style="margin-bottom: 1em">
+                <button class="button" style="width: 10em" onclick="displayAverageRanking('Disney')">See Average</button>
+            </div>
             <div id="Disney" class="center textBlock"></div>
         </div>
         <div id="MarvelContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
                 <button class="button" style="width: 10em" onclick="compareRankings('Marvel')">Compare</button>
             </div>
+            <div class="center" style="margin-bottom: 1em">
+                <button class="button" style="width: 10em" onclick="displayAverageRanking('Marvel')">See Average</button>
+            </div>
             <div id="Marvel" class="center textBlock"></div>
         </div>
         <div id="StarWarsContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
                 <button class="button" style="width: 10em" onclick="compareRankings('StarWars')">Compare</button>
+            </div>
+            <div class="center" style="margin-bottom: 1em">
+                <button class="button" style="width: 10em" onclick="displayAverageRanking('StarWars')">See Average</button>
             </div>
             <div id="StarWars" class="center textBlock"></div>
         </div>

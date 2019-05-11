@@ -8,7 +8,7 @@ function compareRankings( type )
     listType = type;
     setRelevantList( type );
     setAverageList( type );
-    openCompareModal();
+    openSortModal( myListFull, scoreRankings, true );
 }
 
 function setRelevantList( type )
@@ -42,70 +42,11 @@ function setAverageCallback( list )
     }
 }
 
-function openCompareModal()
+function scoreRankings( answers, isText )
 {
-    var modal = $('#compareModal');
-    modal.show();
-    setCloseHandlers( modal, null, scoreRankings );
-    blurBackground();
-
-    var listDiv = $('#modalList');
-    listDiv.empty();
-    listDiv.css( "text-align", "center" );
-    for (var i = 0; i < myListTitle.length; i++ )
-    {
-        listDiv.append( "<div id='listItem" + i + "' style='display: flex; flex-direction: row; justify-content: center; margin-bottom: .5em'></div>" );
-        var listItem = $('#listItem' + i);
-
-        listItem.append( "<div id='arrows" + i + "' style='display: flex; flex-direction: column; justify-content: center; margin-right: .2em'></div>" );
-        var arrowDiv = $('#arrows' + i);
-        arrowDiv.append( "<img class='clickable' style='width: 1em' src='images/up.png'   alt='up'    onclick='moveItem( " + i + ", true  )'>" );
-        arrowDiv.append( "<img class='clickable' style='width: 1em' src='images/down.png' alt='down'  onclick='moveItem( " + i + ", false )'>" );
-
-        listItem.append( "<div id='item" + i + "'></div>" );
-        var itemDiv = $('#item' + i);
-        var title = myListTitle[i].replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-        itemDiv.append( "<img style='width: 6em' src='" + myListFull[i].image + "' title='" + title + "' alt='" + title + "'>" );
-    }
-}
-
-function moveItem( index, isUp )
-{
-    var item = $('#listItem' + index);
-    isUp ? item.prev().insertAfter( item ) : item.next().insertBefore( item );
-}
-
-function compareText()
-{
-    closeModal( $('#compareModal') );
-
-    var placeholder = myListTitle.join('\n');
-    showBigPrompt( "Compare Rankings", "Enter your ranking by rearranging the series below:", scoreTextRankings, placeholder );
-}
-
-function scoreRankings()
-{
-    var answers = [];
-    $('div[id*="listItem"]').each(function(){
-        var title = myListTitle[this.id.substring(8)];
-        answers.push( title );
-    });
-
-    closeModal( $('#compareModal') );
-
     var score = getScore( answers );
     var avgScore = getAverageScore( answers );
-    var results = getResultDisplay( answers );
-    displayResults( score, avgScore, results );
-}
-
-function scoreTextRankings( answer )
-{
-    var answers = answer.split('\n').map( movie => movie.trim() ).filter( Boolean );
-
-    var score = getScore( answers );
-    var avgScore = getAverageScore( answers );
-    var results = getTextResultDisplay( answers );
+    var results = isText ? getTextResultDisplay( answers ) : getResultDisplay( answers );
     displayResults( score, avgScore, results );
 }
 

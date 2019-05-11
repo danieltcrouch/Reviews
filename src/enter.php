@@ -5,6 +5,7 @@
 	<title>New Ratings</title>
     <?php includeHeadInfo(); ?>
     <script src="javascript/enter.js"></script>
+    <script src="javascript/compare.js"></script>
 </head>
 
 <body>
@@ -29,10 +30,11 @@
                 <input id="year" type="number" class="input" placeholder="Year">
             </div>
             <div class="col-3r center" style="padding-bottom: 0">
-                <input id="rating" type="number" class="input" placeholder="Rating">
+                <input id="rating"  type="number" class="input"                       placeholder="Rating">
+                <input id="list"    type="text"   class="input" style="display: none" placeholder="Franchise" disabled>
             </div>
             <div class="col-3r center" style="padding-bottom: 0">
-                <input id="index" type="number" class="input" placeholder="Index">
+                <input id="index" type="number" class="input" placeholder="Index" autocomplete="do-nothing">
             </div>
         </div>
         <div class="col-10 center">
@@ -41,12 +43,11 @@
                 <button id="full" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
                 <button id="rank" name="movieType" class="button inverseButton" style="width: 5em; margin: .25em;">Ranked</button>
             </div>
-            <div><input id="submit" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="submit()" value="Submit"></div>
-            <div><input id="delete" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="checkDelete()" value="Delete"></div>
-            <div><input id="addImage" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="addImage()" value="Add Image"></div>
-            <div><input id="download" type="button" class="button" style="width: 10em; margin-bottom: 1em" onclick="view()" value="View"></div>
+            <div><button id="submit"   class="button" style="width: 10em; margin-bottom: 1em" onclick="submit()">Submit</button></div>
+            <div><button id="delete"   class="button" style="width: 10em; margin-bottom: 1em" onclick="checkDelete()">Delete</button></div>
+            <div><button id="addImage" class="button" style="width: 10em; margin-bottom: 1em" onclick="addImage()">Add Image</button></div>
+            <div><button id="download" class="button" style="width: 10em; margin-bottom: 1em" onclick="view()">View</button></div>
             <input id="id" type="hidden" value="">
-            <input id="list" type="hidden" value="">
             <input id="image" type="hidden" value="">
         </div>
     </div>
@@ -63,6 +64,9 @@
 
     setMediaType( getSelectedRadioButton( "mediaType" ).id );
     setMovieType( getSelectedRadioButton( "movieType" ).id );
-    </script>
+</script>
+
+<?php include("html/list-modal.html"); ?>
+<?php include("html/sort-modal.html"); ?>
 <?php includeModals(); ?>
 </html>

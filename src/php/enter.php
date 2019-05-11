@@ -146,9 +146,13 @@ function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite ) /
 /******************RANK SUBMIT*******************/
 
 
-function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $overwrite )
+function saveRankedMovies( $list, $movies )
 {
-    $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
+    saveRankMoviesToFile( getListName( $list ), $movies );
+}
+
+function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review )
+{
     $movie = [
         'title'     => $title,
         'id'        => $id,
@@ -159,94 +163,88 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review, $ov
 
     $list = getListName( $list );
     $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+    $index = getIndexFromListById( $movies, $id );
+    $movies[ $index ] = $movie;
 
-    if ( $isOverwrite )
-    {
-        $originalIndex = getIndexFromListById( $movies, $id );
-        unset( $movies[$originalIndex] );
-    }
-
-    //Inserted movies will always appear above the movie currently at that rank
-    $rank = $rank - 1;
-    array_splice( $movies, $rank, 0, array( $movie ) );
     saveRankMoviesToFile( $list, $movies );
 }
 
-function validateRank( $list, $rank, $currentRank )
-{
-    $isOverwrite = is_numeric( $currentRank );
-    $currentRank = $isOverwrite ? (int)$currentRank : null;
-    $result['isSuccess'] = false;
-
-    $list = getListName( $list );
-    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
-    $count = count( $movies );
-
-    $rank = strtolower( $rank );
-    if ( is_numeric( $rank ) )
-    {
-        $result['rank'] = (int)$rank;
-    }
-    else
-    {
-        switch ( $rank )
-        {
-            case "top":
-            case "start":
-            case "first":
-                $result['rank'] = 1;
-                break;
-            case "second":
-                $result['rank'] = 2;
-                break;
-            case "third":
-                $result['rank'] = 3;
-                break;
-            case "fourth":
-                $result['rank'] = 4;
-                break;
-            case "fifth":
-                $result['rank'] = 5;
-                break;
-            case "last":
-            case "bottom":
-            case "end":
-                $result['rank'] = $count;
-                break;
-        }
-
-        if ( stripos( $rank, "before" ) === 0 || stripos( $rank, "after" ) === 0 ||
-             stripos( $rank, "above" )  === 0 || stripos( $rank, "below" ) === 0 )
-        {
-            $title = explode( ' ', $rank, 2 )[1];
-            $titleIndex = getIndexFromListByTitle( $movies, $title ) + 1;
-            $result['tIndex'] = $titleIndex;
-            $result['cIndex'] = $currentRank;
-            if ( is_numeric( $titleIndex ) )
-            {
-                if ( $isOverwrite && $titleIndex > $currentRank ) //current index is higher on list than given title
-                {
-                    $titleIndex--;
-                }
-                $result['tIndexSlide'] = $titleIndex;
-                $atPosition = stripos( $rank, "before" ) === 0 || stripos( $rank, "above" ) === 0;
-                $result['rank'] = $atPosition ? $titleIndex : $titleIndex + 1;
-            }
-        }
-    }
-
-    $max = $isOverwrite ? $count : $count + 1;
-    if ( is_numeric($result['rank']) && $result['rank'] <= $max && $result['rank'] >= 0 )
-    {
-        $result['isSuccess'] = true;
-    }
-    else
-    {
-        $result['message'] = "Invalid Rank";
-    }
-
-    return $result;
-}
+//ARCHIVED
+//function validateRank( $list, $rank, $currentRank )
+//{
+//    $isOverwrite = is_numeric( $currentRank );
+//    $currentRank = $isOverwrite ? (int)$currentRank : null;
+//    $result['isSuccess'] = false;
+//
+//    $list = getListName( $list );
+//    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+//    $count = count( $movies );
+//
+//    $rank = strtolower( $rank );
+//    if ( is_numeric( $rank ) )
+//    {
+//        $result['rank'] = (int)$rank;
+//    }
+//    else
+//    {
+//        switch ( $rank )
+//        {
+//            case "top":
+//            case "start":
+//            case "first":
+//                $result['rank'] = 1;
+//                break;
+//            case "second":
+//                $result['rank'] = 2;
+//                break;
+//            case "third":
+//                $result['rank'] = 3;
+//                break;
+//            case "fourth":
+//                $result['rank'] = 4;
+//                break;
+//            case "fifth":
+//                $result['rank'] = 5;
+//                break;
+//            case "last":
+//            case "bottom":
+//            case "end":
+//                $result['rank'] = $count;
+//                break;
+//        }
+//
+//        if ( stripos( $rank, "before" ) === 0 || stripos( $rank, "after" ) === 0 ||
+//             stripos( $rank, "above" )  === 0 || stripos( $rank, "below" ) === 0 )
+//        {
+//            $title = explode( ' ', $rank, 2 )[1];
+//            $titleIndex = getIndexFromListByTitle( $movies, $title ) + 1;
+//            $result['tIndex'] = $titleIndex;
+//            $result['cIndex'] = $currentRank;
+//            if ( is_numeric( $titleIndex ) )
+//            {
+//                if ( $isOverwrite && $titleIndex > $currentRank ) //current index is higher on list than given title
+//                {
+//                    $titleIndex--;
+//                }
+//                $result['tIndexSlide'] = $titleIndex;
+//                $atPosition = stripos( $rank, "before" ) === 0 || stripos( $rank, "above" ) === 0;
+//                $result['rank'] = $atPosition ? $titleIndex : $titleIndex + 1;
+//            }
+//        }
+//    }
+//
+//    $max = $isOverwrite ? $count : $count + 1;
+//    if ( is_numeric($result['rank']) && $result['rank'] <= $max && $result['rank'] >= 0 )
+//    {
+//        $result['isSuccess'] = true;
+//    }
+//    else
+//    {
+//        $result['message'] = "Invalid Rank";
+//    }
+//
+//    return $result;
+//}
 
 
 /*********************DELETE********************/
@@ -359,11 +357,15 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
     }
 	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['image'] ) && isset( $_POST['review'] ) )
     {
-        $result = $action( $_POST['list'], $_POST['rank'], $_POST['id'], $_POST['title'], $_POST['year'], $_POST['image'], $_POST['review'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
+        $result = $action( $_POST['list'], $_POST['rank'], $_POST['id'], $_POST['title'], $_POST['year'], $_POST['image'], $_POST['review'] );
     }
 	elseif ( isset( $_POST['list'] ) && isset( $_POST['id'] ) )
 	{
 		$result = $action( $_POST['list'], $_POST['id'] );
+	}
+	elseif ( isset( $_POST['list'] ) && isset( $_POST['movies'] ) )
+	{
+        $result = $action( $_POST['list'], json_decode( $_POST['movies'], true ) );
 	}
 	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['currentRank'] ) )
 	{

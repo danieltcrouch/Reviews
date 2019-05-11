@@ -121,6 +121,6 @@
         displayBooks( sortType );
     });
 </script>
-<?php include("html/compare-modal.html"); ?>
+<?php include("html/sort-modal.html"); ?>
 <?php includeModals(); ?>
 </html>

@@ -19,7 +19,7 @@ function requestIMDB( array $params = array() )
     $result = [];
     if ( !empty($params) )
     {
-        $paramString = http_build_query($params, "", "&");
+        $paramString = http_build_query( $params, "", "&", PHP_QUERY_RFC3986 );
         $url = "http://www.omdbapi.com/?$paramString&y=&plot=short&r=json&apikey=522c6900"; //OMDB API requires API Key -> go to their site if this one stops working
         $response = json_decode(file_get_contents($url));
         $result = getDataFromResponse($response);
@@ -30,8 +30,7 @@ function requestIMDB( array $params = array() )
 function getMovieFromImdbByTitle( $title )
 {
     $title = trim( $title );
-    $searchTitle = urlencode( $title );
-    $result = requestIMDB( [ 't' => $searchTitle ] );
+    $result = requestIMDB( [ 't' => $title ] );
     $result['search'] = $title;
     return $result;
 }

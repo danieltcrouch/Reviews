@@ -1,0 +1,95 @@
+<link rel="stylesheet" type="text/css" href="https://religionandstory.com/common/css/modal.css"/>
+
+<div id="sortModal" class="modal-wrapper">
+    <div class="modal-foreground">
+        <div class="modal-box" style="max-height: 80%">
+            <div class="modal-header">
+                <span id="modalHeader" class="subtitle">Compare Rankings</span>
+                <span id="close" class="close">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body center">
+                <div id="modalInstructions">
+                    Enter your ranking by rearranging the series below.
+                </div>
+                <div id="textLink" style="margin-bottom: 1em">
+                    <a class="link" onclick="sortText()">(Or use Text List to Compare)</a>
+                </div>
+                <div id="modalList">
+                    [Loading list]
+                </div>
+            </div>
+            <div id="modalSubmit" class="modal-submit center">
+                <button id="submitButton" class="button" style="width: 10em">Submit</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-background"></div>
+</div>
+
+<script>
+    var sortCallback;
+
+    function openSortModal( list, closeHandler, textOption )
+    {
+        sortCallback = closeHandler;
+
+        var modal = $('#sortModal');
+        modal.show();
+        setCloseHandlers( modal, null, function(){
+            var answers = [];
+            $('div[id*="listItem"]').each(function(){
+                var title = myListTitle[this.id.substring(8)];
+                answers.push( title );
+            });
+
+            closeModal( modal );
+            sortCallback( answers );
+        } );
+        blurBackground();
+
+        if ( textOption )
+        {
+            $('#textLink').show();
+        }
+
+        var listDiv = $('#modalList');
+        listDiv.empty();
+        listDiv.css( "text-align", "center" );
+        for (var i = 0; i < list.length; i++ )
+        {
+            listDiv.append( "<div id='listItem" + i + "' style='display: flex; flex-direction: row; justify-content: center; margin-bottom: .5em'></div>" );
+            var listItem = $('#listItem' + i);
+
+            listItem.append( "<div id='arrows" + i + "' style='display: flex; flex-direction: column; justify-content: center; margin-right: .2em'></div>" );
+            var arrowDiv = $('#arrows' + i);
+            arrowDiv.append( "<img class='clickable' style='width: 1em' src='images/up.png'   alt='up'    onclick='moveItem( " + i + ", true  )'>" );
+            arrowDiv.append( "<img class='clickable' style='width: 1em' src='images/down.png' alt='down'  onclick='moveItem( " + i + ", false )'>" );
+
+            listItem.append( "<div id='item" + i + "'></div>" );
+            var itemDiv = $('#item' + i);
+            var title = list[i].title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            itemDiv.append( "<img style='width: 6em' src='" + list[i].image + "' title='" + title + "' alt='" + title + "'>" );
+        }
+    }
+
+    function moveItem( index, isUp )
+    {
+        var item = $('#listItem' + index);
+        isUp ? item.prev().insertAfter( item ) : item.next().insertBefore( item );
+    }
+
+    function sortText()
+    {
+        closeModal( $('#sortModal') );
+
+        var placeholder = myListTitle.join('\n');
+        showBigPrompt(
+            "Compare Rankings",
+            "Enter your ranking by rearranging the series below:",
+            function( response ) {
+                var answers = response.split('\n').map( movie => movie.trim() ).filter( Boolean );
+                sortCallback( answers, true );
+            },
+            placeholder );
+    }
+</script>

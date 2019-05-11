@@ -28,17 +28,19 @@
 
 <script>
     var sortCallback;
+    var sortList;
 
     function openSortModal( list, closeHandler, textOption )
     {
         sortCallback = closeHandler;
+        sortList = list;
 
         var modal = $('#sortModal');
         modal.show();
         setCloseHandlers( modal, null, function(){
             var answers = [];
             $('div[id*="listItem"]').each(function(){
-                var title = myListTitle[this.id.substring(8)];
+                var title = sortList[this.id.substring(8)].title;
                 answers.push( title );
             });
 
@@ -67,8 +69,8 @@
 
             listItem.append( "<div id='item" + i + "'></div>" );
             var itemDiv = $('#item' + i);
-            var title = list[i].title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-            itemDiv.append( "<img style='width: 6em' src='" + list[i].image + "' title='" + title + "' alt='" + title + "'>" );
+            var title = sortList[i].title.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            itemDiv.append( "<img style='width: 6em' src='" + sortList[i].image + "' title='" + title + "' alt='" + title + "'>" );
         }
     }
 
@@ -82,7 +84,7 @@
     {
         closeModal( $('#sortModal') );
 
-        var placeholder = myListTitle.join('\n');
+        var placeholder = sortList.join('\n');
         showBigPrompt(
             "Compare Rankings",
             "Enter your ranking by rearranging the series below:",

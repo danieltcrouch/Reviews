@@ -9,9 +9,9 @@
             </div>
             <div id="modalBody" class="modal-body center">Choose the relevant list:</div>
             <div id="modalSubmit" class="modal-submit center">
-                <button id="dButton" class="button" style="width: 10em" onclick="setListCallback('Disney')">Disney</button>
-                <button id="mButton" class="button" style="width: 10em" onclick="setListCallback('Marvel')">Marvel</button>
-                <button id="sButton" class="button" style="width: 10em" onclick="setListCallback('StarWars')">Star Wars</button>
+                <button id="dButton" class="button" style="width: 10em" onclick="getFullList('Disney')">Disney</button>
+                <button id="mButton" class="button" style="width: 10em" onclick="getFullList('Marvel')">Marvel</button>
+                <button id="sButton" class="button" style="width: 10em" onclick="getFullList('StarWars')">Star Wars</button>
             </div>
         </div>
     </div>
@@ -31,22 +31,14 @@
         listCallback = callback;
     }
 
-    function setListCallback( answer )
+    function getFullList(answer )
     {
         closeModal( $('#listModal') );
-
-        $('#list').val( getDisplayListName( answer ) );
-
-        getFullList();
-    }
-
-    function getFullList()
-    {
         $.post(
             "php/reviews.php",
-            { action: "get" + getListName( $('#list').val() ) + "List" },
+            { action: "get" + answer + "List" },
             function( response ) {
-                listCallback( JSON.parse( response ) );
+                listCallback( answer, JSON.parse( response ) );
             }
         );
     }

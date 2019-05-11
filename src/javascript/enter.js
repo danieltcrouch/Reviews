@@ -185,15 +185,24 @@ function fillData( response )
     isOverwrite = response.isPreviouslyReviewed;
     if ( isOverwrite )
     {
-        openListModal( function( response ) {
-            rankedList = response;
-        } );
+        getRankList( getListName( $('#list').val() ) );
     }
     else
     {
         var term = isMovie() ? "Movie" : "Book";
         showToaster( term + " not previously reviewed." );
     }
+}
+
+function getRankList( list )
+{
+    $.post(
+        "php/reviews.php",
+        { action: "get" + list + "List" },
+        function( response ) {
+            rankedList = JSON.parse( response );
+        }
+    );
 }
 
 function clear()
@@ -356,7 +365,8 @@ function getRanking()
     {
         //If no movie present, still allow editing of current list
         //showMessage( "No Movie", "Choose a movie before editing its rank." );
-        openListModal( function( response ) {
+        openListModal( function( listName, response ) {
+            $('#list').val( getDisplayListName( listName ) );
             rankedList = response;
             getRanking();
         } );
@@ -365,6 +375,7 @@ function getRanking()
 
 function getRankingCallback( response )
 {
+    var mainIndex = response.indexOf( $('#title').val() );
     var changed = false;
     rankedList.sort(function(a, b){
       var result = response.indexOf(a.title) - response.indexOf(b.title);
@@ -382,6 +393,7 @@ function getRankingCallback( response )
                 movies: JSON.stringify( rankedList )
             },
             function() {
+                mainIndex >= 0 ? $('#index').val( mainIndex ) : null;
                 showToaster( "Ranks updated." );
             }
         );

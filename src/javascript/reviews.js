@@ -321,8 +321,8 @@ function parseTen( response )
         } );
 
         tenDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
-        $('#' + genreId).html( "<div class='subtitle'>" + genre + "</div>" );
-        $('#' + genreId).html( getMovieDisplay( tenList ) ); //todo - do you want to display images?
+        $('#' + genreId).html( "<div class='subtitle'>" + genre + "</div>" +
+                                getMovieDisplay( tenList ) ); //todo - do you want to display images?
     }
 }
 

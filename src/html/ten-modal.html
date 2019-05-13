@@ -36,6 +36,10 @@
 
     function createButtons( genres )
     {
+        $('#genreCol1').empty();
+        $('#genreCol2').empty();
+        $('#genreCol3').empty();
+
         for ( var i = 0; i < genres.length; i++ )
         {
             var index = (i%3) + 1;

@@ -532,14 +532,15 @@ function showTenList()
 {
     hideAll();
 
-    openTenModal( genres, function( genre ) {
-        if ( genre )
-        {
-            $('#TenContainer').show();
-            $('#' + genre).show();
-            scrollToId( "TenContainer" );
-        }
-    } );
+    showMessage( "In Progress...", "Ten Top 10 coming soon..." );
+    // openTenModal( genres, function( genre ) {
+    //     if ( genre )
+    //     {
+    //         $('#TenContainer').show();
+    //         $('#' + genre).show();
+    //         scrollToId( "TenContainer" );
+    //     }
+    // } );
 }
 
 function showDisneyList()

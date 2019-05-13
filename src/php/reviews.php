@@ -51,25 +51,7 @@ function getFullMovieList()
 
 function getTenList()
 {
-    $genres = getListFromFile( "genres.csv", function( $row, $columns ) {
-            return [
-                "id"     => $row[$columns['iIndex']],
-                "title"  => $row[$columns['tIndex']]
-            ];
-        } );
-
-    $tenLists = [];
-    foreach ( $genres as $genre )
-    {
-        $list = getMovieListFromFile( getPath( "$genre[id].csv" ) );
-        $genreList = [
-            "id"    => $genre['id'],
-            "title" => $genre['title'],
-            "list"  => $list
-        ];
-        array_push( $tenLists, $genreList );
-    }
-    return $tenLists;
+    return getMultiMovieListFromFile( getPath( "genres.csv" ) );
 }
 
 function getDisneyList()

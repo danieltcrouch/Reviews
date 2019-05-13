@@ -85,6 +85,29 @@ function getMovieFromFile( $title )
     return ( $movieId ) ? $movies[$movieId] : null;
 }
 
+function getMultiMovieListFromFile( $fileName ) //todo - read movie details from normal movie list
+{
+    $genres = getListFromFile( $fileName, function( $row, $columns ) {
+            return [
+                "id"     => $row[$columns['iIndex']],
+                "title"  => $row[$columns['tIndex']]
+            ];
+        } );
+
+    $tenLists = [];
+    foreach ( $genres as $genre )
+    {
+        $list = getMovieListFromFile( getPath( "$genre[id].csv" ) );
+        $genreList = [
+            "id"    => $genre['id'],
+            "title" => $genre['title'],
+            "list"  => $list
+        ];
+        array_push( $tenLists, $genreList );
+    }
+    return $tenLists;
+}
+
 function saveFullMoviesToFile( $movies )
 {
     saveListToFile(

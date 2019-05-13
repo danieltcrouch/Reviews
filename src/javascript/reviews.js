@@ -4,6 +4,7 @@ var movieList = {
     year:   [],
     rating: []
 };
+var genres = [];
 var tenLists = [];
 var disneyList = [];
 var marvelList = [];
@@ -183,7 +184,7 @@ function populateTenList()
 {
     $.post(
         "php/reviews.php",
-        { action: "getTenList" }, //todo - on php side, read movie details from normal movie list
+        { action: "getTenList" },
         parseTen
     );
 }
@@ -306,12 +307,13 @@ function getMovieDisplay( movies )
 function parseTen( response )
 {
     tenLists = JSON.parse( response );
-
+    genres = tenLists.map( function(g) { return { id: g.id, title: g.title }; } );
 
     for ( var i = 0; i < tenLists.length; i++ )
     {
         var tenDiv = $('#TenContainer');
         var genreId = tenLists[i].id;
+        var genre   = tenLists[i].title;
         var tenList = tenLists[i].list;
 
         tenList.forEach( function( movie ) {
@@ -319,7 +321,8 @@ function parseTen( response )
         } );
 
         tenDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
-        $('#' + genreId).html( getMovieDisplay( tenList ) );
+        $('#' + genreId).html( "<div class='subtitle'>" + genre + "</div>" );
+        $('#' + genreId).html( getMovieDisplay( tenList ) ); //todo - do you want to display images?
     }
 }
 
@@ -529,7 +532,6 @@ function showTenList()
 {
     hideAll();
 
-    var genres = tenLists.map( function(g) { return { id: g.id, title: g.title }; } );
     openTenModal( genres, function( genre ) {
         if ( genre )
         {
@@ -593,9 +595,9 @@ function hideAll()
 
 function hideTen()
 {
-    $('#Genre1').hide();
-    $('#Genre2').hide();
-    $('#Genre3').hide();
+    genres.forEach( function(genre) {
+        $('#' + genre.id).hide();
+    });
 }
 
 

@@ -1,0 +1,45 @@
+<link rel="stylesheet" type="text/css" href="https://religionandstory.com/common/css/modal.css"/>
+
+<div id="tenModal" class="modal-wrapper">
+    <div class="modal-foreground">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalHeader" class="subtitle">Ten Top 10</span>
+                <span id="close" class="close">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body center">Choose a Top 10 list:</div>
+            <div id="modalSubmit" class="modal-submit center">
+                <div class="col-3r center">
+                    <button id="genre1Button" class="button" style="width: 10em" onclick="openTenModalCallback('genre1')">Genre 1</button>
+                </div>
+                <div class="col-3r center">
+                    <button id="genre2Button" class="button" style="width: 10em" onclick="openTenModalCallback('genre2')">Genre 2</button>
+                </div>
+                <div class="col-3r center">
+                    <button id="genre3Button" class="button" style="width: 10em" onclick="openTenModalCallback('genre3')">Genre 3</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-background"></div>
+</div>
+
+<script>
+    var tenCallback;
+
+    function openTenModal( callback )
+    {
+        var modal = $('#tenModal');
+        modal.show();
+        setCloseHandlers( modal );
+        blurBackground();
+
+        tenCallback = callback;
+    }
+
+    function openTenModalCallback( answer )
+    {
+        closeModal( $('#tenModal') );
+        tenCallback( answer );
+    }
+</script>

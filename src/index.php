@@ -4,6 +4,7 @@
 <head>
 	<title>Daniel&rsquo;s Ratings</title>
     <?php includeHeadInfo(); ?>
+    <link rel="stylesheet" type="text/css" href="css/reviews.css"/>
     <script src="javascript/reviews.js"></script>
     <script src="javascript/compare.js"></script>
 </head>
@@ -33,21 +34,26 @@
         <a href="#main-top"></a>
         <div class="center" style="font-size: 1.5em">Select a Category</div>
         <div class="col-5 center">
-            <img src="images/movies.png" class="logoImage clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
+            <img src="images/movies.png" class="icon clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
             <div id="movieSubMenu" style="display: none">
-                <input id="findMovie" type="search" class="input" onkeyup="findMovieOnEnter( event )" placeholder="Find a movie">
-                <div><img src="images/list.png" class="logoImage clickable" onclick="showMovieList()" title="Click to see all movies"></div>
-                <div><img src="images/disney.png" class="logoImage clickable" onclick="showDisneyList()" title="Click to see Disney movies"></div>
-                <div><img src="images/marvel.png" class="logoImage clickable" onclick="showMarvelList()" title="Click to see Marvel movies"></div>
-                <div><img src="images/star-wars.png" class="logoImage clickable" onclick="showSWList()" title="Click to see Star Wars movies"></div>
+                <input id="findMovie" type="search"  class="input" onkeyup="findMovieOnEnter( event )" placeholder="Find a movie">
+                <div>
+                    <img src="images/list.png"      class="sub-icon clickable" onclick="showMovieList()"  title="Click to see all movies">
+                    <img src="images/ten.png"       class="sub-icon clickable" onclick="showTenList()"    title="Click to see Ten Top 10 movies">
+                    <img src="images/disney.png"    class="sub-icon clickable" onclick="showDisneyList()" title="Click to see Disney movies">
+                    <img src="images/marvel.png"    class="sub-icon clickable" onclick="showMarvelList()" title="Click to see Marvel movies">
+                    <img src="images/star-wars.png" class="sub-icon clickable" onclick="showSWList()"     title="Click to see Star Wars movies">
+                </div>
             </div>
         </div>
         <div class="col-5 center">
-            <img src="images/books.png" class="logoImage clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
+            <img src="images/books.png" class="icon clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
             <div id="bookSubMenu" style="display: none">
                 <input id="findBook" type="search" class="input" onkeyup="findBookOnEnter( event )" placeholder="Find a book">
-                <div><img src="images/list.png" class="logoImage clickable" onclick="showBookList()" title="Click to see all books"></div>
-                <div><img src="images/star.png" class="logoImage clickable" onclick="showFavoritesList()" title="Click to see favorite books"></div>
+                <div>
+                    <img src="images/list.png" class="sub-icon clickable" onclick="showBookList()" title="Click to see all books">
+                    <img src="images/star.png" class="sub-icon clickable" onclick="showFavoritesList()" title="Click to see favorite books">
+                </div>
             </div>
         </div>
     </div>
@@ -60,6 +66,11 @@
                 <button id="rating" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
             <div id="Movies" class="center textBlock"></div>
+        </div>
+        <div id="TenContainer" style="display: none">
+            <div id="Genre1" class="center textBlock" style="display: none"></div>
+            <div id="Genre2" class="center textBlock" style="display: none"></div>
+            <div id="Genre3" class="center textBlock" style="display: none"></div>
         </div>
         <div id="DisneyContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
@@ -106,6 +117,7 @@
 
 <script>
     populateMovieList();
+    populateTenList();
     populateDisneyList();
     populateMarvelList();
     populateStarWarsList();

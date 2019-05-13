@@ -713,8 +713,6 @@ function populateTenList()
     );
 }
 
-//fake code
-
 function populateDisneyList()
 {
     $.post(

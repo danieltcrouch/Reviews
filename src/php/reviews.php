@@ -49,6 +49,29 @@ function getFullMovieList()
     return array_reverse( getMovieListFromFile( getPath( "ratings.csv" ) ) );
 }
 
+function getTenList()
+{
+    $genres = getListFromFile( "genres.csv", function( $row, $columns ) {
+            return [
+                "id"     => $row[$columns['iIndex']],
+                "title"  => $row[$columns['tIndex']]
+            ];
+        } );
+
+    $tenLists = [];
+    foreach ( $genres as $genre )
+    {
+        $list = getMovieListFromFile( getPath( "$genre[id].csv" ) );
+        $genreList = [
+            "id"    => $genre['id'],
+            "title" => $genre['title'],
+            "list"  => $list
+        ];
+        array_push( $tenLists, $genreList );
+    }
+    return $tenLists;
+}
+
 function getDisneyList()
 {
     return getMovieListFromFile( getPath( "rank-Disney.csv" ) );

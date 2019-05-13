@@ -68,9 +68,7 @@
             <div id="Movies" class="center textBlock"></div>
         </div>
         <div id="TenContainer" style="display: none">
-            <div id="Genre1" class="center textBlock" style="display: none"></div>
-            <div id="Genre2" class="center textBlock" style="display: none"></div>
-            <div id="Genre3" class="center textBlock" style="display: none"></div>
+            <!-- Genres go here -->
         </div>
         <div id="DisneyContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
@@ -133,6 +131,7 @@
         displayBooks( sortType );
     });
 </script>
+<?php include("html/ten-modal.html"); ?>
 <?php include("html/sort-modal.html"); ?>
 <?php includeModals(); ?>
 </html>

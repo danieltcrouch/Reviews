@@ -9,15 +9,9 @@
             </div>
             <div id="modalBody" class="modal-body center">Choose a Top 10 list:</div>
             <div id="modalSubmit" class="modal-submit center">
-                <div class="col-3r center">
-                    <button id="genre1Button" class="button" style="width: 10em" onclick="openTenModalCallback('genre1')">Genre 1</button>
-                </div>
-                <div class="col-3r center">
-                    <button id="genre2Button" class="button" style="width: 10em" onclick="openTenModalCallback('genre2')">Genre 2</button>
-                </div>
-                <div class="col-3r center">
-                    <button id="genre3Button" class="button" style="width: 10em" onclick="openTenModalCallback('genre3')">Genre 3</button>
-                </div>
+                <div id="genreCol1" class="col-3r center"></div>
+                <div id="genreCol2" class="col-3r center"></div>
+                <div id="genreCol3" class="col-3r center"></div>
             </div>
         </div>
     </div>
@@ -27,14 +21,28 @@
 <script>
     var tenCallback;
 
-    function openTenModal( callback )
+    function openTenModal( genres, callback )
     {
         var modal = $('#tenModal');
+
+        createButtons( genres );
+
         modal.show();
         setCloseHandlers( modal );
         blurBackground();
 
         tenCallback = callback;
+    }
+
+    function createButtons( genres )
+    {
+        for ( var i = 0; i < genres.length; i++ )
+        {
+            var index = (i%3) + 1;
+            index = ( i === genres.length - 1 ) ? ( (index === 3) ? index : index + 1 ) : index;
+            var genre = genres[i];
+            $('#genreCol' + index).append( "<button id=\"" + genre.id + "Button\" class=\"button\" style=\"width: 10em\" onclick=\"openTenModalCallback('" + genre.id + "')\">" + genre.title + "</button>" );
+        }
     }
 
     function openTenModalCallback( answer )

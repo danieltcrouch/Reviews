@@ -307,11 +307,19 @@ function parseTen( response )
 {
     tenLists = JSON.parse( response );
 
+
     for ( var i = 0; i < tenLists.length; i++ )
     {
+        var tenDiv = $('#TenContainer');
+        var genreId = tenLists[i].id;
         var tenList = tenLists[i].list;
-        //todo - forEach - tenList[index].review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
-        $('#' + tenLists[i].genre).html( getMovieDisplay( tenList ) );
+
+        tenList.forEach( function( movie ) {
+            movie.review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
+        } );
+
+        tenDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
+        $('#' + genreId).html( getMovieDisplay( tenList ) );
     }
 }
 
@@ -521,7 +529,8 @@ function showTenList()
 {
     hideAll();
 
-    openTenModal( function( genre ) {
+    var genres = tenLists.map( function(g) { return { id: g.id, title: g.title }; } );
+    openTenModal( genres, function( genre ) {
         if ( genre )
         {
             $('#TenContainer').show();

@@ -318,7 +318,7 @@ function parseTen( response )
 
         tenDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
         $('#' + genreId).html( "<div class='subtitle center'>" + genre + "</div>" +
-                               displayRankings( tenList ) );
+                               getRankingsDisplay( tenList ) );
     }
 }
 
@@ -338,10 +338,10 @@ function parseRankings( type, response )
         break;
     }
 
-    $('#' + type).html( displayRankings( list ) );
+    $('#' + type).html( getRankingsDisplay( list ) );
 }
 
-function displayRankings( list )
+function getRankingsDisplay(list )
 {
     var movieDisplay = "";
     for ( var index = 0; index < list.length; index++ )
@@ -351,6 +351,7 @@ function displayRankings( list )
         movieDisplay += "<div>" + (index+1) + ". <strong>" + movie.title + "</strong> (" + movie.year + ") - " + movie.review + "</div>" +
                         "<img src='" + movie.image + "' height='300px' alt='Movie Poster' /><br/><br/>";
     }
+    return movieDisplay;
 }
 
 //BOOK ********************
@@ -524,7 +525,7 @@ function showTenList()
 
     showMessage( "In Progress...", "Ten Top 10 coming soon..." );
     //todo - Uncomment when ready
-    // openTenModal( genres, function( genre ) {
+    // openGenreModal( genres, function( genre ) {
     //     if ( genre )
     //     {
     //         $('#TenContainer').show();

@@ -316,13 +316,9 @@ function parseTen( response )
         var genre   = tenLists[i].title;
         var tenList = tenLists[i].list;
 
-        tenList.forEach( function( movie ) {
-            movie.review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
-        } );
-
         tenDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
-        $('#' + genreId).html( "<div class='subtitle'>" + genre + "</div>" +
-                                getMovieDisplay( tenList ) ); //todo - do you want to display images?
+        $('#' + genreId).html( "<div class='subtitle center'>" + genre + "</div>" +
+                               displayRankings( tenList ) );
     }
 }
 
@@ -342,16 +338,10 @@ function parseRankings( type, response )
         break;
     }
 
-    for ( var index = 0; index < list.length; index++ )
-    {
-        var movie = list[index];
-        list.review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
-    }
-
-    displayRankings( list, type );
+    $('#' + type).html( displayRankings( list ) );
 }
 
-function displayRankings( list, type )
+function displayRankings( list )
 {
     var movieDisplay = "";
     for ( var index = 0; index < list.length; index++ )
@@ -361,7 +351,6 @@ function displayRankings( list, type )
         movieDisplay += "<div>" + (index+1) + ". <strong>" + movie.title + "</strong> (" + movie.year + ") - " + movie.review + "</div>" +
                         "<img src='" + movie.image + "' height='300px' alt='Movie Poster' /><br/><br/>";
     }
-    $('#' + type).html( movieDisplay );
 }
 
 //BOOK ********************
@@ -435,7 +424,8 @@ function displayFavorites()
                        " - <strong>" + book.rating + "/5</strong> - " + book.review + "</div>" +
                        "<img src='" + book.image + "' height='300px' alt='Book Cover' /><br/><br/>";
     }
-    $('#Favorites').html( bookDisplay );
+    $('#Favorites').html( "<div class='subtitle center'>Favorites</div>" +
+                          bookDisplay );
 }
 
 function sortList( list, sortType )
@@ -533,6 +523,7 @@ function showTenList()
     hideAll();
 
     showMessage( "In Progress...", "Ten Top 10 coming soon..." );
+    //todo - Uncomment when ready
     // openTenModal( genres, function( genre ) {
     //     if ( genre )
     //     {

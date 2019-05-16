@@ -107,7 +107,7 @@ function getRankMovieById( $id )
 /*****************MOVIE SUBMIT*******************/
 
 
-function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite ) //todo - integrate with Letterboxd API
+function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 {
     $fileName = getPath( "ratings.csv" );
     $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
@@ -365,7 +365,7 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	}
 	elseif ( isset( $_POST['list'] ) && isset( $_POST['movies'] ) )
 	{
-        $result = $action( $_POST['list'], json_decode( $_POST['movies'], true ) );
+        $result = $action( $_POST['list'], $_POST['movies'] );
 	}
 	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['currentRank'] ) )
 	{

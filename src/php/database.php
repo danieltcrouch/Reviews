@@ -32,9 +32,31 @@ function saveRanking( $type, $rankings )
         $prefix  = ",";
     }
 
-    $tableName = strtolower( $type ) . "Rankings";
+    $tableName = getTableName( $type );
 	$result = $mysqli->query( "INSERT INTO $tableName ( id, rank ) VALUES $rankSql " );
     return $result;
+}
+
+function updatePersonalRankings( $type, $movies )
+{
+    $mysqli = getMySql();
+
+    $caseSql = "CASE ";
+    for ($i = 0; $i < count($movies); $i++) {
+        $id = $movies[$i]['id'];
+        $rank = $i + 1;
+        $caseSql .= "WHEN id = '$id' THEN '$rank'\n";
+    }
+    $caseSql .= "END ";
+
+    $tableName = getTableName( $type );
+    $result = $mysqli->query("UPDATE $tableName SET rank = ($caseSql) WHERE personal = '1' ");
+    return $result;
+}
+
+function getTableName( $type )
+{
+    return strtolower( $type ) . "Rankings";
 }
 
 function getMySql()
@@ -51,6 +73,10 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	{
 		$result = $action( $_POST['type'], $_POST['rankings'] );
 	}
+    elseif ( isset( $_POST['type'] ) && isset( $_POST['movies'] ) )
+   	{
+   	    $result = $action( $_POST['type'], $_POST['movies'] );
+   	}
 	elseif ( isset( $_POST['type'] ) )
 	{
 		$result = $action( $_POST['type'] );

@@ -40,8 +40,9 @@
         <div class="col-10 center">
             <div><textarea id="review" class="input" placeholder="Review"></textarea></div>
             <div id="movieTypeButtons" class="center" style="margin-bottom: 1em">
-                <button id="full" name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">Listed</button>
-                <button id="rank" name="movieType" class="button inverseButton" style="width: 5em; margin: .25em;">Ranked</button>
+                <button id="full"  name="movieType" class="button selectedButton" style="width: 5em; margin: .25em;">List</button>
+                <button id="top10" name="movieType" class="button inverseButton"  style="width: 5em; margin: .25em;">Ten</button>
+                <button id="rank"  name="movieType" class="button inverseButton"  style="width: 5em; margin: .25em;">Rank</button>
             </div>
             <div><button id="submit"   class="button" style="width: 10em; margin-bottom: 1em" onclick="submit()">Submit</button></div>
             <div><button id="delete"   class="button" style="width: 10em; margin-bottom: 1em" onclick="checkDelete()">Delete</button></div>

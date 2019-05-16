@@ -151,22 +151,25 @@ function autoFillByTitleCallback( response )
             }
             else
             {
-                promptGoogle( $('#title').val() );
+                //promptGoogle( $('#title').val() );
+                showToaster( "Try entering IMDb ID." );
             }
         });
     }
     else
     {
-        promptGoogle( $('#title').val() );
+        //promptGoogle( $('#title').val() );
+        showToaster( "No movie found." );
     }
 }
 
-function promptGoogle( search )
-{
-    var db = isMovie() ? "IMDB" : "GoodReads";
-    var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=" + db + "%20" + search + "'>Google</a><br/>Then enter ID:";
-    showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
-}
+//ARCHIVE
+// function promptGoogle( search )
+// {
+//     var db = isMovie() ? "IMDB" : "GoodReads";
+//     var html = "Try finding the ID here: <a class='link' href='https://www.google.com/search?q=" + db + "%20" + search + "'>Google</a><br/>Then enter ID:";
+//     showPrompt( "Enter ID", html, autoFillById, "tt0082971", true );
+// }
 
 function fillData( response )
 {
@@ -363,8 +366,6 @@ function getRanking()
     }
     else
     {
-        //If no movie present, still allow editing of current list
-        //showMessage( "No Movie", "Choose a movie before editing its rank." );
         openListModal( function( listName, response ) {
             $('#list').val( getDisplayListName( listName ) );
             rankedList = response;
@@ -379,24 +380,13 @@ function getRankingCallback( response )
     var changed = false;
     rankedList.sort(function(a, b){
       var result = response.indexOf(a.title) - response.indexOf(b.title);
-      changed = result;
+      changed = changed || result < 0;
       return result;
     });
 
     if ( changed )
     {
-        $.post(
-            "php/enter.php",
-            {
-                action: "saveRankedMovies",
-                list:   getListName( $('#list').val() ),
-                movies: JSON.stringify( rankedList )
-            },
-            function() {
-                mainIndex >= 0 ? $('#index').val( mainIndex ) : null;
-                showToaster( "Ranks updated." );
-            }
-        );
+        submitRanks( mainIndex );
     }
 }
 
@@ -415,6 +405,35 @@ function submitRank()
             review: $('#review').val() || "***"
         },
         submitCallback
+    );
+}
+
+function submitRanks( mainIndex )
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "saveRankedMovies",
+            list:   getListName( $('#list').val() ),
+            movies: rankedList
+        },
+        function() {
+            mainIndex >= 0 ? $('#index').val( mainIndex ) : null;
+            showToaster( "Ranks updated." );
+            updatePersonalRankings();
+        }
+    );
+}
+
+function updatePersonalRankings() //used for Averages
+{
+    $.post(
+        "php/database.php",
+        {
+            action: "updatePersonalRankings",
+            type:   getListName( $('#list').val() ),
+            movies: rankedList
+        }
     );
 }
 

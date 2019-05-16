@@ -88,11 +88,11 @@ function getMovieFromFile( $title )
 function getMultiMovieListFromFile( $fileName ) //todo - read movie details from normal movie list
 {
     $genres = getListFromFile( $fileName, function( $row, $columns ) {
-            return [
-                "id"     => $row[$columns['iIndex']],
-                "title"  => $row[$columns['tIndex']]
-            ];
-        } );
+        return [
+            "id"     => $row[$columns['iIndex']],
+            "title"  => $row[$columns['tIndex']]
+        ];
+    } );
 
     $tenLists = [];
     foreach ( $genres as $genre )

@@ -62,7 +62,7 @@ function getScore( answers )
     return getRankScore( myListTitle, answers );
 }
 
-//Uses SPEARMAN'S COEFFICIENT OF RANK CORRELATION
+//Uses SPEARMAN'S CORRELATION
 function getRankScore( originalList, newList )
 {
     var sum = 0;

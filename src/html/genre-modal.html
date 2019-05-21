@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="https://religionandstory.com/common/css/modal.css"/>
 
-<div id="tenModal" class="modal-wrapper">
+<div id="genreModal" class="modal-wrapper">
     <div class="modal-foreground">
         <div class="modal-box">
             <div class="modal-header">
@@ -19,19 +19,21 @@
 </div>
 
 <script>
-    var tenCallback;
+    var callback;
+    var loadData;
 
-    function openTenModal( genres, callback )
+    function openGenreModal( genreNames, genreCallback, getGenreData )
     {
-        var modal = $('#tenModal');
+        var modal = $('#genreModal');
 
-        createButtons( genres );
+        createButtons( genreNames );
 
         modal.show();
         setCloseHandlers( modal );
         blurBackground();
 
-        tenCallback = callback;
+        callback = genreCallback;
+        loadData = getGenreData;
     }
 
     function createButtons( genres )
@@ -45,13 +47,26 @@
             var index = (i%3) + 1;
             index = ( i === genres.length - 1 ) ? ( (index === 3) ? index : index + 1 ) : index;
             var genre = genres[i];
-            $('#genreCol' + index).append( "<button id=\"" + genre.id + "Button\" class=\"button\" style=\"width: 10em\" onclick=\"openTenModalCallback('" + genre.id + "')\">" + genre.title + "</button>" );
+            $('#genreCol' + index).append( "<button id=\"" + genre.id + "Button\" class=\"button\" style=\"width: 10em\" onclick=\"openGenreModalCallback('" + genre.id + "')\">" + genre.title + "</button>" );
         }
     }
 
-    function openTenModalCallback( answer )
+    function openGenreModalCallback(answer )
     {
-        closeModal( $('#tenModal') );
-        tenCallback( answer );
+        closeModal( $('#genreModal') );
+        if ( loadData )
+        {
+            // $.post(
+            //     "php/reviews.php",
+            //     { action: "get" + answer + "List" },
+            //     function( response ) {
+            //         callback( answer, JSON.parse( response ) );
+            //     }
+            // );
+        }
+        else
+        {
+            callback( answer );
+        }
     }
 </script>

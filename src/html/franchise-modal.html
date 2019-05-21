@@ -1,0 +1,45 @@
+<link rel="stylesheet" type="text/css" href="https://religionandstory.com/common/css/modal.css"/>
+
+<div id="franchiseModal" class="modal-wrapper">
+    <div class="modal-foreground">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalHeader" class="subtitle">Franchise Rankings</span>
+                <span id="close" class="close">&times;</span>
+            </div>
+            <div id="modalBody" class="modal-body center">Choose the relevant list:</div>
+            <div id="modalSubmit" class="modal-submit center">
+                <button id="dButton" class="button" style="width: 10em" onclick="openFranchiseModalCallback('Disney')">Disney</button>
+                <button id="mButton" class="button" style="width: 10em" onclick="openFranchiseModalCallback('Marvel')">Marvel</button>
+                <button id="sButton" class="button" style="width: 10em" onclick="openFranchiseModalCallback('StarWars')">Star Wars</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-background"></div>
+</div>
+
+<script>
+    var callback;
+
+    function openFranchiseModal( franchiseCallback )
+    {
+        var modal = $('#franchiseModal');
+        modal.show();
+        setCloseHandlers( modal );
+        blurBackground();
+
+        callback = franchiseCallback;
+    }
+
+    function openFranchiseModalCallback( answer )
+    {
+        closeModal( $('#franchiseModal') );
+        $.post(
+            "php/reviews.php",
+            { action: "get" + answer + "List" },
+            function( response ) {
+                callback( answer, JSON.parse( response ) );
+            }
+        );
+    }
+</script>

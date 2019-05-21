@@ -21,10 +21,10 @@
         <div id="instructions" style="display: none">
             Click to view either movies or books. From here, you can search Daniel&rsquo;s reviews for either category or click to view the whole list.
             Each entry has a rating (out of 10 for movies, out of 5 for books), and some entries have written reviews.<br/><br/>
-            In addition, specific rankings are included for Disney&rsquo;s Animated Classics, the MCU, and the Star Wars Franchise.
+            In addition, the Top 10 for ten different genres are included as well as specific rankings for Disney&rsquo;s Animated Classics, the MCU, and the Star Wars Franchise.
             Under books, there is also a list of favorites in order of date read.<br/><br/>
-            Reviews can also be found on <a href="https://www.goodreads.com/user/show/55277264-daniel-crouch" class="link">Goodreads</a>,
-            <a href="https://www.rottentomatoes.com/user/id/807873993/" class="link">Rotten Tomatoes</a>, and
+            Reviews can be found on <a href="https://www.goodreads.com/user/show/55277264-daniel-crouch" class="link">Goodreads</a>,
+            <a href="https://letterboxd.com/danieltcrouch/" class="link">Letterboxd</a>, and
             <a href="https://www.criticker.com/profile/dcrouch1/" class="link">Criticker</a>.
         </div>
     </div>
@@ -38,8 +38,8 @@
             <div id="movieSubMenu" style="display: none">
                 <input id="findMovie" type="search"  class="input" onkeyup="findMovieOnEnter( event )" placeholder="Find a movie">
                 <div>
-                    <img src="images/list.png"      class="sub-icon clickable" onclick="showMovieList()"  title="Click to see all movies">
-                    <img src="images/ten.png"       class="sub-icon clickable" onclick="showTenList()"    title="Click to see Ten Top 10 movies">
+                    <img src="images/list.png" class="sub-icon clickable" onclick="showFullMovieList()" title="Click to see all movies">
+                    <img src="images/ten.png"       class="sub-icon clickable" onclick="showGenreList()"  title="Click to see Ten Top 10 movies">
                     <img src="images/disney.png"    class="sub-icon clickable" onclick="showDisneyList()" title="Click to see Disney movies">
                     <img src="images/marvel.png"    class="sub-icon clickable" onclick="showMarvelList()" title="Click to see Marvel movies">
                     <img src="images/star-wars.png" class="sub-icon clickable" onclick="showSWList()"     title="Click to see Star Wars movies">
@@ -51,7 +51,7 @@
             <div id="bookSubMenu" style="display: none">
                 <input id="findBook" type="search" class="input" onkeyup="findBookOnEnter( event )" placeholder="Find a book">
                 <div>
-                    <img src="images/list.png" class="sub-icon clickable" onclick="showBookList()" title="Click to see all books">
+                    <img src="images/list.png" class="sub-icon clickable" onclick="showFullBookList()"  title="Click to see all books">
                     <img src="images/star.png" class="sub-icon clickable" onclick="showFavoritesList()" title="Click to see favorite books">
                 </div>
             </div>
@@ -67,33 +67,33 @@
             </div>
             <div id="Movies" class="center textBlock"></div>
         </div>
-        <div id="TenContainer" style="display: none">
+        <div id="GenreContainer" style="display: none">
             <!-- Genres go here -->
         </div>
         <div id="DisneyContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button class="button" style="width: 10em" onclick="compareRankings('Disney')">Compare</button>
+                <button class="button" style="width: 10em" onclick="compareFranchiseRankings('Disney')">Compare</button>
             </div>
             <div class="center" style="margin-bottom: 1em">
-                <button class="button" style="width: 10em" onclick="displayAverageRanking('Disney')">See Average</button>
+                <button class="button" style="width: 10em" onclick="displayAverageFranchiseRanking('Disney')">See Average</button>
             </div>
             <div id="Disney" class="center textBlock"></div>
         </div>
         <div id="MarvelContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button class="button" style="width: 10em" onclick="compareRankings('Marvel')">Compare</button>
+                <button class="button" style="width: 10em" onclick="compareFranchiseRankings('Marvel')">Compare</button>
             </div>
             <div class="center" style="margin-bottom: 1em">
-                <button class="button" style="width: 10em" onclick="displayAverageRanking('Marvel')">See Average</button>
+                <button class="button" style="width: 10em" onclick="displayAverageFranchiseRanking('Marvel')">See Average</button>
             </div>
             <div id="Marvel" class="center textBlock"></div>
         </div>
         <div id="StarWarsContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button class="button" style="width: 10em" onclick="compareRankings('StarWars')">Compare</button>
+                <button class="button" style="width: 10em" onclick="compareFranchiseRankings('StarWars')">Compare</button>
             </div>
             <div class="center" style="margin-bottom: 1em">
-                <button class="button" style="width: 10em" onclick="displayAverageRanking('StarWars')">See Average</button>
+                <button class="button" style="width: 10em" onclick="displayAverageFranchiseRanking('StarWars')">See Average</button>
             </div>
             <div id="StarWars" class="center textBlock"></div>
         </div>
@@ -114,24 +114,24 @@
 </body>
 
 <script>
-    populateMovieList();
-    populateTenList();
+    populateFullMovieList();
+    populateGenreLists();
     populateDisneyList();
     populateMarvelList();
     populateStarWarsList();
-    populateBookList();
+    populateFullBookList();
     populateFavoritesList();
 
     showSection();
 
     setRadioCallback( "movieSorting", function( sortType ) {
-        displayMovies( sortType );
+        displayFullMovies( sortType );
     });
     setRadioCallback( "bookSorting", function( sortType ) {
-        displayBooks( sortType );
+        displayFullBooks( sortType );
     });
 </script>
-<?php include("html/ten-modal.html"); ?>
+<?php include("html/genre-modal.html"); ?>
 <?php include("html/sort-modal.html"); ?>
 <?php includeModals(); ?>
 </html>

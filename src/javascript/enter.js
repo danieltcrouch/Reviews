@@ -2,7 +2,8 @@ var enterMediaType;
 var enterMovieType;
 var isOverwrite;
 
-var rankedList;
+var genres = [];
+var rankList = [];
 
 function setMediaType( mediaType )
 {
@@ -32,12 +33,25 @@ function isMovie()
     return enterMediaType === "movie";
 }
 
+function getByMediaType( movieValue, bookValue )
+{
+    var result = null;
+    switch ( isMovie() ) {
+        case "movie":
+            result = movieValue;
+            break;
+        case "book":
+            result = bookValue;
+    }
+    return result;
+}
+
 function setMovieType( movieType )
 {
     enterMovieType = movieType;
     autoFillById( $('#id').val() );
 
-    if ( movieType === "full" )
+    if ( isFullList() )
     {
         $('#rating').show();
         $('#list').hide();
@@ -47,6 +61,7 @@ function setMovieType( movieType )
     {
         $('#rating').hide();
         $('#list').show();
+        $('#list').attr( "placeholder", isFranchiseList() ? "Franchise" : "Genre" );
         setIndexRankHandlers( true );
     }
 }
@@ -54,6 +69,32 @@ function setMovieType( movieType )
 function isFullList()
 {
     return enterMovieType === "full";
+}
+
+function isGenreList()
+{
+    return enterMovieType === "genre";
+}
+
+function isFranchiseList()
+{
+    return enterMovieType === "franchise";
+}
+
+function getByMovieType( fullValue, genreValue, franchiseValue )
+{
+    var result = null;
+    switch ( enterMovieType ) {
+        case "full":
+            result = fullValue;
+            break;
+        case "genre":
+            result = genreValue;
+            break;
+        case "franchise":
+            result = franchiseValue;
+    }
+    return result;
 }
 
 
@@ -102,7 +143,7 @@ function autoFillById( id )
         $.post(
             "php/enter.php",
             {
-                action: isMovie() ? ( isFullList() ? "getMovieById" : "getRankMovieById" ) : "getBookById",
+                action: isMovie() ? ( getByMovieType( "getMovieById", "getGenreMovieById", "getFranchiseMovieById" ) ) : "getBookById",
                 id: id
             },
             autoFillByIdCallback
@@ -124,7 +165,7 @@ function autoFillByTitle( title )
     $.post(
         "php/enter.php",
         {
-            action: isMovie() ? ( isFullList() ? "getMovieByTitle" : "getRankMovieByTitle" ) : "getBookByTitle",
+            action: isMovie() ? ( getByMovieType( "getMovieByTitle", "getGenreMovieByTitle", "getFranchiseMovieByTitle" ) ) : "getBookByTitle",
             title: title
         },
         autoFillByTitleCallback
@@ -134,32 +175,24 @@ function autoFillByTitle( title )
 function autoFillByTitleCallback( response )
 {
     response = JSON.parse( response );
+
+    var term = getByMediaType( "movie", "book" );
     if ( response && response.isSuccess )
     {
-        var title = isMovie() ? "Movie Match" : "Library Look-up";
-        var term = isMovie() ? "movie" : "book";
-        var info = isMovie() ? ("ID: " + response.id) : response.author;
-        var imageAlt = isMovie() ? "Movie Poster" : "Book Cover";
+        var title     = getByMediaType( "Movie Match", "Library Look-up" );
+        var info      = getByMediaType( "ID: " + response.id, response.author );
+        var imageAlt  = getByMediaType( "Movie Poster", "Book Cover" );
         var innerHTML = "Is this the correct " + term + "?<br/><br/>" +
                         "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
                         info + "<br/><br/>" +
                         "<img src='" + response.image + "' height='300px' alt='" + imageAlt + "'>";
         showConfirm( title, innerHTML, function( answer ) {
-            if ( answer )
-            {
-                fillData( response );
-            }
-            else
-            {
-                //promptGoogle( $('#title').val() );
-                showToaster( "Try entering IMDb ID." );
-            }
+            ( answer ) ? fillData( response ) : showToaster( "Try entering " + getByMediaType( "IMDB", "GoodReads" ) + " ID." );
         });
     }
     else
     {
-        //promptGoogle( $('#title').val() );
-        showToaster( "No movie found." );
+        showToaster( "No " + term + " found." );
     }
 }
 
@@ -188,24 +221,29 @@ function fillData( response )
     isOverwrite = response.isPreviouslyReviewed;
     if ( isOverwrite )
     {
-        getRankList( getListName( $('#list').val() ) );
+        setRankList( response.list );
     }
     else
     {
-        var term = isMovie() ? "Movie" : "Book";
-        showToaster( term + " not previously reviewed." );
+        showToaster( getByMediaType( "Movie", "Book" ) + " not previously reviewed." );
     }
 }
 
-function getRankList( list )
+function setRankList( list )
 {
-    $.post(
-        "php/reviews.php",
-        { action: "get" + list + "List" },
-        function( response ) {
-            rankedList = JSON.parse( response );
-        }
-    );
+    if ( list )
+    {
+        $.post(
+            "php/enter.php",
+            {
+                action: "get" + (isGenreList() ? "Genre" : "Franchise") + "List",
+                genre: getRankListId( list )
+            },
+            function ( response ) {
+                rankList = JSON.parse( response );
+            }
+        );
+    }
 }
 
 function clear()
@@ -219,7 +257,7 @@ function clear()
     $('#list').val( "" );
     $('#image').val( "" );
     isOverwrite = null;
-    rankedList = null;
+    rankList = null;
 }
 
 
@@ -238,9 +276,13 @@ function submit()
     }
 }
 
+
+/*********************MOVIE**********************/
+
+
 function checkSubmit()
 {
-    var submit = isFullList() ? submitMovie : submitRank;
+    var submit = getByMovieType( submitMovie, submitRank, submitRank );
     if ( validate() )
     {
         if ( isOverwrite )
@@ -293,7 +335,7 @@ function validate()
         if ( !list )
         {
             result = false;
-            showToaster( "No franchise list present." );
+            showToaster( "No list type present." );
         }
         else if ( !rank )
         {
@@ -331,13 +373,25 @@ function submitCallback( response )
 
 
 /**********************RANK**********************/
+//Genres and Franchise
 
 
-function setIndexRankHandlers( useRankModal )
+function populateGenres()
+{
+    $.post(
+        "php/enter.php",
+        { action: "getGenres" },
+        function( response ) {
+            genres = JSON.parse( response );
+        }
+    );
+}
+
+function setIndexRankHandlers( getListModal )
 {
     var index = $('#index');
-    index.attr( "placeholder", useRankModal ? "Click to change Rank" : "Index" );
-    if ( useRankModal )
+    index.attr( "placeholder", getListModal ? "Click to change Rank" : "Index" );
+    if ( getListModal )
     {
         index.click( getRanking );
         index.keypress( getRanking );
@@ -351,26 +405,41 @@ function setIndexRankHandlers( useRankModal )
 
 function getRanking()
 {
-    if ( rankedList )
+    if ( rankList )
     {
         if ( !isOverwrite && $('#id').val() )
         {
-            rankedList.push( {
+            rankList.push( {
                 id:     $('#id').val(),
                 title:  $('#title').val(),
                 image:  $('#image').val()
             } );
         }
 
-        openSortModal( rankedList, getRankingCallback, true );
+        openSortModal( rankList, getRankingCallback, true );
     }
     else
     {
-        openListModal( function( listName, response ) {
-            $('#list').val( getDisplayListName( listName ) );
-            rankedList = response;
-            getRanking();
-        } );
+        if ( isGenreList() && genres )
+        {
+            openGenreModal(
+                genres,
+                function( listName, response ) {
+                    $('#list').val( getRankListName( listName ) );
+                    rankList = response;
+                    getRanking();
+                },
+                true
+            );
+        }
+        else if ( isFranchiseList() )
+        {
+            openFranchiseModal( function( listName, response ) {
+                $('#list').val( getRankListName( listName ) );
+                rankList = response;
+                getRanking();
+            } );
+        }
     }
 }
 
@@ -378,10 +447,10 @@ function getRankingCallback( response )
 {
     var mainIndex = response.indexOf( $('#title').val() );
     var changed = false;
-    rankedList.sort(function(a, b){
-      var result = response.indexOf(a.title) - response.indexOf(b.title);
-      changed = changed || result < 0;
-      return result;
+    rankList.sort(function( a, b ){
+        var result = response.indexOf(a.title) - response.indexOf(b.title);
+        changed = changed || result < 0;
+        return result;
     });
 
     if ( changed )
@@ -390,13 +459,47 @@ function getRankingCallback( response )
     }
 }
 
+function submitRanks( mainIndex )
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "saveRankedMovies",
+            type:   enterMovieType,
+            list:   getRankListId( $('#list').val() ),
+            movies: rankList
+        },
+        function() {
+            mainIndex >= 0 ? $('#index').val( mainIndex ) : null;
+            showToaster( "Ranks updated." );
+            if ( isFranchiseList() )
+            {
+                updatePersonalRankings();
+            }
+        }
+    );
+}
+
+function updatePersonalRankings() //used for Averages
+{
+    $.post(
+        "php/database.php",
+        {
+            action: "updatePersonalRankings",
+            list:   getRankListId( $('#list').val() ),
+            movies: rankList
+        }
+    );
+}
+
 function submitRank()
 {
     $.post(
         "php/enter.php",
         {
             action: "saveRankedMovie",
-            list:   $('#list').val(),
+            type:   enterMovieType,
+            list:   getRankListId( $('#list').val() ),
             rank:   $('#index').val(), //shouldn't change anything but send anyway
             title:  $('#title').val(),
             id:     $('#id').val(),
@@ -408,65 +511,83 @@ function submitRank()
     );
 }
 
-function submitRanks( mainIndex )
+function getRankListId( list )
 {
-    $.post(
-        "php/enter.php",
-        {
-            action: "saveRankedMovies",
-            list:   getListName( $('#list').val() ),
-            movies: rankedList
-        },
-        function() {
-            mainIndex >= 0 ? $('#index').val( mainIndex ) : null;
-            showToaster( "Ranks updated." );
-            updatePersonalRankings();
-        }
-    );
-}
-
-function updatePersonalRankings() //used for Averages
-{
-    $.post(
-        "php/database.php",
-        {
-            action: "updatePersonalRankings",
-            type:   getListName( $('#list').val() ),
-            movies: rankedList
-        }
-    );
-}
-
-function getListName( list )
-{
-    var result = getDisplayListName( list );
-    result = result.replace(/\s/g, '');;
-    return result;
-}
-
-function getDisplayListName( list )
-{
-    list = list.toLowerCase();
     var result;
-    switch ( list )
+
+    if ( isGenreList() )
     {
-    case "d":
-    case "disney":
-        result = "Disney";
-        break;
-    case "m":
-    case "mcu":
-    case "marvel":
-        result = "Marvel";
-        break;
-    case "s":
-    case "sw":
-    case "starwars":
-    case "star wars":
-        result = "Star Wars";
+        result = (genres) ? genres.find( genre => genre.title === list ).id : list;
     }
+    else
+    {
+        result = getRankListName( list );
+        result = (result === "Star Wars") ? "StarWars" : result;
+    }
+
     return result;
 }
+
+function getRankListName( list )
+{
+    var result;
+    list = list.toLowerCase();
+
+    if ( isGenreList() )
+    {
+        result = (genres) ? genres.find( genre => genre.id === list ).title : list;
+    }
+    else
+    {
+        switch ( list )
+        {
+        case "d":
+        case "disney":
+            result = "Disney";
+            break;
+        case "m":
+        case "mcu":
+        case "marvel":
+            result = "Marvel";
+            break;
+        case "s":
+        case "sw":
+        case "starwars":
+        case "star wars":
+            result = "Star Wars";
+        }
+    }
+
+    return result;
+}
+
+
+/*********************GENRE**********************/
+
+
+// test when genre is entered that doesn't exist
+// function editGenres()
+// {
+//     var genreText = genreNames.join('\n');
+//     showBigPrompt(
+//         "Edit Genres",
+//         "Choose genreNames to appear on main page:",
+//         editGenresCallback,
+//         genreText );
+// }
+//
+// function editGenresCallback( response )
+// {
+//     genreNames = response.split('\n').map( movie => { return {id: movie.trim(), title: movie.trim() }; } ).filter( Boolean );
+//     $.post(
+//         "php/enter.php",
+//         {
+//             action: "",
+//             type:   null
+//         },
+//         null
+//     );
+// }
 
 
 /*********************DELETE********************/
@@ -498,8 +619,9 @@ function deleteMovie()
     $.post(
         "php/enter.php",
         {
-            action: isFullList() ? "deleteMovie" : "deleteRankMovie",
-            list:   isFullList() ? undefined : $('#list').val(),
+            action: "deleteMovie",
+            type:   enterMovieType,
+            list:   $('#list').val(),
             id:     $('#id').val()
         },
         function( response ) {
@@ -554,7 +676,6 @@ function submitBook()
 
 function addImage()
 {
-    //In the future, I may allow this button to be used for Rank Movies
     if ( $('#id').val() )
     {
         var url = $('#review').val();

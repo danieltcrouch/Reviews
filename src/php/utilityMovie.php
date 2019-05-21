@@ -59,6 +59,18 @@ function getDataFromResponse( $response )
 /********************FILE I/O********************/
 
 
+function getMovieFromFile( $title )
+{
+    $movies = getMovieList();
+    $movieTitles = [];
+    array_walk( $movies, function($value, $key) use( &$movieTitles ) {
+        $movieTitles[$key] = $value['title'];
+    });
+
+    $movieId = findEntry( $movieTitles, $title );
+    return ( $movieId ) ? $movies[$movieId] : null;
+}
+
 function getMovieListFromFile( $fileName )
 {
     return getListFromFile( $fileName, function( $row, $columns ) {
@@ -73,39 +85,22 @@ function getMovieListFromFile( $fileName )
     } );
 }
 
-function getMovieFromFile( $title )
+function getMovieListsFromFiles( $fileNames, $prefix )
 {
-    $movies = getMovieList();
-    $movieTitles = [];
-    array_walk( $movies, function($value, $key) use( &$movieTitles ) {
-        $movieTitles[$key] = $value['title'];
-    });
-
-    $movieId = findEntry( $movieTitles, $title );
-    return ( $movieId ) ? $movies[$movieId] : null;
-}
-
-function getMultiMovieListFromFile( $fileName ) //todo - read movie details from normal movie list
-{
-    $genres = getListFromFile( $fileName, function( $row, $columns ) {
-        return [
-            "id"     => $row[$columns['iIndex']],
-            "title"  => $row[$columns['tIndex']]
-        ];
-    } );
-
-    $tenLists = [];
-    foreach ( $genres as $genre )
+    $movies = [];
+    foreach ( $fileNames as $fileName )
     {
-        $list = getMovieListFromFile( getPath( "$genre[id].csv" ) );
-        $genreList = [
-            "id"    => $genre['id'],
-            "title" => $genre['title'],
+        $id = array_key_exists( "id", $fileName ) ? $fileName['id'] : $fileName;
+        $title = array_key_exists( "title", $fileName ) ? $fileName['title'] : $id;
+        $list = getMovieListFromFile( getPath( $prefix . "$id.csv" ) );
+        $movieList = [
+            "id"    => $id,
+            "title" => $title,
             "list"  => $list
         ];
-        array_push( $tenLists, $genreList );
+        array_push( $movies, $movieList );
     }
-    return $tenLists;
+    return $movies;
 }
 
 function saveFullMoviesToFile( $movies )
@@ -133,16 +128,19 @@ function archive( $fileName )
 
 //RANK ********************
 
-function getRankMovieFromFileByTitle( $list, $title )
+function getGenresFromFile()
 {
-    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
-    $index = getIndexFromListByTitle( $movies, $title );
-    return ( $index ) ? $movies[$index] : null;
+    return getListFromFile( getPath( "genres.csv" ), function( $row, $columns ) {
+        return [
+            "id"     => $row[$columns['iIndex']],
+            "title"  => $row[$columns['tIndex']]
+        ];
+    } );
 }
 
-function getRankMovieFromFileById( $list, $id )
+function getRankMovieFromFileById( $type, $list, $id )
 {
-    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+    $movies = getMovieListFromFile( getPath( "$type-$list.csv" ) );
     $index = getIndexFromListById( $movies, $id );
     $result = $movies[$index];
     $result['index'] = $index + 1;
@@ -150,12 +148,13 @@ function getRankMovieFromFileById( $list, $id )
     return is_numeric( $index ) ? $result : null;
 }
 
-function getRankMovieFromFilesById( $id )
+function getRankMovieFromFilesById( $type, $id )
 {
     $movie = null;
-    foreach ( getRankLists() as $list )
+    $lists = getLists( $type );
+    foreach ( $lists as $list )
     {
-        $movie = getRankMovieFromFileById( $list, $id );
+        $movie = getRankMovieFromFileById( $type, $list, $id );
         if ( isset( $movie ) )
         {
             break;
@@ -164,10 +163,10 @@ function getRankMovieFromFilesById( $id )
     return $movie;
 }
 
-function saveRankMoviesToFile( $list, $movies )
+function saveRankMoviesToFile( $type, $list, $movies )
 {
     saveListToFile(
-        getPath( "rank-$list.csv" ),
+        getPath( "$type-$list.csv" ),
         array( "Title", "ID", "Year", "Image", "Review" ),
         $movies,
         function( $movie ) {
@@ -179,35 +178,46 @@ function saveRankMoviesToFile( $list, $movies )
 /*********************OTHER**********************/
 
 
-function getRankLists()
+function getLists( $type )
+{
+    return $type === "genre" ? getGenreLists() : getFranchiseLists();
+}
+
+function getGenreLists()
+{
+    return getListFromFile( getPath( "genres.csv" ), function( $row, $columns ) { return $row[$columns['iIndex']]; } );
+}
+
+function getFranchiseLists()
 {
     return array( "Disney", "Marvel", "StarWars" );
 }
 
-function getListName( $list )
-{
-    $list = strtolower( preg_replace('/\s+/', '', $list) );
-    switch ( $list )
-    {
-        case "d":
-        case "disney":
-            $list = "Disney";
-            break;
-        case "m":
-        case "mcu":
-        case "marvel":
-            $list = "Marvel";
-            break;
-        case "s":
-        case "sw":
-        case "starwars":
-        case "star wars":
-            $list = "StarWars";
-            break;
-        default:
-            $list = null;
-    }
-    return $list;
-}
+//ARCHIVE
+//function getFranchiseName( $list )
+//{
+//    $list = strtolower( preg_replace('/\s+/', '', $list) );
+//    switch ( $list )
+//    {
+//        case "d":
+//        case "disney":
+//            $list = "Disney";
+//            break;
+//        case "m":
+//        case "mcu":
+//        case "marvel":
+//            $list = "Marvel";
+//            break;
+//        case "s":
+//        case "sw":
+//        case "starwars":
+//        case "star wars":
+//            $list = "StarWars";
+//            break;
+//        default:
+//            $list = null;
+//    }
+//    return $list;
+//}
 
 ?>

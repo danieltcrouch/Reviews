@@ -1,16 +1,16 @@
-var movieList = {
+var fullMovieList = {
     watch:  [],
     title:  [],
     year:   [],
     rating: []
 };
-var genres = [];
-var tenLists = [];
+var genreNames = [];
+var genreLists = [];
 var disneyList = [];
 var marvelList = [];
 var starWarsList = [];
 
-var bookList = {
+var fullBookList = {
     read:   [],
     title:  [],
     year:   [],
@@ -30,7 +30,7 @@ function toggleBookSubMenu()
     $('#bookSubMenu').toggle();
 }
 
-function getListFromType( type )
+function getFranchiseFromType( type )
 {
     type = type.toLowerCase();
     var result;
@@ -97,7 +97,7 @@ function findMovieCallback( response )
     }
     else
     {
-        showToaster( "Movie not found!<br />Maybe I should watch it" );
+        showToaster( "Movie not found!<br />Maybe I should watch it." );
     }
     saveSearch( $('#findMovie').val(), "Movie" );
 }
@@ -142,7 +142,7 @@ function findBookCallback( response )
     }
     else
     {
-        showToaster( "Book not found!<br />Maybe I should read it" );
+        showToaster( "Book not found!<br />Maybe I should read it." );
     }
     saveSearch( $('#findBook').val(), "Book" );
 }
@@ -171,21 +171,21 @@ function saveSearch( title, type )
 /*******************POPULATE*********************/
 
 
-function populateMovieList()
+function populateFullMovieList()
 {
     $.post(
         "php/reviews.php",
         { action: "getFullMovieList" },
-        parseMovies
+        parseFullMovies
     );
 }
 
-function populateTenList()
+function populateGenreLists()
 {
     $.post(
         "php/reviews.php",
-        { action: "getTenList" },
-        parseTen
+        { action: "getGenreLists" },
+        parseGenres
     );
 }
 
@@ -194,7 +194,7 @@ function populateDisneyList()
     $.post(
         "php/reviews.php",
         { action: "getDisneyList" },
-        function( response ) { parseRankings( "Disney", response ); }
+        function( response ) { parseFranchise( "Disney", response ); }
     );
 }
 
@@ -203,7 +203,7 @@ function populateMarvelList()
     $.post(
         "php/reviews.php",
         { action: "getMarvelList" },
-        function( response ) { parseRankings( "Marvel", response ); }
+        function( response ) { parseFranchise( "Marvel", response ); }
     );
 }
 
@@ -212,21 +212,21 @@ function populateStarWarsList()
     $.post(
         "php/reviews.php",
         { action: "getStarWarsList" },
-        function( response ) { parseRankings( "StarWars", response ); }
+        function( response ) { parseFranchise( "StarWars", response ); }
     );
 }
 
-function populateBookList()
+function populateFullBookList()
 {
     $.post(
         "php/reviews.php",
         { action: "getTempFullBookList" },
         function( response ) {
-            parseBooks( response );
+            parseFullBooks( response );
             $.post(
                 "php/reviews.php",
                 { action: "getFullBookList" },
-                function( response ) { hasFinalBookListReturned = true; parseBooks( response ); }
+                function( response ) { hasFinalBookListReturned = true; parseFullBooks( response ); }
             );
         }
     );
@@ -252,46 +252,46 @@ function populateFavoritesList()
 /*********************PARSE**********************/
 
 
-function parseMovies( response )
+function parseFullMovies( response )
 {
-    movieList.watch = JSON.parse( response );
+    fullMovieList.watch = JSON.parse( response );
 
-    for ( var index = 0; index < movieList.watch.length; index++ )
+    for ( var index = 0; index < fullMovieList.watch.length; index++ )
     {
-        var movie = movieList.watch[index];
-        movieList.watch[index].review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
+        var movie = fullMovieList.watch[index];
+        fullMovieList.watch[index].review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
     }
 
-    movieList.title =   sortList( Array.from(movieList.watch), "title" );
-    movieList.year =    sortList( Array.from(movieList.watch), "year" );
-    movieList.rating =  sortList( Array.from(movieList.watch), "rating" );
+    fullMovieList.title =   sortList( Array.from(fullMovieList.watch), "title" );
+    fullMovieList.year =    sortList( Array.from(fullMovieList.watch), "year" );
+    fullMovieList.rating =  sortList( Array.from(fullMovieList.watch), "rating" );
 
-    displayMovies( "watch" );
+    displayFullMovies( "watch" );
 }
 
-function displayMovies( sortType )
+function displayFullMovies( sortType )
 {
     var movies;
     switch ( sortType )
     {
     case "year":
-        movies = movieList.year;
+        movies = fullMovieList.year;
         break;
     case "rating":
-        movies = movieList.rating;
+        movies = fullMovieList.rating;
         break;
     case "title":
-        movies = movieList.title;
+        movies = fullMovieList.title;
         break;
     case "watch":
     default:
-        movies = movieList.watch;
+        movies = fullMovieList.watch;
     }
 
-    $('#Movies').html( getMovieDisplay( movies ) );
+    $('#Movies').html( getFullMovieDisplay( movies ) );
 }
 
-function getMovieDisplay( movies )
+function getFullMovieDisplay( movies )
 {
     var result = "";
     for ( var i = 0; i < movies.length; i++ )
@@ -304,25 +304,25 @@ function getMovieDisplay( movies )
     return result;
 }
 
-function parseTen( response )
+function parseGenres( response )
 {
-    tenLists = JSON.parse( response );
-    genres = tenLists.map( function(g) { return { id: g.id, title: g.title }; } );
+    genreLists = JSON.parse( response );
+    genreNames = genreLists.map( function( g) { return { id: g.id, title: g.title }; } );
 
-    for ( var i = 0; i < tenLists.length; i++ )
+    for ( var i = 0; i < genreLists.length; i++ )
     {
-        var tenDiv = $('#TenContainer');
-        var genreId = tenLists[i].id;
-        var genre   = tenLists[i].title;
-        var tenList = tenLists[i].list;
+        var genreDiv = $('#TenContainer');
+        var genreId  = genreLists[i].id;
+        var genre    = genreLists[i].title;
+        var list     = genreLists[i].list;
 
-        tenDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
+        genreDiv.append( "<div id=\"" + genreId + "\" class=\"center textBlock\" style=\"display: none\"></div>" );
         $('#' + genreId).html( "<div class='subtitle center'>" + genre + "</div>" +
-                               getRankingsDisplay( tenList ) );
+                               getRankingsDisplay( list ) );
     }
 }
 
-function parseRankings( type, response )
+function parseFranchise( type, response )
 {
     var list = JSON.parse( response );
     switch ( type )
@@ -341,7 +341,7 @@ function parseRankings( type, response )
     $('#' + type).html( getRankingsDisplay( list ) );
 }
 
-function getRankingsDisplay(list )
+function getRankingsDisplay( list )
 {
     var movieDisplay = "";
     for ( var index = 0; index < list.length; index++ )
@@ -356,42 +356,47 @@ function getRankingsDisplay(list )
 
 //BOOK ********************
 
-function parseBooks( response )
+function parseFullBooks( response )
 {
-    bookList.read = JSON.parse( response );
+    fullBookList.read = JSON.parse( response );
 
-    for ( var index = 0; index < movieList.watch.length; index++ )
+    for ( var index = 0; index < fullMovieList.watch.length; index++ )
     {
-        var movie = movieList.watch[index];
-        movieList.watch.review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
+        var movie = fullMovieList.watch[index];
+        fullMovieList.watch.review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
     }
 
-    bookList.title =   sortList( Array.from(bookList.read), "title" );
-    bookList.year =    sortList( Array.from(bookList.read), "year" );
-    bookList.rating =  sortList( Array.from(bookList.read), "rating" );
+    fullBookList.title =   sortList( Array.from(fullBookList.read), "title" );
+    fullBookList.year =    sortList( Array.from(fullBookList.read), "year" );
+    fullBookList.rating =  sortList( Array.from(fullBookList.read), "rating" );
 
-    displayBooks( "read" );
+    displayFullBooks( "read" );
 }
 
-function displayBooks( sortType )
+function displayFullBooks( sortType )
 {
     var books;
     switch ( sortType )
     {
     case "year":
-        books = bookList.year;
+        books = fullBookList.year;
         break;
     case "rating":
-        books = bookList.rating;
+        books = fullBookList.rating;
         break;
     case "title":
-        books = bookList.title;
+        books = fullBookList.title;
         break;
     case "read":
     default:
-        books = bookList.read;
+        books = fullBookList.read;
     }
 
+    $('#Books').html( getFullBookDisplay( books ) );
+}
+
+function getFullBookDisplay( books )
+{
     var bookDisplay = "";
     for ( var index = 0; index < books.length; index++ )
     {
@@ -400,7 +405,7 @@ function displayBooks( sortType )
         bookDisplay += "<div>" + (index + 1) + ". <a class='link' href='" + book.url + "'>" + book.title + "</a>, " + book.author + yearDisplay +
                        " - <strong>" + book.rating + "/5</strong> - " + book.review + "</div>";
     }
-    $('#Books').html( bookDisplay );
+    return bookDisplay;
 }
 
 function parseFavorites( response )
@@ -482,7 +487,11 @@ function showSection()
         {
         case "Movies":
         case "MovieContainer":
-            showMovieList();
+            showFullMovieList();
+            break;
+        case "Genre":
+        case "GenreContainer":
+            showGenreList();
             break;
         case "Disney":
         case "DisneyContainer":
@@ -498,7 +507,7 @@ function showSection()
             break;
         case "Books":
         case "BookContainer":
-            showBookList();
+            showFullBookList();
             break;
         case "Favorites":
         case "FavoritesContainer":
@@ -508,29 +517,29 @@ function showSection()
     }
 }
 
-function showMovieList()
+function showFullMovieList()
 {
     hideAll();
 
     deselectAllRadioButtons( "movieSorting" );
-    displayMovies( "watch" );
+    displayFullMovies( "watch" );
 
     $('#MovieContainer').show();
     scrollToId( "MovieContainer" );
 }
 
-function showTenList()
+function showGenreList()
 {
     hideAll();
 
     showMessage( "In Progress...", "Ten Top 10 coming soon..." );
     //todo - Uncomment when ready
-    // openGenreModal( genres, function( genre ) {
+    // openGenreModal( genreNames, function( genre ) {
     //     if ( genre )
     //     {
-    //         $('#TenContainer').show();
+    //         $('#GenreContainer').show();
     //         $('#' + genre).show();
-    //         scrollToId( "TenContainer" );
+    //         scrollToId( "GenreContainer" );
     //     }
     // } );
 }
@@ -556,12 +565,12 @@ function showSWList()
     scrollToId( "StarWarsContainer" );
 }
 
-function showBookList()
+function showFullBookList()
 {
     hideAll();
 
     deselectAllRadioButtons( "bookSorting" );
-    displayBooks( "read" );
+    displayFullBooks( "read" );
 
     $('#BookContainer').show();
     scrollToId( "BookContainer" );
@@ -577,18 +586,19 @@ function showFavoritesList()
 function hideAll()
 {
     $('#MovieContainer').hide();
+    $('#GenreContainer').hide();
     $('#DisneyContainer').hide();
     $('#MarvelContainer').hide();
     $('#StarWarsContainer').hide();
     $('#BookContainer').hide();
     $('#FavoritesContainer').hide();
 
-    hideTen();
+    hideGenres();
 }
 
-function hideTen()
+function hideGenres()
 {
-    genres.forEach( function(genre) {
+    genreNames.forEach( function( genre ) {
         $('#' + genre.id).hide();
     });
 }
@@ -599,7 +609,7 @@ function hideTen()
 
 //Compare logic found in compare.js
 
-function displayAverageRanking( type )
+function displayAverageFranchiseRanking( type )
 {
     $.post(
         "php/database.php",
@@ -608,16 +618,15 @@ function displayAverageRanking( type )
             type:      type
         },
         function ( response ) {
-            list = JSON.parse( response );
-            displayAverageRankingCallback( list, type );
+            displayAverageFranchiseRankingCallback( JSON.parse( response ), type );
         }
     );
 }
 
-function displayAverageRankingCallback( list, type )
+function displayAverageFranchiseRankingCallback( list, type )
 {
-    var fullList = getListFromType( type );
-    var averageList = list.map( id => fullList.find( movie => { return movie.id === id } ) );
+    var detailList = getFranchiseFromType( type );
+    var averageList = list.map( id => detailList.find( movie => { return movie.id === id } ) );
 
     var rankingImages = "";
     for ( var i = 0; i < averageList.length; i++ )

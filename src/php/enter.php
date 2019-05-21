@@ -33,19 +33,8 @@ include_once( "utilityMovie.php" );
 
 function getMovieByTitle( $title )
 {
-    $movies = getMovieList();
-    $movie = getMovieFromImdbByTitle( $title );
-    $movie['isPreviouslyReviewed'] = false;
-    $prevIndex = getIndexFromListById( $movies, $movie['id'] );
-    $previouslyRatedMovie = $movies[$prevIndex];
-    if ( $previouslyRatedMovie )
-    {
-        $movie['isPreviouslyReviewed'] = true;
-        $movie['rating'] = $previouslyRatedMovie['rating'];
-        $movie['review'] = $previouslyRatedMovie['review'];
-        $movie['index']  = $prevIndex + 1;
-    }
-    return $movie;
+    $id = getMovieFromImdbByTitle( $title )['id'];
+    return getMovieById( $id );
 }
 
 function getMovieById( $id )
@@ -66,18 +55,28 @@ function getMovieById( $id )
 }
 
 
-/*******************RANK LOAD********************/
+/*******************GENRE LOAD********************/
 
 
-function getRankMovieByTitle( $title )
+function getGenres()
 {
-    $movie = getMovieFromImdbByTitle( $title );
+    return getGenresFromFile();
+}
+
+function getGenreMovieByTitle( $title )
+{
+    $id = getMovieFromImdbByTitle( $title )['id'];
+    return getGenreMovieById( $id );
+}
+
+function getGenreMovieById( $id )
+{
+    $movie = getMovieFromImdbById( $id );
     $movie['isPreviouslyReviewed'] = false;
-    $previouslyRankedMovie = getRankMovieFromFilesById( $movie['id'] );
+    $previouslyRankedMovie = getRankMovieFromFilesById( "genre", $id );
     if ( $previouslyRankedMovie )
     {
         $movie['isPreviouslyReviewed'] = true;
-        $movie['rating'] = $previouslyRankedMovie['rating'];
         $movie['review'] = $previouslyRankedMovie['review'];
         $movie['index'] = $previouslyRankedMovie['index'];
         $movie['list'] = $previouslyRankedMovie['list'];
@@ -86,15 +85,24 @@ function getRankMovieByTitle( $title )
     return $movie;
 }
 
-function getRankMovieById( $id )
+
+/*******************FRANCHISE LOAD********************/
+
+
+function getFranchiseMovieByTitle( $title )
+{
+    $id = getMovieFromImdbByTitle( $title )['id'];
+    return getFranchiseMovieById( $id );
+}
+
+function getFranchiseMovieById( $id )
 {
     $movie = getMovieFromImdbById( $id );
     $movie['isPreviouslyReviewed'] = false;
-    $previouslyRankedMovie = getRankMovieFromFilesById( $id );
+    $previouslyRankedMovie = getRankMovieFromFilesById( "franchise", $id );
     if ( $previouslyRankedMovie )
     {
         $movie['isPreviouslyReviewed'] = true;
-        $movie['rating'] = $previouslyRankedMovie['rating'];
         $movie['review'] = $previouslyRankedMovie['review'];
         $movie['index'] = $previouslyRankedMovie['index'];
         $movie['list'] = $previouslyRankedMovie['list'];
@@ -146,12 +154,12 @@ function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 /******************RANK SUBMIT*******************/
 
 
-function saveRankedMovies( $list, $movies )
+function saveRankedMovies( $type, $list, $movies )
 {
-    saveRankMoviesToFile( getListName( $list ), $movies );
+    saveRankMoviesToFile( $type, $list, $movies );
 }
 
-function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review )
+function saveRankedMovie( $type, $list, $rank, $id, $title, $year, $image, $review )
 {
     $movie = [
         'title'     => $title,
@@ -161,12 +169,11 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review )
         'review'    => $review
     ];
 
-    $list = getListName( $list );
-    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+    $movies = getMovieListFromFile( getPath( "$type-$list.csv" ) );
     $index = getIndexFromListById( $movies, $id );
     $movies[ $index ] = $movie;
 
-    saveRankMoviesToFile( $list, $movies );
+    saveRankMoviesToFile( $type, $list, $movies );
 }
 
 //ARCHIVED
@@ -176,7 +183,7 @@ function saveRankedMovie( $list, $rank, $id, $title, $year, $image, $review )
 //    $currentRank = $isOverwrite ? (int)$currentRank : null;
 //    $result['isSuccess'] = false;
 //
-//    $list = getListName( $list );
+//    $list = getRankListId( $list );
 //    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
 //    $count = count( $movies );
 //
@@ -263,16 +270,15 @@ function deleteMovie( $id )
     return $result;
 }
 
-function deleteRankMovie( $list, $id )
+function deleteRankMovie( $type, $list, $id )
 {
-    $list = getListName( $list );
-    $movies = getMovieListFromFile( getPath( "rank-$list.csv" ) );
+    $movies = getMovieListFromFile( getPath( "$type-$list.csv" ) );
     $index = getIndexFromListById( $movies, $id );
     $result['isSuccess'] = $index !== null;
     if ( $result['isSuccess'] )
     {
         unset( $movies[$index] );
-        saveRankMoviesToFile( $list, $movies );
+        saveRankMoviesToFile( $type, $list, $movies );
     }
     return $result;
 }
@@ -351,38 +357,42 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	$action = $_POST['action'];
     $result = null;
 
+    //saveMovie
     if ( isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['index'] ) && isset( $_POST['rating'] ) && isset( $_POST['review'] ) )
     {
         $result = $action( $_POST['id'], $_POST['title'], $_POST['year'], $_POST['index'], $_POST['rating'], $_POST['review'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
     }
-	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['image'] ) && isset( $_POST['review'] ) )
+    //saveRankedMovie
+	elseif ( isset( $_POST['type'] ) && isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['image'] ) && isset( $_POST['review'] ) )
     {
-        $result = $action( $_POST['list'], $_POST['rank'], $_POST['id'], $_POST['title'], $_POST['year'], $_POST['image'], $_POST['review'] );
+        $result = $action( $_POST['type'], $_POST['list'], $_POST['rank'], $_POST['id'], $_POST['title'], $_POST['year'], $_POST['image'], $_POST['review'] );
     }
-	elseif ( isset( $_POST['list'] ) && isset( $_POST['id'] ) )
+    //saveRankedMovies
+    elseif ( isset( $_POST['type'] ) && isset( $_POST['list'] ) && isset( $_POST['movies'] ) )
+   	{
+           $result = $action( $_POST['type'], $_POST['list'], $_POST['movies'] );
+   	}
+    //deleteRankMovie
+	elseif ( isset( $_POST['type'] ) && isset( $_POST['list'] ) && isset( $_POST['id'] ) )
 	{
-		$result = $action( $_POST['list'], $_POST['id'] );
+		$result = $action( $_POST['type'], $_POST['list'], $_POST['id'] );
 	}
-	elseif ( isset( $_POST['list'] ) && isset( $_POST['movies'] ) )
-	{
-        $result = $action( $_POST['list'], $_POST['movies'] );
-	}
-	elseif ( isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['currentRank'] ) )
-	{
-		$result = $action( $_POST['list'], $_POST['rank'], $_POST['currentRank'] );
-	}
+    //submitBookImage
     elseif ( isset( $_POST['id'] ) && isset( $_POST['url'] ) )
    	{
    		$result = $action( $_POST['id'], $_POST['url'] );
    	}
+    //getBookById | getMovieById | getGenreMovieById | getFranchiseMovieById | deleteMovie
 	elseif ( isset( $_POST['id'] ) )
 	{
 		$result = $action( $_POST['id'] );
 	}
+    //getBookByTitle | getMovieByTitle | getGenreMovieByTitle | getFranchiseMovieByTitle
 	elseif ( isset( $_POST['title'] ) )
     {
         $result = $action( $_POST['title'] );
     }
+    //getGenres | downloadAll | viewSearches
 	else
 	{
 		$result = $action();

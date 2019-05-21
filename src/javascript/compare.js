@@ -1,20 +1,23 @@
 var averageList = [];
 var myListTitle = [];
-var myListFull = [];
+var myListDetail = [];
+
 var listType;
 
-function compareRankings( type )
+//Franchise specific because of DB and setMyList functionality
+// Refactor this method if that is changed
+function compareFranchiseRankings( type )
 {
     listType = type;
-    setRelevantList( type );
+    setMyList( type );
     setAverageList( type );
-    openSortModal( myListFull, scoreRankings, true );
+    openSortModal( myListDetail, scoreRankings, true );
 }
 
-function setRelevantList( type )
+function setMyList( type )
 {
-    myListFull = getListFromType( type );
-    myListTitle = myListFull.map(movie => movie.title );
+    myListDetail = getFranchiseFromType( type );
+    myListTitle = myListDetail.map( movie => movie.title );
 }
 
 function setAverageList( type )
@@ -25,20 +28,20 @@ function setAverageList( type )
             action:    "getAverageRanking",
             type:      type
         },
-        setAverageCallback
+        setAverageListCallback
     );
 }
 
-function setAverageCallback( list )
+function setAverageListCallback( list )
 {
     list = JSON.parse( list );
     if ( list && list.length > 0 )
     {
-        averageList = list.map( id => myListFull.find( movie => { return movie.id === id } ) );
+        averageList = list.map( id => myListDetail.find( movie => { return movie.id === id } ) );
     }
     else
     {
-        averageList = myListFull;
+        averageList = myListDetail;
     }
 }
 
@@ -50,16 +53,15 @@ function scoreRankings( answers, isText )
     displayResults( score, avgScore, results );
 }
 
-function getAverageScore( answers )
-{
-    averageListTitles = averageList.map(movie => movie.title );
-    return getRankScore( averageListTitles, answers );
-}
-
 function getScore( answers )
 {
     saveRanking( answers );
     return getRankScore( myListTitle, answers );
+}
+
+function getAverageScore( answers )
+{
+    return getRankScore( averageList.map( movie => movie.title ), answers );
 }
 
 //Uses SPEARMAN'S CORRELATION
@@ -95,7 +97,7 @@ function saveRanking( answers )
     var ids = [];
     for ( var i = 0; i < answers.length; i++ )
     {
-        ids.push( myListFull[ myListTitle.indexOf( answers[i] ) ].id );
+        ids.push( myListDetail[ myListTitle.indexOf( answers[i] ) ].id );
     }
 
     $.post(
@@ -129,8 +131,8 @@ function getResultDisplay( answers )
                  "  <span style='flex: 1; align-content: center; font-weight: bold'>Average</span>" +
                  "</div>";
 
-    var yList = answers.map( title => myListFull.find( movie => { return movie.title === title } ) );
-    var mList = myListFull;
+    var yList = answers.map( title => myListDetail.find( movie => { return movie.title === title } ) );
+    var mList = myListDetail;
     var aList = averageList;
 
     for ( var i = 0; i < yList.length; i++ )

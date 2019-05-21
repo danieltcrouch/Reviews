@@ -49,24 +49,25 @@ function getFullMovieList()
     return array_reverse( getMovieListFromFile( getPath( "ratings.csv" ) ) );
 }
 
-function getTenList()
+function getGenreLists()
 {
-    return getMultiMovieListFromFile( getPath( "genres.csv" ) );
+    $genres = getGenresFromFile();
+    return getMovieListsFromFiles( $genres, "genre-" );
 }
 
 function getDisneyList()
 {
-    return getMovieListFromFile( getPath( "rank-Disney.csv" ) );
+    return getMovieListFromFile( getPath( "franchise-Disney.csv" ) );
 }
 
 function getMarvelList()
 {
-    return getMovieListFromFile( getPath( "rank-Marvel.csv" ) );
+    return getMovieListFromFile( getPath( "franchise-Marvel.csv" ) );
 }
 
 function getStarWarsList()
 {
-    return getMovieListFromFile( getPath( "rank-StarWars.csv" ) );
+    return getMovieListFromFile( getPath( "franchise-StarWars.csv" ) );
 }
 
 function getMovieByTitle( $title )

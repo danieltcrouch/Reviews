@@ -63,6 +63,11 @@ function getGenres()
     return getGenresFromFile();
 }
 
+function getGenre( $list )
+{
+    return getMovieListFromFile( getPath( "genre-$list.csv" ) );
+}
+
 function getGenreMovieByTitle( $title )
 {
     $id = getMovieFromImdbByTitle( $title )['id'];
@@ -88,6 +93,11 @@ function getGenreMovieById( $id )
 
 /*******************FRANCHISE LOAD********************/
 
+
+function getFranchise( $list )
+{
+    return getMovieListFromFile( getPath( "franchise-$list.csv" ) );
+}
 
 function getFranchiseMovieByTitle( $title )
 {
@@ -302,24 +312,7 @@ function downloadAll()
 {
     if ( extension_loaded('zip') )
     {
-        $zip = new ZipArchive();
-        $zipName = time() . ".zip";
-
-        $isOpen = $zip->open( $zipName, ZIPARCHIVE::CREATE );
-        if ( $isOpen )
-        {
-            $folder = "../archive";
-            foreach ( scandir($folder) as $file )
-            {
-                $file = "$folder/" . $file;
-                if ( file_exists($file) && is_file($file) )
-                {
-                    $zip->addFile($file);
-                }
-            }
-            $zip->close();
-        }
-
+        $zipName = archiveFolder( time() . "", "../archive" );
         if ( file_exists( $zipName ) )
         {
             ignore_user_abort(true);
@@ -382,6 +375,11 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
    	{
    		$result = $action( $_POST['id'], $_POST['url'] );
    	}
+    //getGenre | getFranchise
+	elseif ( isset( $_POST['list'] ) )
+	{
+		$result = $action( $_POST['list'] );
+	}
     //getBookById | getMovieById | getGenreMovieById | getFranchiseMovieById | deleteMovie
 	elseif ( isset( $_POST['id'] ) )
 	{

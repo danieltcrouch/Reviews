@@ -72,6 +72,7 @@
     setMovieType( getSelectedRadioButton( "movieType" ).id );
 </script>
 
+<?php include("html/genre-modal.html"); ?>
 <?php include("html/franchise-modal.html"); ?>
 <?php include("html/sort-modal.html"); ?>
 <?php includeModals(); ?>

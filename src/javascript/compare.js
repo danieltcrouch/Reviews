@@ -16,7 +16,7 @@ function compareFranchiseRankings( type )
 
 function setMyList( type )
 {
-    myListDetail = getFranchiseFromType( type );
+    myListDetail = getFranchiseFromId( type );
     myListTitle = myListDetail.map( movie => movie.title );
 }
 

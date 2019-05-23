@@ -35,8 +35,11 @@
     {
         closeModal( $('#franchiseModal') );
         $.post(
-            "php/reviews.php",
-            { action: "get" + answer + "List" },
+            "php/enter.php",
+            {
+                action: "getFranchise",
+                list:   answer
+            },
             function( response ) {
                 callback( answer, JSON.parse( response ) );
             }

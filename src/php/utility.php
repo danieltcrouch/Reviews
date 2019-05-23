@@ -164,29 +164,38 @@ function getIndexFromListById( $list, $id )
 
 function getListFromFile( $fileName, $mapperFunction )
 {
+    $list = [];
     $file = fopen( $fileName, "r" );
-    $columns = getColumns( fgetcsv( $file ) );
-    $list = createEntryObjectList( $file, $columns, $mapperFunction );
-    fclose( $file );
+    if ( $file )
+    {
+        $columns = getColumns( fgetcsv( $file ) );
+        $list = createEntryObjectList( $file, $columns, $mapperFunction );
+        fclose( $file );
+    }
     return $list;
 }
 
 function saveListToFile( $fileName, $titles, $list, $mapperFunction )
 {
     $file = fopen( $fileName, "w" );
-    fputcsv( $file, $titles );
-    foreach ( $list as $item )
+    if ( $file )
     {
-        fputcsv( $file, $mapperFunction( $item ) );
+        fputcsv($file, $titles);
+        foreach ($list as $item) {
+            fputcsv($file, $mapperFunction($item));
+        }
+        fclose($file);
     }
-    fclose( $file );
 }
 
 function appendToFile( $fileName, $content, $isCSV )
 {
     $file = fopen( $fileName, "a" );
-    $isCSV ? fputcsv( $file, $content ) : fwrite( $file, $content );
-    fclose( $file );
+    if ( $file )
+    {
+        $isCSV ? fputcsv($file, $content) : fwrite($file, $content);
+        fclose($file);
+    }
 }
 
 ?>

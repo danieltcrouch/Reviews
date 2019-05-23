@@ -118,12 +118,36 @@ function saveFullMoviesToFile( $movies )
 function archive( $fileName )
 {
     $fileBase = str_replace( ".csv", "", $fileName );
-    unlink( "$fileBase 5.csv" );
-    rename( "$fileBase 4.csv", "$fileBase 5.csv" );
-    rename( "$fileBase 3.csv", "$fileBase 4.csv" );
+    unlink( "$fileBase 3.csv" );
     rename( "$fileBase 2.csv", "$fileBase 3.csv" );
     rename( "$fileBase 1.csv", "$fileBase 2.csv" );
     copy( $fileName, "$fileBase 1.csv" );
+
+    $zipName = archiveFolder( "archive", "../archive" );
+    rename( $zipName, "../../" . $zipName );
+}
+
+function archiveFolder( $fileName, $folderLocation )
+{
+    $zip = new ZipArchive();
+    $zipName = $fileName . ".zip";
+
+    $isOpen = $zip->open( $zipName, ZIPARCHIVE::CREATE );
+    if ( $isOpen )
+    {
+        $folder = $folderLocation;
+        foreach ( scandir($folder) as $file )
+        {
+            $file = "$folder/" . $file;
+            if ( file_exists($file) && is_file($file) )
+            {
+                $zip->addFile($file);
+            }
+        }
+        $zip->close();
+    }
+
+    return $zipName;
 }
 
 //RANK ********************
@@ -180,15 +204,15 @@ function saveRankMoviesToFile( $type, $list, $movies )
 
 function getLists( $type )
 {
-    return $type === "genre" ? getGenreLists() : getFranchiseLists();
+    return $type === "genre" ? getGenreListNames() : getFranchiseListNames();
 }
 
-function getGenreLists()
+function getGenreListNames()
 {
     return getListFromFile( getPath( "genres.csv" ), function( $row, $columns ) { return $row[$columns['iIndex']]; } );
 }
 
-function getFranchiseLists()
+function getFranchiseListNames()
 {
     return array( "Disney", "Marvel", "StarWars" );
 }

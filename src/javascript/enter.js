@@ -36,7 +36,7 @@ function isMovie()
 function getByMediaType( movieValue, bookValue )
 {
     var result = null;
-    switch ( isMovie() ) {
+    switch ( enterMediaType ) {
         case "movie":
             result = movieValue;
             break;
@@ -49,7 +49,9 @@ function getByMediaType( movieValue, bookValue )
 function setMovieType( movieType )
 {
     enterMovieType = movieType;
-    autoFillById( $('#id').val() );
+    var id = $('#id').val();
+    clear();
+    autoFillById( id );
 
     if ( isFullList() )
     {
@@ -214,14 +216,18 @@ function fillData( response )
     $('#review').val( response.review );
     $('#index').val( response.index );
 
+    var list = isFullList() ? "" : getRankListName( response.list );
+    $('#list').val( list );
     $('#id').val( response.id );
-    $('#list').val( response.list );
     $('#image').val( response.image );
 
     isOverwrite = response.isPreviouslyReviewed;
     if ( isOverwrite )
     {
-        setRankList( response.list );
+        if ( !isFullList() )
+        {
+            setRankList( response.list );
+        }
     }
     else
     {
@@ -231,19 +237,16 @@ function fillData( response )
 
 function setRankList( list )
 {
-    if ( list )
-    {
-        $.post(
-            "php/enter.php",
-            {
-                action: "get" + (isGenreList() ? "Genre" : "Franchise") + "List",
-                genre: getRankListId( list )
-            },
-            function ( response ) {
-                rankList = JSON.parse( response );
-            }
-        );
-    }
+    $.post(
+        "php/enter.php",
+        {
+            action: "get" + (isGenreList() ? "Genre" : "Franchise"),
+            list:   list
+        },
+        function ( response ) {
+            rankList = JSON.parse( response );
+        }
+    );
 }
 
 function clear()
@@ -407,10 +410,11 @@ function getRanking()
 {
     if ( rankList )
     {
-        if ( !isOverwrite && $('#id').val() )
+        var id = $('#id').val();
+        if ( id && !rankList.some( m => m.id === id ) )
         {
             rankList.push( {
-                id:     $('#id').val(),
+                id:     id,
                 title:  $('#title').val(),
                 image:  $('#image').val()
             } );
@@ -452,14 +456,18 @@ function getRankingCallback( response )
         changed = changed || result < 0;
         return result;
     });
+    if ( mainIndex >= 0 )
+    {
+        $('#index').val( mainIndex + 1 );
+    }
 
     if ( changed )
     {
-        submitRanks( mainIndex );
+        submitRanks();
     }
 }
 
-function submitRanks( mainIndex )
+function submitRanks()
 {
     $.post(
         "php/enter.php",
@@ -470,7 +478,6 @@ function submitRanks( mainIndex )
             movies: rankList
         },
         function() {
-            mainIndex >= 0 ? $('#index').val( mainIndex ) : null;
             showToaster( "Ranks updated." );
             if ( isFranchiseList() )
             {
@@ -500,7 +507,7 @@ function submitRank()
             action: "saveRankedMovie",
             type:   enterMovieType,
             list:   getRankListId( $('#list').val() ),
-            rank:   $('#index').val(), //shouldn't change anything but send anyway
+            rank:   $('#index').val(),
             title:  $('#title').val(),
             id:     $('#id').val(),
             year:   $('#year').val(),
@@ -517,7 +524,8 @@ function getRankListId( list )
 
     if ( isGenreList() )
     {
-        result = (genres) ? genres.find( genre => genre.title === list ).id : list;
+        var genre = (genres) ? genres.find( genre => genre.title === list ) : null;
+        result = (genre) ? genre.id : list;
     }
     else
     {
@@ -531,14 +539,15 @@ function getRankListId( list )
 function getRankListName( list )
 {
     var result;
-    list = list.toLowerCase();
 
     if ( isGenreList() )
     {
-        result = (genres) ? genres.find( genre => genre.id === list ).title : list;
+        var genre = (genres) ? genres.find( genre => genre.id === list ) : null;
+        result = (genre) ? genre.title : list;
     }
     else
     {
+        list = (list) ? list.toLowerCase() : "";
         switch ( list )
         {
         case "d":
@@ -616,14 +625,21 @@ function checkDelete()
 
 function deleteMovie()
 {
-    $.post(
-        "php/enter.php",
+    var data = isFullList() ?
         {
             action: "deleteMovie",
-            type:   enterMovieType,
-            list:   $('#list').val(),
             id:     $('#id').val()
-        },
+        } :
+        {
+            action: "deleteRankMovie",
+            type:   enterMovieType,
+            list:   getRankListId( $('#list').val() ),
+            id:     $('#id').val()
+        };
+
+    $.post(
+        "php/enter.php",
+        data,
         function( response ) {
             response = JSON.parse( response );
             var success = ( response && response.isSuccess );

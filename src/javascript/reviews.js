@@ -18,6 +18,7 @@ var fullBookList = {
 };
 var favoritesList = [];
 
+var showGenreOptionsOnLoad = false;
 var hasFinalBookListReturned = false;
 
 function toggleMovieSubMenu()
@@ -30,11 +31,11 @@ function toggleBookSubMenu()
     $('#bookSubMenu').toggle();
 }
 
-function getFranchiseFromType( type )
+function getFranchiseFromId( listId )
 {
-    type = type.toLowerCase();
+    listId = listId.toLowerCase();
     var result;
-    switch ( type )
+    switch ( listId )
     {
     case "d":
     case "disney":
@@ -307,11 +308,11 @@ function getFullMovieDisplay( movies )
 function parseGenres( response )
 {
     genreLists = JSON.parse( response );
-    genreNames = genreLists.map( function( g) { return { id: g.id, title: g.title }; } );
+    genreNames = genreLists.map( function( g ) { return { id: g.id, title: g.title }; } );
 
     for ( var i = 0; i < genreLists.length; i++ )
     {
-        var genreDiv = $('#TenContainer');
+        var genreDiv = $('#GenreContainer');
         var genreId  = genreLists[i].id;
         var genre    = genreLists[i].title;
         var list     = genreLists[i].list;
@@ -320,25 +321,30 @@ function parseGenres( response )
         $('#' + genreId).html( "<div class='subtitle center'>" + genre + "</div>" +
                                getRankingsDisplay( list ) );
     }
+
+    if ( showGenreOptionsOnLoad )
+    {
+        showGenreList();
+    }
 }
 
-function parseFranchise( type, response )
+function parseFranchise( listId, response )
 {
-    var list = JSON.parse( response );
-    switch ( type )
+    var movies = JSON.parse( response );
+    switch ( listId )
     {
     case "Disney":
-        disneyList = list;
+        disneyList = movies;
         break;
     case "Marvel":
-        marvelList = list;
+        marvelList = movies;
         break;
     case "StarWars":
-        starWarsList = list;
+        starWarsList = movies;
         break;
     }
 
-    $('#' + type).html( getRankingsDisplay( list ) );
+    $('#' + listId).html( getRankingsDisplay( movies ) );
 }
 
 function getRankingsDisplay( list )
@@ -491,7 +497,7 @@ function showSection()
             break;
         case "Genre":
         case "GenreContainer":
-            showGenreList();
+            setGenrePopOnLoad();
             break;
         case "Disney":
         case "DisneyContainer":
@@ -517,6 +523,12 @@ function showSection()
     }
 }
 
+function setGenrePopOnLoad()
+{
+    //this is needed because page load may occur before genres are returned
+    showGenreOptionsOnLoad = true;
+}
+
 function showFullMovieList()
 {
     hideAll();
@@ -532,16 +544,14 @@ function showGenreList()
 {
     hideAll();
 
-    showMessage( "In Progress...", "Ten Top 10 coming soon..." );
-    //todo - Uncomment when ready
-    // openGenreModal( genreNames, function( genre ) {
-    //     if ( genre )
-    //     {
-    //         $('#GenreContainer').show();
-    //         $('#' + genre).show();
-    //         scrollToId( "GenreContainer" );
-    //     }
-    // } );
+    openGenreModal( genreNames, function( genre ) {
+        if ( genre )
+        {
+            $('#GenreContainer').show();
+            $('#' + genre).show();
+            scrollToId( "GenreContainer" );
+        }
+    } );
 }
 
 function showDisneyList()
@@ -609,24 +619,24 @@ function hideGenres()
 
 //Compare logic found in compare.js
 
-function displayAverageFranchiseRanking( type )
+function displayAverageFranchiseRanking( list )
 {
     $.post(
         "php/database.php",
         {
             action:    "getAverageRanking",
-            type:      type
+            list:      list
         },
         function ( response ) {
-            displayAverageFranchiseRankingCallback( JSON.parse( response ), type );
+            displayAverageFranchiseRankingCallback( JSON.parse( response ), list );
         }
     );
 }
 
-function displayAverageFranchiseRankingCallback( list, type )
+function displayAverageFranchiseRankingCallback( movies, listId )
 {
-    var detailList = getFranchiseFromType( type );
-    var averageList = list.map( id => detailList.find( movie => { return movie.id === id } ) );
+    var detailList = getFranchiseFromId( listId );
+    var averageList = movies.map( id => detailList.find( movie => { return movie.id === id } ) );
 
     var rankingImages = "";
     for ( var i = 0; i < averageList.length; i++ )

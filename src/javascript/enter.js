@@ -195,6 +195,7 @@ function autoFillByTitleCallback( response )
     else
     {
         showToaster( "No " + term + " found." );
+        clear();
     }
 }
 

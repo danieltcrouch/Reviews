@@ -58,6 +58,7 @@ function getFranchiseFromId( listId )
 
 /*********************FIND***********************/
 
+
 function findMovieOnEnter( e )
 {
     var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
@@ -75,6 +76,19 @@ function findMovie( title )
         {
             action: "getMovieByTitle",
             title: title
+        },
+        findMovieCallback
+    );
+}
+
+function findMovieById( id )
+{
+    showWarning();
+    $.post(
+        "php/reviews.php",
+        {
+            action: "getMovieById",
+            id:     id
         },
         findMovieCallback
     );
@@ -482,6 +496,22 @@ function sortList( list, sortType )
 
 /********************DISPLAY*********************/
 
+
+function showDefaults( title, id )
+{
+    if ( title )
+    {
+        findMovie( title );
+    }
+    else if ( id )
+    {
+        findMovieById( id );
+    }
+    else
+    {
+        showSection();
+    }
+}
 
 function showSection()
 {

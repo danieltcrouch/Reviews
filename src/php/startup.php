@@ -10,7 +10,7 @@ $keywords   = "review,ranking,rating,movie,movies,lists,criticism,Disney,Marvel,
 $homeUrl    = "https://reviews.religionandstory.com";
 $style      = "red";
 
-function includeHeadInfo()
+function includeHeadInfo( $reviewOverride = null )
 {
     global $siteTitle;
     global $pageTitle;
@@ -18,6 +18,11 @@ function includeHeadInfo()
     global $description;
     global $keywords;
     global $style;
+
+    $pageTitle   = $reviewOverride ? $reviewOverride['title'] : $pageTitle;
+    $image       = $reviewOverride ? $reviewOverride['image'] : $image;
+    $description = $reviewOverride ? $reviewOverride['desc']  : $description;
+
     include("$_SERVER[DOCUMENT_ROOT]/../common/html/head.php");
     echo '<link href="https://fonts.googleapis.com/css?family=Abril+Fatface" rel="stylesheet">';
     echo '<style>
@@ -54,6 +59,30 @@ function getHelpImage()
 function getConstructionImage()
 {
     echo "https://image.freepik.com/free-icon/traffic-cone-signal-tool-for-traffic_318-62079.jpg";
+}
+
+function getReviewOverride( $title, $id )
+{
+    $reviewOverride = null;
+    if ( $title || $id )
+    {
+        include("$_SERVER[DOCUMENT_ROOT]/php/utilityMovie.php");
+        $movie = ( $title ) ? getMovieFromImdbByTitle( $title ) : getMovieFromImdbById( $id );
+        $id = $movie['isSuccess'] ? $movie['id'] : null;
+
+        if ( $id )
+        {
+            $movieReviews = getMovieListFromFile( "$_SERVER[DOCUMENT_ROOT]/archive/ratings.csv" );
+            $index = getIndexFromListById( $movieReviews, $id );
+            if ( $index >= 0 )
+            {
+                $reviewOverride['title'] = $movie['title'];
+                $reviewOverride['image'] = $movie['image'];
+                $reviewOverride['desc']  = $movieReviews[$index]['review'];
+            }
+        }
+    }
+    return $reviewOverride;
 }
 
 ?>

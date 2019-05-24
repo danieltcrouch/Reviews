@@ -72,9 +72,14 @@ function getStarWarsList()
 
 function getMovieByTitle( $title )
 {
-    $result['isSuccess'] = false;
+    $id = getMovieFromImdbByTitle( $title )['id'];
+    return getMovieById( $id );
+}
 
-    $movie = getMovieFromFile( $title );
+function getMovieById( $id )
+{
+    $result['isSuccess'] = false;
+    $movie = getMovieFromFile( $id );
     if ( $movie )
     {
         $result = $movie;
@@ -106,6 +111,10 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
     elseif ( isset( $_POST['title'] ) )
     {
         $result = $action( $_POST['title'] );
+    }
+    elseif ( isset( $_POST['id'] ) )
+    {
+        $result = $action( $_POST['id'] );
     }
 	else
 	{

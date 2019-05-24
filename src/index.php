@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>Daniel&rsquo;s Ratings</title>
-    <?php includeHeadInfo(); ?>
+    <?php includeHeadInfo( getReviewOverride( $_GET['title'], $_GET['id'] ) ); ?>
     <link rel="stylesheet" type="text/css" href="css/reviews.css"/>
     <script src="javascript/reviews.js"></script>
     <script src="javascript/compare.js"></script>
@@ -122,7 +122,7 @@
     populateFullBookList();
     populateFavoritesList();
 
-    showSection();
+    showDefaults( "<?php echo $_GET['title']; ?>", "<?php echo $_GET['id']; ?>" );
 
     setRadioCallback( "movieSorting", function( sortType ) {
         displayFullMovies( sortType );

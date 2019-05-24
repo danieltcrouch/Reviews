@@ -39,9 +39,10 @@ function getMovieByTitle( $title )
 
 function getMovieById( $id )
 {
-    $movies = getMovieList();
     $movie = getMovieFromImdbById( $id );
     $movie['isPreviouslyReviewed'] = false;
+
+    $movies = getMovieList();
     $prevIndex = getIndexFromListById( $movies, $movie['id'] );
     $previouslyRatedMovie = $movies[$prevIndex];
     if ( $previouslyRatedMovie )
@@ -147,6 +148,7 @@ function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 
     if ( $index )
     {
+        $index *= -1; //this allows for more intuitive indexing--matching the displayed numbers on the index page
         $count = count( $movies );
         $index = $index > 0 ? $index - 1 : $count + $index + 1;
         array_splice( $movies, $index, 0, array( $movie ) );

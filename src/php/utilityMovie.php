@@ -59,16 +59,11 @@ function getDataFromResponse( $response )
 /********************FILE I/O********************/
 
 
-function getMovieFromFile( $title )
+function getMovieFromFile( $value, $type = 'id' )
 {
     $movies = getMovieList();
-    $movieTitles = [];
-    array_walk( $movies, function($value, $key) use( &$movieTitles ) {
-        $movieTitles[$key] = $value['title'];
-    });
-
-    $movieId = findEntry( $movieTitles, $title );
-    return ( $movieId ) ? $movies[$movieId] : null;
+    $index = ( $type === "id" ) ? getIndexFromListById( $movies, $value ) : getIndexFromListByTitle( $movies, $value );
+    return ( $index && $index >= 0 ) ? $movies[$index] : null;
 }
 
 function getMovieListFromFile( $fileName )

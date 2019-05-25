@@ -33,25 +33,37 @@ include_once( "utilityMovie.php" );
 
 function getMovieByTitle( $title )
 {
-    $id = getMovieFromImdbByTitle( $title )['id'];
-    return getMovieById( $id );
+    $movie = getMovieFromFullList( $title, "title" );
+    if ( $movie )
+    {
+        $movie['isPreviouslyReviewed'] = true;
+        $movie['index']++;
+        $movie = addImdbFields( $movie );
+    }
+    else
+    {
+        $movie = getMovieFromImdbByTitle( $title );
+        $movie['isPreviouslyReviewed'] = false;
+    }
+    $movie['isSuccess'] = (bool) $movie['id'];
+    return $movie;
 }
 
 function getMovieById( $id )
 {
-    $movie = getMovieFromImdbById( $id );
-    $movie['isPreviouslyReviewed'] = false;
-
-    $movies = getMovieList();
-    $prevIndex = getIndexFromListById( $movies, $movie['id'] );
-    $previouslyRatedMovie = $movies[$prevIndex];
-    if ( $previouslyRatedMovie )
+    $movie = getMovieFromFullList( $id );
+    if ( $movie )
     {
         $movie['isPreviouslyReviewed'] = true;
-        $movie['rating'] = $previouslyRatedMovie['rating'];
-        $movie['review'] = $previouslyRatedMovie['review'];
-        $movie['index']  = $prevIndex + 1;
+        $movie['index']++;
+        $movie = addImdbFields( $movie );
     }
+    else
+    {
+        $movie = getMovieFromImdbById( $id );
+        $movie['isPreviouslyReviewed'] = false;
+    }
+    $movie['isSuccess'] = (bool) $movie['id'];
     return $movie;
 }
 

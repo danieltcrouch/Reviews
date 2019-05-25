@@ -72,23 +72,18 @@ function getStarWarsList()
 
 function getMovieByTitle( $title )
 {
-    $id = getMovieFromImdbByTitle( $title )['id'];
-    return getMovieById( $id );
+    $movie = getMovieFromFullList( $title, "title" );
+    $movie = addImdbFields( $movie );
+    $movie['isSuccess'] = (bool) $movie['id'];
+    return $movie;
 }
 
 function getMovieById( $id )
 {
-    $result['isSuccess'] = false;
-    $movie = getMovieFromFile( $id );
-    if ( $movie )
-    {
-        $result = $movie;
-        $movieData = getMovieFromImdbById( $result['id'] );
-        $result['image'] = $movieData['image'];
-        $result['rtScore'] = $movieData['rtScore'];
-        $result['isSuccess'] = true;
-    }
-    return $result;
+    $movie = getMovieFromFullList( $id );
+    $movie = addImdbFields( $movie );
+    $movie['isSuccess'] = (bool) $movie['id'];
+    return $movie;
 }
 
 

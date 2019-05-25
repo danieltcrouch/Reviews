@@ -61,7 +61,7 @@ function getConstructionImage()
     echo "https://image.freepik.com/free-icon/traffic-cone-signal-tool-for-traffic_318-62079.jpg";
 }
 
-function getReviewOverride( $title, $id )
+function getReviewOverride( $title, $id ) //only for movies
 {
     $reviewOverride = null;
     if ( $title || $id )

@@ -27,19 +27,6 @@ function requestIMDB( array $params = array() )
     return $result;
 }
 
-function getMovieFromImdbByTitle( $title )
-{
-    $title = trim( $title );
-    $result = requestIMDB( [ 't' => $title ] );
-    $result['search'] = $title;
-    return $result;
-}
-
-function getMovieFromImdbById( $id )
-{
-    return requestIMDB( [ 'i' => $id ] );
-}
-
 function getDataFromResponse( $response )
 {
     $result['isSuccess'] = false;
@@ -55,15 +42,42 @@ function getDataFromResponse( $response )
     return $result;
 }
 
+function getMovieFromImdbByTitle( $title )
+{
+    $title = trim( $title );
+    $result = requestIMDB( [ 't' => $title ] );
+    $result['search'] = $title;
+    return $result;
+}
+
+function getMovieFromImdbById( $id )
+{
+    return requestIMDB( [ 'i' => $id ] );
+}
+
+function addImdbFields( $movie )
+{
+    $movieData = getMovieFromImdbById( $movie['id'] );
+    $movie['image']   = $movieData['image'];
+    $movie['rtScore'] = $movieData['rtScore'];
+    return $movie;
+}
+
 
 /********************FILE I/O********************/
 
 
-function getMovieFromFile( $value, $type = 'id' )
+function getMovieFromFullList($value, $type = 'id' )
 {
+    $result = null;
     $movies = getMovieList();
     $index = ( $type === "id" ) ? getIndexFromListById( $movies, $value ) : getIndexFromListByTitle( $movies, $value );
-    return ( $index && $index >= 0 ) ? $movies[$index] : null;
+    if ( is_numeric($index) && $index >= 0 )
+    {
+        $result = $movies[$index];
+        $result['index'] = $index;
+    }
+    return  $result;
 }
 
 function getMovieListFromFile( $fileName )

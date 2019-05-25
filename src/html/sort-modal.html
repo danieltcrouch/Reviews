@@ -84,7 +84,7 @@
     {
         closeModal( $('#sortModal') );
 
-        var placeholder = sortList.join('\n');
+        var placeholder = sortList.map( movie => movie.title ).join('\n');
         showBigPrompt(
             "Compare Rankings",
             "Enter your ranking by rearranging the series below:",

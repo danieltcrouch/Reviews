@@ -154,7 +154,7 @@ function getIndexFromListByTitle( $list, $title )
 function getIndexFromListById( $list, $id )
 {
     return findEntryAdvanced( $list, $id, function( $id, $value ) {
-        return ( $value['id'] === $id ) ? 1 : -1;
+        return ( $value['id'] === $id ) ? 1 : -1; //IMDB ignores leading 0s so this comparison is not completely accurate
     } );
 }
 

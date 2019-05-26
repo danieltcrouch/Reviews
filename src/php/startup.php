@@ -79,20 +79,14 @@ function getReviewOverride( $title, $id ) //only for movies
     $reviewOverride = null;
     if ( $title || $id )
     {
-        include("php/utilityMovie.php");
-        $movie = ( $title ) ? getMovieFromImdbByTitle( $title ) : getMovieFromImdbById( $id );
-        $id = $movie['isSuccess'] ? $movie['id'] : null;
+        include_once("php/find.php");
+        $movie = ( $title ) ? getMovieByTitle( $title, "full" ) : getMovieById( $id, "full" );
 
-        if ( $id )
+        if ( $movie['isSuccess'] && $movie['isPreviouslyReviewed'] )
         {
-            $movieReviews = getMovieListFromFile( "archive/ratings.csv" );
-            $index = getIndexFromListById( $movieReviews, $id );
-            if ( $index >= 0 )
-            {
-                $reviewOverride['title'] = $movie['title'];
-                $reviewOverride['image'] = $movie['image'];
-                $reviewOverride['desc']  = $movieReviews[$index]['review'];
-            }
+            $reviewOverride['title'] = $movie['title'];
+            $reviewOverride['image'] = $movie['image'];
+            $reviewOverride['desc']  = $movie['review'];
         }
     }
     return $reviewOverride;

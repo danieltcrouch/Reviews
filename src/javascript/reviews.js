@@ -61,43 +61,16 @@ function getFranchiseFromId( listId )
 
 function findMovieOnEnter( e )
 {
-    var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
-    if ( charCode === 13 )
+    if ( e.which === 13 || e.keyCode === 13 )
     {
-        findMovie( $('#findMovie').val() );
+        showWarning();
+        findMovie( $('#title').val(), "full", findMovieCallback );
     }
-}
-
-function findMovie( title )
-{
-    showWarning();
-    $.post(
-        "php/reviews.php",
-        {
-            action: "getMovieByTitle",
-            title: title
-        },
-        findMovieCallback
-    );
-}
-
-function findMovieById( id )
-{
-    showWarning();
-    $.post(
-        "php/reviews.php",
-        {
-            action: "getMovieById",
-            id:     id
-        },
-        findMovieCallback
-    );
 }
 
 function findMovieCallback( response )
 {
-    response = JSON.parse( response );
-    if ( response.isSuccess )
+    if ( response && response.isSuccess && response.isPreviouslyReviewed )
     {
         var rtDisplay = getRtDisplay( response.rtScore );
         var innerHTML = "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
@@ -132,29 +105,15 @@ function findBookOnEnter( e )
 {
     if (  e.which === 13 || e.keyCode === 13 )
     {
-        findBook( $('#findBook').val() );
+        showWarning();
+        findBook( $('#findBook').val(), findBookCallback );
         //showPrompt( "Author", "Enter an author for more accurate results", function(response) { findBook( $('#findBook').val(), response ); }, "Shakespeare" );
     }
 }
 
-function findBook( title, author )
-{
-    showWarning();
-    $.post(
-        "php/reviews.php",
-        {
-            action: "getBookByTitle",
-            title: title,
-            author: author
-        },
-        findBookCallback
-    );
-}
-
 function findBookCallback( response )
 {
-    response = JSON.parse( response );
-    if ( response.isSuccess )
+    if ( response && response.isSuccess && response.isPreviouslyReviewed )
     {
         var year = isNaN( response.year ) ? "" : ( "(" + response.year + ")" );
         var review = response.review + "<br/>";
@@ -509,13 +468,10 @@ function sortList( list, sortType )
 
 function showDefaults( title, id )
 {
-    if ( title )
+    var value = title || id;
+    if ( value )
     {
-        findMovie( title );
-    }
-    else if ( id )
-    {
-        findMovieById( id );
+        findMovie( value, "full", findMovieCallback );
     }
     else
     {

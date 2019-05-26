@@ -5,6 +5,7 @@
 	<title>Enter Ratings</title>
     <?php includeHeadInfo(); ?>
     <script src="javascript/enter.js"></script>
+    <script src="javascript/find.js"></script>
     <script src="javascript/compare.js"></script>
 </head>
 
@@ -23,7 +24,7 @@
                 <button id="movie" name="mediaType" class="button selectedButton" style="width: 5em; margin: .25em;">Movies</button>
                 <button id="book"  name="mediaType" class="button inverseButton"  style="width: 5em; margin: .25em;">Books</button>
             </div>
-            <input id="title" type="search" class="input" onkeydown="autoFillTab( event )" onkeyup="autoFill( event )" placeholder="Title (or ID)">
+            <input id="title" type="search" class="input" onkeyup="findMediaOnEnter( event )" placeholder="Title (or ID)">
         </div>
 
         <div id="movieInputs">

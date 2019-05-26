@@ -100,35 +100,23 @@ function getByMovieType( fullValue, genreValue, franchiseValue )
 }
 
 
-/********************AUTOFILL********************/
+/********************FIND********************/
 
 
-function autoFillTab( e )
+function findMediaOnEnter( e )
 {
-    var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
-    if ( charCode === 9 )
+    if ( e.which === 13 || e.keyCode === 13 )
     {
-        autoFill( e );
-    }
-}
-
-function autoFill( e )
-{
-    var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
-    if ( charCode === 13 || charCode === 9 )
-    {
-        var search = $('#title').val();
-        if ( search )
+        var value = $('#title').val();
+        if ( value )
         {
-            var isImdbId = isMovie() && search.search(/tt\d{7,8}/i) >= 0;
-            var isGoodreadsId = !isMovie() && !isNaN( search ) && !["300", "1984", "2001", "11/22/63", "1408" ].includes( search ) ;
-            if ( isImdbId || isGoodreadsId )
+            if ( isMovie() )
             {
-                autoFillById( search );
+                findMovie( value, enterMovieType, findMediaCallback );
             }
             else
             {
-                autoFillByTitle( search );
+                findBook( value, findMediaCallback );
             }
         }
         else
@@ -138,65 +126,41 @@ function autoFill( e )
     }
 }
 
-function autoFillById( id )
+function findMediaCallback( response )
 {
-    if ( id )
-    {
-        $.post(
-            "php/enter.php",
-            {
-                action: isMovie() ? ( getByMovieType( "getMovieById", "getGenreMovieById", "getFranchiseMovieById" ) ) : "getBookById",
-                id: id
-            },
-            autoFillByIdCallback
-        );
-    }
-}
-
-function autoFillByIdCallback( response )
-{
-    response = JSON.parse( response );
-    if ( response.isSuccess )
-    {
-        fillData( response );
-    }
-}
-
-function autoFillByTitle( title )
-{
-    $.post(
-        "php/enter.php",
-        {
-            action: isMovie() ? ( getByMovieType( "getMovieByTitle", "getGenreMovieByTitle", "getFranchiseMovieByTitle" ) ) : "getBookByTitle",
-            title: title
-        },
-        autoFillByTitleCallback
-    );
-}
-
-function autoFillByTitleCallback( response )
-{
-    response = JSON.parse( response );
-
-    var term = getByMediaType( "movie", "book" );
     if ( response && response.isSuccess )
     {
-        var title     = getByMediaType( "Movie Match", "Library Look-up" );
-        var info      = getByMediaType( "ID: " + response.id, response.author );
-        var imageAlt  = getByMediaType( "Movie Poster", "Book Cover" );
-        var innerHTML = "Is this the correct " + term + "?<br/><br/>" +
-                        "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
-                        info + "<br/><br/>" +
-                        "<img src='" + response.image + "' height='300px' alt='" + imageAlt + "'>";
-        showConfirm( title, innerHTML, function( answer ) {
-            ( answer ) ? fillData( response ) : showToaster( "Try entering " + getByMediaType( "IMDB", "GoodReads" ) + " ID." );
-        });
+        if ( response.isSearchId )
+        {
+            fillData( response );
+        }
+        else
+        {
+            confirmMatch( response );
+        }
     }
     else
     {
-        showToaster( "No " + term + " found." );
+        showToaster( "No " + getByMediaType( "movie", "book" ) + " found." );
         clear();
     }
+}
+
+function confirmMatch( response )
+{
+    var title     = getByMediaType( "Movie Match", "Library Look-up" );
+    var term      = getByMediaType( "movie", "book" );
+    var info      = getByMediaType( "ID: " + response.id, response.author );
+    var imageAlt  = getByMediaType( "Movie Poster", "Book Cover" );
+
+    var innerHTML = "Is this the correct " + term + "?<br/><br/>" +
+                    "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
+                    info + "<br/><br/>" +
+                    "<img src='" + response.image + "' height='300px' alt='" + imageAlt + "'>";
+
+    showConfirm( title, innerHTML, function( answer ) {
+        ( answer ) ? fillData( response ) : showToaster( "Try entering " + getByMediaType( "IMDB", "GoodReads" ) + " ID." );
+    });
 }
 
 //ARCHIVE

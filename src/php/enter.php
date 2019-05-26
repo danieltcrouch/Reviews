@@ -1,74 +1,10 @@
 <?php
 include_once( "utility.php" );
-
-
-/*******************BOOK LOAD********************/
-
-
 include_once( "utilityBook.php" );
-
-function getBookByTitle( $title )
-{
-    $result = null;
-    $id = getBookIdFromFile( $title );
-    $result = $id ? getBookById( $id ) : getBookFromGoodreadsByTitle( $title );
-    return $result;
-}
-
-function getBookById( $id )
-{
-    $result = getReviewedBookFromGoodreads( $id );
-    if ( !$result['isSuccess'] )
-    {
-        $result = getBookFromGoodreadsById( $id );
-    }
-    return $result;
-}
-
-
-/******************MOVIE LOAD********************/
-
-
 include_once( "utilityMovie.php" );
 
-function getMovieByTitle( $title ) //todo - returns less exact matches from movies I've seen over movies I haven't seen ("Philadelphia" returns Philadelphia Story instead of Philadelphia)
-{
-    $movie = getMovieFromFullList( $title, "title" );
-    if ( $movie )
-    {
-        $movie['isPreviouslyReviewed'] = true;
-        $movie['index']++;
-        $movie = addImdbFields( $movie );
-    }
-    else
-    {
-        $movie = getMovieFromImdbByTitle( $title );
-        $movie['isPreviouslyReviewed'] = false;
-    }
-    $movie['isSuccess'] = (bool) $movie['id'];
-    return $movie;
-}
 
-function getMovieById( $id )
-{
-    $movie = getMovieFromFullList( $id );
-    if ( $movie )
-    {
-        $movie['isPreviouslyReviewed'] = true;
-        $movie['index']++;
-        $movie = addImdbFields( $movie );
-    }
-    else
-    {
-        $movie = getMovieFromImdbById( $id );
-        $movie['isPreviouslyReviewed'] = false;
-    }
-    $movie['isSuccess'] = (bool) $movie['id'];
-    return $movie;
-}
-
-
-/*******************GENRE LOAD********************/
+/*******************MOVIES*******************/
 
 
 function getGenres()
@@ -81,57 +17,9 @@ function getGenre( $list )
     return getMovieListFromFile( getPath( "genre-$list.csv" ) );
 }
 
-function getGenreMovieByTitle( $title )
-{
-    $id = getMovieFromImdbByTitle( $title )['id'];
-    return getGenreMovieById( $id );
-}
-
-function getGenreMovieById( $id )
-{
-    $movie = getMovieFromImdbById( $id );
-    $movie['isPreviouslyReviewed'] = false;
-    $previouslyRankedMovie = getRankMovieFromFilesById( "genre", $id );
-    if ( $previouslyRankedMovie )
-    {
-        $movie['isPreviouslyReviewed'] = true;
-        $movie['review'] = $previouslyRankedMovie['review'];
-        $movie['index'] = $previouslyRankedMovie['index'];
-        $movie['list'] = $previouslyRankedMovie['list'];
-        $movie['image'] = $previouslyRankedMovie['image'];
-    }
-    return $movie;
-}
-
-
-/*******************FRANCHISE LOAD********************/
-
-
 function getFranchise( $list )
 {
     return getMovieListFromFile( getPath( "franchise-$list.csv" ) );
-}
-
-function getFranchiseMovieByTitle( $title )
-{
-    $id = getMovieFromImdbByTitle( $title )['id'];
-    return getFranchiseMovieById( $id );
-}
-
-function getFranchiseMovieById( $id )
-{
-    $movie = getMovieFromImdbById( $id );
-    $movie['isPreviouslyReviewed'] = false;
-    $previouslyRankedMovie = getRankMovieFromFilesById( "franchise", $id );
-    if ( $previouslyRankedMovie )
-    {
-        $movie['isPreviouslyReviewed'] = true;
-        $movie['review'] = $previouslyRankedMovie['review'];
-        $movie['index'] = $previouslyRankedMovie['index'];
-        $movie['list'] = $previouslyRankedMovie['list'];
-        $movie['image'] = $previouslyRankedMovie['image'];
-    }
-    return $movie;
 }
 
 
@@ -394,16 +282,11 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	{
 		$result = $action( $_POST['list'] );
 	}
-    //getBookById | getMovieById | getGenreMovieById | getFranchiseMovieById | deleteMovie
+    //deleteMovie
 	elseif ( isset( $_POST['id'] ) )
 	{
 		$result = $action( $_POST['id'] );
 	}
-    //getBookByTitle | getMovieByTitle | getGenreMovieByTitle | getFranchiseMovieByTitle
-	elseif ( isset( $_POST['title'] ) )
-    {
-        $result = $action( $_POST['title'] );
-    }
     //getGenres | downloadAll | viewSearches
 	else
 	{

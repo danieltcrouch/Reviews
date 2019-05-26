@@ -6,6 +6,7 @@
     <?php includeHeadInfo( getReviewOverride( $_GET['title'], $_GET['id'] ) ); ?>
     <link rel="stylesheet" type="text/css" href="css/reviews.css"/>
     <script src="javascript/reviews.js"></script>
+    <script src="javascript/find.js"></script>
     <script src="javascript/compare.js"></script>
 </head>
 

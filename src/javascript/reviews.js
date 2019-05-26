@@ -64,7 +64,7 @@ function findMovieOnEnter( e )
     if ( e.which === 13 || e.keyCode === 13 )
     {
         showWarning();
-        findMovie( $('#title').val(), "full", findMovieCallback );
+        findMovie( $('#findMovie').val(), "full", findMovieCallback );
     }
 }
 

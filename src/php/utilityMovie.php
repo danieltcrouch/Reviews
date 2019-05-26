@@ -171,23 +171,23 @@ function getGenresFromFile()
     } );
 }
 
-function getRankMovieFromFileById( $type, $list, $id )
+function getRankMovieFromFile( $type, $list, $value, $valueType )
 {
     $movies = getMovieListFromFile( getPath( "$type-$list.csv" ) );
-    $index = getIndexFromListById( $movies, $id );
+    $index = ( $valueType === "id" ) ? getIndexFromListById( $movies, $value ) : getIndexFromListByTitle( $movies, $value );
     $result = $movies[$index];
     $result['index'] = $index + 1;
     $result['list'] = $list;
     return is_numeric( $index ) ? $result : null;
 }
 
-function getRankMovieFromFilesById( $type, $id )
+function getRankMovieFromFiles( $type, $value, $valueType )
 {
     $movie = null;
     $lists = getLists( $type );
     foreach ( $lists as $list )
     {
-        $movie = getRankMovieFromFileById( $type, $list, $id );
+        $movie = getRankMovieFromFile( $type, $list, $value, $valueType );
         if ( isset( $movie ) )
         {
             break;

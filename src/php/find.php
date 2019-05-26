@@ -37,22 +37,30 @@ function getMovieFromFull( $value, $valueType )
 
 function getMovieFromRankByTitle( $title, $type )
 {
-    $id = getMovieFromImdbByTitle( $title )['id'];
-    return getMovieFromRankById( $id, $type );
+    $movie = getRankMovieFromFiles( $type, $title, "title" );
+    if ( $movie )
+    {
+        $movie['isPreviouslyReviewed'] = true;
+        $movie = addImdbFields( $movie );
+    }
+    else
+    {
+        $movie = getMovieFromImdbByTitle( $title );
+    }
+    return $movie;
 }
 
 function getMovieFromRankById( $id, $type )
 {
-    $movie = getMovieFromImdbById( $id );
-    $movie['isPreviouslyReviewed'] = false;
-    $previouslyRankedMovie = getRankMovieFromFilesById( $type, $id );
-    if ( $previouslyRankedMovie )
+    $movie = getRankMovieFromFiles( $type, $id, "id" );
+    if ( $movie )
     {
         $movie['isPreviouslyReviewed'] = true;
-        $movie['review'] = $previouslyRankedMovie['review'];
-        $movie['index'] = $previouslyRankedMovie['index'];
-        $movie['list'] = $previouslyRankedMovie['list'];
-        $movie['image'] = $previouslyRankedMovie['image'];
+        $movie = addImdbFields( $movie );
+    }
+    else
+    {
+        $movie = getMovieFromImdbById( $id );
     }
     return $movie;
 }

@@ -31,7 +31,7 @@ function getBookById( $id )
 
 include_once( "utilityMovie.php" );
 
-function getMovieByTitle( $title )
+function getMovieByTitle( $title ) //todo - returns less exact matches from movies I've seen over movies I haven't seen ("Philadelphia" returns Philadelphia Story instead of Philadelphia)
 {
     $movie = getMovieFromFullList( $title, "title" );
     if ( $movie )

@@ -10,6 +10,19 @@ $keywords   = "review,ranking,rating,movie,movies,lists,criticism,Disney,Marvel,
 $homeUrl    = "https://reviews.religionandstory.com";
 $style      = "red";
 
+function getRootPath()
+{
+    $public = "public_html";
+    $path = $_SERVER['DOCUMENT_ROOT'];
+    $length = strpos( $path, $public ) + strlen( $public );
+    return substr( $path, 0, $length ) . "/";
+}
+
+function getSubPath()
+{
+    return getRootPath() . "reviews/";
+}
+
 function includeHeadInfo( $reviewOverride = null )
 {
     global $siteTitle;
@@ -23,7 +36,7 @@ function includeHeadInfo( $reviewOverride = null )
     $image       = $reviewOverride ? $reviewOverride['image'] : $image;
     $description = $reviewOverride ? $reviewOverride['desc']  : $description;
 
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/head.php");
+    include( getRootPath() . "common/html/head.php" );
     echo '<link href="https://fonts.googleapis.com/css?family=Abril+Fatface" rel="stylesheet">';
     echo '<style>
               :root {
@@ -39,16 +52,16 @@ function includeHeadInfo( $reviewOverride = null )
 function includeHeader()
 {
     global $homeUrl;
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/header.php");
+    include( getRootPath() . "common/html/header.php" );
 }
 
 function includeModals()
 {
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/modal.html");
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/modal-binary.html");
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/modal-prompt.html");
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/modal-prompt-big.html");
-    include("$_SERVER[DOCUMENT_ROOT]/../common/html/toaster.html");
+    include( getRootPath() . "common/html/modal.html" );
+    include( getRootPath() . "common/html/modal-binary.html" );
+    include( getRootPath() . "common/html/modal-prompt.html" );
+    include( getRootPath() . "common/html/modal-prompt-big.html" );
+    include( getRootPath() . "common/html/toaster.html" );
 }
 
 function getHelpImage()
@@ -66,13 +79,13 @@ function getReviewOverride( $title, $id ) //only for movies
     $reviewOverride = null;
     if ( $title || $id )
     {
-        include("$_SERVER[DOCUMENT_ROOT]/php/utilityMovie.php");
+        include("php/utilityMovie.php");
         $movie = ( $title ) ? getMovieFromImdbByTitle( $title ) : getMovieFromImdbById( $id );
         $id = $movie['isSuccess'] ? $movie['id'] : null;
 
         if ( $id )
         {
-            $movieReviews = getMovieListFromFile( "$_SERVER[DOCUMENT_ROOT]/archive/ratings.csv" );
+            $movieReviews = getMovieListFromFile( "archive/ratings.csv" );
             $index = getIndexFromListById( $movieReviews, $id );
             if ( $index >= 0 )
             {

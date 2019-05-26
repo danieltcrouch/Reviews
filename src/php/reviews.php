@@ -72,7 +72,7 @@ function getStarWarsList()
 
 function getMovieByTitle( $title )
 {
-    $movie = getMovieFromFullList( $title, "title" );
+    $movie = getMovieFromFullList( $title, "title" ); //todo - returns less exact matches from movies I've seen over movies I haven't seen ("Philadelphia" returns Philadelphia Story instead of Philadelphia)
     $movie = addImdbFields( $movie );
     $movie['isSuccess'] = (bool) $movie['id'];
     return $movie;

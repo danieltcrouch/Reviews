@@ -1,4 +1,4 @@
-<?php include("$_SERVER[DOCUMENT_ROOT]/php/startup.php"); ?>
+<?php include("php/startup.php"); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,25 +34,25 @@
         <a href="#main-top"></a>
         <div class="center" style="font-size: 1.5em">Select a Category</div>
         <div class="col-5 center">
-            <img src="images/movies.png" class="icon clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
+            <img src="images/movies.png" class="icon bounce clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
             <div id="movieSubMenu" style="display: none">
                 <input id="findMovie" type="search"  class="input" onkeyup="findMovieOnEnter( event )" placeholder="Find a movie">
                 <div>
-                    <img src="images/list.png" class="sub-icon clickable" onclick="showFullMovieList()" title="Click to see all movies">
-                    <img src="images/ten.png"       class="sub-icon clickable" onclick="showGenreList()"  title="Click to see Ten Top 10 movies">
-                    <img src="images/disney.png"    class="sub-icon clickable" onclick="showDisneyList()" title="Click to see Disney movies">
-                    <img src="images/marvel.png"    class="sub-icon clickable" onclick="showMarvelList()" title="Click to see Marvel movies">
-                    <img src="images/star-wars.png" class="sub-icon clickable" onclick="showSWList()"     title="Click to see Star Wars movies">
+                    <img src="images/list.png"      class="sub-icon bounce clickable" onclick="showFullMovieList()" title="Click to see all movies">
+                    <img src="images/ten.png"       class="sub-icon bounce clickable" onclick="showGenreList()"     title="Click to see Ten Top 10 movies">
+                    <img src="images/disney.png"    class="sub-icon bounce clickable" onclick="showDisneyList()"    title="Click to see Disney movies">
+                    <img src="images/marvel.png"    class="sub-icon bounce clickable" onclick="showMarvelList()"    title="Click to see Marvel movies">
+                    <img src="images/star-wars.png" class="sub-icon bounce clickable" onclick="showSWList()"        title="Click to see Star Wars movies">
                 </div>
             </div>
         </div>
         <div class="col-5 center">
-            <img src="images/books.png" class="icon clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
+            <img src="images/books.png" class="icon bounce clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
             <div id="bookSubMenu" style="display: none">
                 <input id="findBook" type="search" class="input" onkeyup="findBookOnEnter( event )" placeholder="Find a book">
                 <div>
-                    <img src="images/list.png" class="sub-icon clickable" onclick="showFullBookList()"  title="Click to see all books">
-                    <img src="images/star.png" class="sub-icon clickable" onclick="showFavoritesList()" title="Click to see favorite books">
+                    <img src="images/list.png" class="sub-icon bounce clickable" onclick="showFullBookList()"  title="Click to see all books">
+                    <img src="images/star.png" class="sub-icon bounce clickable" onclick="showFavoritesList()" title="Click to see favorite books">
                 </div>
             </div>
         </div>

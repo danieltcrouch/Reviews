@@ -99,13 +99,10 @@ function findMovieCallback( response )
     response = JSON.parse( response );
     if ( response.isSuccess )
     {
-        var rtImage = ( parseInt( response.rtScore ) > 60 ) ?
-                      "https://techpolicyinstitute.org/wp-content/uploads/2017/09/la-fi-ct-rotten-tomatoes-pictures-20170723-004.jpg" :
-                      "https://techpolicyinstitute.org/wp-content/uploads/2017/09/la-fi-ct-rotten-tomatoes-pictures-20170723-005.jpg" ;
+        var rtDisplay = getRtDisplay( response.rtScore );
         var innerHTML = "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
                         ( (response.review === "***" ) ? "No Review" : response.review ) + "<br/>" +
-                        "<strong>" + response.rating + "/10</strong> (" + response.rtScore +
-                        ( (response.rtScore === "--%") ? ")" : " <img src='" + rtImage + "' style='position: relative; top: 5px' height='24px' alt='RT Logo'>)" ) +
+                        "<strong>" + response.rating + "/10</strong> (" + rtDisplay + ")" +
                         "<br/><br/>" +
                         "<img src='" + response.image + "' height='300px' alt='Movie Poster'>";
         showMessage( "Movie Found", innerHTML );
@@ -117,10 +114,23 @@ function findMovieCallback( response )
     saveSearch( $('#findMovie').val(), "Movie" );
 }
 
+function getRtDisplay( response )
+{
+    var result = "--%";
+    var isRtScore = !isNaN( parseInt( response ) );
+    if ( isRtScore )
+    {
+        var rtImage = ( parseInt( response ) > 60 ) ?
+                      "https://techpolicyinstitute.org/wp-content/uploads/2017/09/la-fi-ct-rotten-tomatoes-pictures-20170723-004.jpg" :
+                      "https://techpolicyinstitute.org/wp-content/uploads/2017/09/la-fi-ct-rotten-tomatoes-pictures-20170723-005.jpg" ;
+        result = response + " <img src='" + rtImage + "' style='position: relative; top: 5px' height='24px' alt='RT Logo'>";
+    }
+    return result;
+}
+
 function findBookOnEnter( e )
 {
-    var charCode = (typeof e.which === "number") ? e.which : e.keyCode;
-    if ( charCode === 13 )
+    if (  e.which === 13 || e.keyCode === 13 )
     {
         findBook( $('#findBook').val() );
         //showPrompt( "Author", "Enter an author for more accurate results", function(response) { findBook( $('#findBook').val(), response ); }, "Shakespeare" );
@@ -625,6 +635,8 @@ function showFavoritesList()
 
 function hideAll()
 {
+    window.history.replaceState({}, document.title, "/" );
+
     $('#MovieContainer').hide();
     $('#GenreContainer').hide();
     $('#DisneyContainer').hide();

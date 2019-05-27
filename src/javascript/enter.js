@@ -51,7 +51,7 @@ function setMovieType( movieType )
     enterMovieType = movieType;
     var id = $('#id').val();
     clear();
-    autoFillById( id );
+    findMovie( id, enterMovieType, findMediaCallback );
 
     if ( isFullList() )
     {

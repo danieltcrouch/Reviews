@@ -28,7 +28,7 @@ function getMovieFromFull( $value, $valueType )
     }
     else
     {
-        $movie = ( $valueType === "type" ) ? getMovieFromImdbByTitle( $value ) : getMovieFromImdbById( $value );
+        $movie = ( $valueType === "title" ) ? getMovieFromImdbByTitle( $value ) : getMovieFromImdbById( $value );
         $movie['isPreviouslyReviewed'] = false;
     }
     $movie['isSuccess'] = (bool) $movie['id'];

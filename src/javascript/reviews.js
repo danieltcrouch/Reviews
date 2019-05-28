@@ -116,7 +116,7 @@ function findBookCallback( response )
 {
     if ( response && response.isSuccess && response.isPreviouslyReviewed )
     {
-        var year = isNaN( response.year ) ? "" : ( "(" + response.year + ")" );
+        var year = response.year ? "(" + response.year + ")" : "";
         var review = response.review + "<br/>";
         var innerHTML = "<strong>" + response.title + "</strong>, " + response.author + " " + year + "<br/>" +
                         review + "<br/>" +

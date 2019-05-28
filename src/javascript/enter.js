@@ -150,11 +150,12 @@ function confirmMatch( response )
 {
     var title     = getByMediaType( "Movie Match", "Library Look-up" );
     var term      = getByMediaType( "movie", "book" );
-    var info      = getByMediaType( "ID: " + response.id, response.author );
+    var year      = response.year ? "(" + response.year + ")" : "";
+    var info      = getByMediaType( "ID: " + response.id, response.author || "" );
     var imageAlt  = getByMediaType( "Movie Poster", "Book Cover" );
 
     var innerHTML = "Is this the correct " + term + "?<br/><br/>" +
-                    "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
+                    "<strong>" + response.title + "</strong> " + year + "<br/>" +
                     info + "<br/><br/>" +
                     "<img src='" + response.image + "' height='300px' alt='" + imageAlt + "'>";
 

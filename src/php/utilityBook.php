@@ -27,16 +27,7 @@ function requestGoodReads( $endpoint, array $params = array() )
 function getBookFromGoodreadsById( $id )
 {
     $response = requestGoodReads( "book/show/$id.xml", [] );
-
-    return [
-        'isSuccess' => ($response) ? true : false,
-        'id'        => $response['book']['id'],
-        'title'     => $response['book']['title'],
-        'year'      => $response['book']['publication_year'],
-        'author'    => $response['book']['authors']['author']['name'],
-        'image'     => $response['book']['image_url'],
-        'grRating'  => $response['book']['average_rating']
-    ];
+    return getBookData( $response );
 }
 
 function getBookFromGoodreadsByTitle( $title )
@@ -44,40 +35,22 @@ function getBookFromGoodreadsByTitle( $title )
     $response = requestGoodReads( 'book/title.xml', [
         'title' => $title
     ]);
-
-    return [
-        'isSuccess' => ($response) ? true : false,
-        'id'        => $response['book']['id'],
-        'title'     => $response['book']['title'],
-        'year'      => $response['book']['publication_year'],
-        'author'    => $response['book']['authors']['author']['name'],
-        'image'     => $response['book']['image_url'],
-        'grRating'  => $response['book']['average_rating']
-    ];
+    return getBookData( $response );
 }
 
 function getReviewedBookFromGoodreads( $id )
 {
-    $response = null;
+    $response['isSuccess'] = false;
     if ( $id )
     {
         $response = requestGoodReads( 'review/show_by_user_and_book', [
             'user_id' => "55277264",
             'book_id' => $id
         ]);
+        $response = getBookData( $response['review'] );
     }
 
-    return [
-        'isSuccess' => ($response) ? true : false,
-        'id'        => $response['review']['book']['id'],
-        'title'     => $response['review']['book']['title'],
-        'year'      => $response['review']['book']['publication_year'],
-        'author'    => $response['review']['book']['authors']['author']['name'],
-        'image'     => $response['review']['book']['image_url'],
-        'grRating'  => $response['review']['book']['average_rating'],
-        'rating'    => $response['review']['rating'],
-        'review'    => getCleanedReview( $response['review']['body'] )
-    ];
+    return $response;
 }
 
 function getListFromGoodreads( $shelf, $sortType )
@@ -111,17 +84,7 @@ function getBookListFromGoodreads( $shelf, $sortType = "date_read" )
     {
         if ( $book['book']['id'] )
         {
-            $id = $book['book']['id'];
-            $result[$index] = [
-                "title"  => $book['book']['title'],
-                "author" => $book['book']['authors']['author']['name'],
-                "id"     => $id,
-                "year"   => is_numeric( $book['book']['publication_year'] ) ? $book['book']['publication_year'] : "",
-                "rating" => $book['rating'],
-                "review" => getCleanedReview( $book['body'] ),
-                "image"  => ( $images[$id] ) ? $images[$id] : $book['book']['image_url'],
-                "url"    => getCDATA( $book['url'] )
-            ];
+            $result[$index] = getBookData( $book, $images[$book['book']['id']] );
             $index++;
         }
     }
@@ -132,6 +95,29 @@ function getBookListFromGoodreads( $shelf, $sortType = "date_read" )
     }
     saveFullBooksToFile( $shelf, $result );
     return $result;
+}
+
+function getBookData( $response, $imageOverride = null )
+{
+    $isSuccess  = ($response) ? true : false;
+    $id         = $response['book']['id'];
+    $year       = is_numeric( $response['book']['publication_year'] ) ? $response['book']['publication_year'] : "";
+    $author     = getAuthor( $response['book']['authors'] );
+    $review     = getCleanedReview( $response['body'] );
+    $image      = $imageOverride ?? $response['book']['image_url'];
+
+    return [
+        'isSuccess' => $isSuccess,
+        'id'        => $id,
+        'title'     => $response['book']['title'],
+        'year'      => $year,
+        'author'    => $author,
+        'image'     => $image,
+        'review'    => $review,
+        'rating'    => $response['rating'],
+        'grRating'  => $response['book']['average_rating'],
+        'url'       => getCDATA( $response['url'] )
+    ];
 }
 
 
@@ -192,6 +178,11 @@ function getImages()
     $images = createEntryList( $file, $columns['iIndex'], $columns['pIndex'] );
     fclose( $file );
     return $images;
+}
+
+function getAuthor( $authorsData )
+{
+    return $authorsData['author']['name']; //to retrieve other authors, will have to refactor from array to simpleXmlElement
 }
 
 function getCleanedReview( $review )

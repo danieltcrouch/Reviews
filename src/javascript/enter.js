@@ -458,7 +458,7 @@ function updatePersonalRankings() //used for Averages
         "php/database.php",
         {
             action: "updatePersonalRankings",
-            list:   getRankListId( $('#list').val() ),
+            type:   getRankListId( $('#list').val() ),
             movies: rankList
         }
     );

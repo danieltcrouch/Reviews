@@ -1,11 +1,11 @@
 <?php
 
-function getAverageRanking( $list )
+function getAverageRanking( $type )
 {
 	$mysqli = getMySql();
 
 	$rankings = array();
-	$result = $mysqli->query( "SELECT id FROM averageRankings WHERE type = '$list' ORDER BY rank, count DESC " );
+	$result = $mysqli->query( "SELECT id FROM averageRankings WHERE type = '$type' ORDER BY rank, count DESC " );
 	if ( $result && $result->num_rows > 0 )
 	{
         while( $row = $result->fetch_array() )
@@ -17,7 +17,7 @@ function getAverageRanking( $list )
     return $rankings;
 }
 
-function saveRanking( $list, $rankings )
+function saveRanking( $type, $rankings )
 {
 	$mysqli = getMySql();
 
@@ -32,12 +32,12 @@ function saveRanking( $list, $rankings )
         $prefix  = ",";
     }
 
-    $tableName = getTableName( $list );
+    $tableName = getTableName( $type );
 	$result = $mysqli->query( "INSERT INTO $tableName ( id, rank ) VALUES $rankSql " );
     return $result;
 }
 
-function updatePersonalRankings( $list, $movies )
+function updatePersonalRankings( $type, $movies )
 {
     $mysqli = getMySql();
 
@@ -49,14 +49,14 @@ function updatePersonalRankings( $list, $movies )
     }
     $caseSql .= "END ";
 
-    $tableName = getTableName( $list );
+    $tableName = getTableName( $type );
     $result = $mysqli->query("UPDATE $tableName SET rank = ($caseSql) WHERE personal = '1' ");
     return $result;
 }
 
-function getTableName( $list )
+function getTableName( $type )
 {
-    return strtolower( $list ) . "Rankings";
+    return strtolower( $type ) . "Rankings";
 }
 
 function getMySql()
@@ -69,17 +69,17 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	$action = $_POST['action'];
     $result = null;
 
-	if ( isset( $_POST['list'] ) && isset( $_POST['rankings'] ) )
+	if ( isset( $_POST['type'] ) && isset( $_POST['rankings'] ) )
 	{
-		$result = $action( $_POST['list'], $_POST['rankings'] );
+		$result = $action( $_POST['type'], $_POST['rankings'] );
 	}
-    elseif ( isset( $_POST['list'] ) && isset( $_POST['movies'] ) )
+    elseif ( isset( $_POST['type'] ) && isset( $_POST['movies'] ) )
    	{
-   	    $result = $action( $_POST['list'], $_POST['movies'] );
+   	    $result = $action( $_POST['type'], $_POST['movies'] );
    	}
-	elseif ( isset( $_POST['list'] ) )
+	elseif ( isset( $_POST['type'] ) )
 	{
-		$result = $action( $_POST['list'] );
+		$result = $action( $_POST['type'] );
 	}
 	else
 	{

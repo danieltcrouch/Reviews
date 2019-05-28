@@ -39,7 +39,7 @@ include_once( "utilityMovie.php" );
 
 function getFullMovieList()
 {
-    return array_reverse( getMovieListFromFile( getPath( "ratings.csv" ) ) );
+    return getMovieListFromFile( getPath( "ratings.csv" ) );
 }
 
 function getGenreLists()

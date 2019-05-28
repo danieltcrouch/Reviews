@@ -73,8 +73,9 @@ function findMovieCallback( response )
     if ( response && response.isSuccess && response.isPreviouslyReviewed )
     {
         var rtDisplay = getRtDisplay( response.rtScore );
+        var review    = ( (response.review === "***" ) ? "No Review" : response.review.replace("\n", "<br/>") );
         var innerHTML = "<strong>" + response.title + "</strong> (" + response.year + ")<br/>" +
-                        ( (response.review === "***" ) ? "No Review" : response.review ) + "<br/>" +
+                        review + "<br/>" +
                         "<strong>" + response.rating + "/10</strong> (" + rtDisplay + ")" +
                         "<br/><br/>" +
                         "<img src='" + response.image + "' height='300px' alt='Movie Poster'>";
@@ -243,7 +244,7 @@ function parseFullMovies( response )
     for ( var index = 0; index < fullMovieList.watch.length; index++ )
     {
         var movie = fullMovieList.watch[index];
-        fullMovieList.watch[index].review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
+        fullMovieList.watch[index].review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review.replace( "\n", "<br/>" );
     }
 
     fullMovieList.title =   sortList( Array.from(fullMovieList.watch), "title" );
@@ -272,16 +273,17 @@ function displayFullMovies( sortType )
         movies = fullMovieList.watch;
     }
 
-    $('#Movies').html( getFullMovieDisplay( movies ) );
+    $('#Movies').html( getFullMovieDisplay( movies, sortType === "watch" ) );
 }
 
-function getFullMovieDisplay( movies )
+function getFullMovieDisplay( movies, reverse = false )
 {
     var result = "";
     for ( var i = 0; i < movies.length; i++ )
     {
-        var index = i + 1;
-        var movie = movies[i];
+        var j = reverse ? ( movies.length - i - 1 ) : i;
+        var index = j + 1;
+        var movie = movies[j];
         result += "<div>" + index + ". <strong>" + movie.title + "</strong> (" + movie.year + ") - <strong>" +
                   movie.rating + "/10</strong> - " + movie.review + "</div>";
     }
@@ -617,16 +619,16 @@ function hideGenres()
 
 //Compare logic found in compare.js
 
-function displayAverageFranchiseRanking( list )
+function displayAverageFranchiseRanking( franchiseId )
 {
     $.post(
         "php/database.php",
         {
             action:    "getAverageRanking",
-            list:      list
+            type:      franchiseId
         },
         function ( response ) {
-            displayAverageFranchiseRankingCallback( JSON.parse( response ), list );
+            displayAverageFranchiseRankingCallback( JSON.parse( response ), franchiseId );
         }
     );
 }

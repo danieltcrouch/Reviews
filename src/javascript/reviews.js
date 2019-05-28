@@ -451,14 +451,14 @@ function sortList( list, sortType )
         switch ( sortType )
         {
         case "year":
-            result = inverseYearCompare ? inverseYearCompare : ( shortTitleCompare ? shortTitleCompare : longTitleCompare );
+            result = yearCompare ? yearCompare : ( shortTitleCompare ? shortTitleCompare : longTitleCompare );
             break;
         case "rating":
-            result = inverseRatingCompare ? inverseRatingCompare : ( shortTitleCompare ? shortTitleCompare : ( yearCompare ? yearCompare : longTitleCompare ) );
+            result = inverseRatingCompare ? inverseRatingCompare : ( shortTitleCompare ? shortTitleCompare : ( inverseYearCompare ? inverseYearCompare : longTitleCompare ) );
             break;
         case "title":
         default:
-            result = shortTitleCompare ? shortTitleCompare : ( yearCompare ? yearCompare : longTitleCompare );
+            result = shortTitleCompare ? shortTitleCompare : ( inverseYearCompare ? inverseYearCompare : longTitleCompare );
         }
         return result;
     } );

@@ -118,10 +118,10 @@ function saveFullMoviesToFile( $movies )
 {
     saveListToFile(
         getPath( "ratings.csv" ),
-        array( "Title", "ID", "Year", "Rating", "Review" ),
+        array( "Title", "ID", "Year", "Date", "Rating", "Review" ),
         $movies,
         function( $movie ) {
-            return array( $movie['title'], $movie['id'], $movie['year'], $movie['rating'], $movie['review'] );
+            return array( $movie['title'], $movie['id'], $movie['year'], $movie['date'], $movie['rating'], $movie['review'] );
     } );
     $GLOBALS['fullMovieList'] = $movies;
 }

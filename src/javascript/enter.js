@@ -184,6 +184,7 @@ function fillData( response )
     var list = isFullList() ? "" : getRankListName( response.list );
     $('#list').val( list );
     $('#id').val( response.id );
+    $('#date').val( response.date );
     $('#image').val( response.image );
 
     isOverwrite = response.isPreviouslyReviewed;
@@ -223,6 +224,7 @@ function clear()
     $('#review').val( "" );
     $('#id').val( "" );
     $('#list').val( "" );
+    $('#date').val( "" );
     $('#image').val( "" );
     isOverwrite = null;
     rankList = null;
@@ -325,6 +327,7 @@ function submitMovie()
             title:  $('#title').val(),
             id:     $('#id').val(),
             year:   $('#year').val(),
+            date:   $('#date').val(),
             rating: $('#rating').val(),
             review: $('#review').val() || "***",
             overwrite: isOverwrite

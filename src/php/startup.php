@@ -23,7 +23,7 @@ function getSubPath()
     return getRootPath() . "reviews/";
 }
 
-function includeHeadInfo( $reviewOverride = null )
+function includeHeadInfo( $title = null )
 {
     global $siteTitle;
     global $pageTitle;
@@ -32,9 +32,7 @@ function includeHeadInfo( $reviewOverride = null )
     global $keywords;
     global $style;
 
-    $pageTitle   = $reviewOverride ? $reviewOverride['title'] : $pageTitle;
-    $image       = $reviewOverride ? $reviewOverride['image'] : $image;
-    $description = $reviewOverride ? $reviewOverride['desc']  : $description;
+    $pageTitle = ($title) ? ("Review: " . $title) : $pageTitle;
 
     include( getRootPath() . "common/html/head.php" );
     echo '<link href="https://fonts.googleapis.com/css?family=Abril+Fatface" rel="stylesheet">';
@@ -72,24 +70,6 @@ function getHelpImage()
 function getConstructionImage()
 {
     echo "https://image.freepik.com/free-icon/traffic-cone-signal-tool-for-traffic_318-62079.jpg";
-}
-
-function getReviewOverride( $title, $id ) //only for movies
-{
-    $reviewOverride = null;
-    if ( $title || $id )
-    {
-        include_once("php/find.php");
-        $movie = ( $title ) ? getMovieByTitle( $title, "full" ) : getMovieById( $id, "full" );
-
-        if ( $movie['isSuccess'] && $movie['isPreviouslyReviewed'] )
-        {
-            $reviewOverride['title'] = $movie['title'];
-            $reviewOverride['image'] = $movie['image'];
-            $reviewOverride['desc']  = $movie['review'];
-        }
-    }
-    return $reviewOverride;
 }
 
 ?>

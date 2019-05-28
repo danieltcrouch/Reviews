@@ -9,12 +9,17 @@ include_once( "utilityMovie.php" );
 
 function getMovieByTitle( $title, $type )
 {
-    return ( $type === "full" ) ? getMovieFromFull( $title, "title" ) : getMovieFromRankByTitle( $title, $type );
+    return getMovieByType( $title, "title", $type );
 }
 
 function getMovieById( $id, $type )
 {
-    return ( $type === "full" ) ? getMovieFromFull( $id, "id" ) : getMovieFromRankById( $id, $type );
+    return getMovieByType( $id, "id", $type );
+}
+
+function getMovieByType( $id, $valueType, $type )
+{
+    return ( $type === "full" ) ? getMovieFromFull( $id, "id" ) : getMovieFromRank( $id, $valueType, $type );
 }
 
 function getMovieFromFull( $value, $valueType )
@@ -35,9 +40,9 @@ function getMovieFromFull( $value, $valueType )
     return $movie;
 }
 
-function getMovieFromRankByTitle( $title, $type )
+function getMovieFromRank( $value, $valueType, $listType )
 {
-    $movie = getRankMovieFromFiles( $type, $title, "title" );
+    $movie = getRankMovieFromFiles( $listType, $value, $valueType );
     if ( $movie )
     {
         $movie['isPreviouslyReviewed'] = true;
@@ -45,22 +50,7 @@ function getMovieFromRankByTitle( $title, $type )
     }
     else
     {
-        $movie = getMovieFromImdbByTitle( $title );
-    }
-    return $movie;
-}
-
-function getMovieFromRankById( $id, $type )
-{
-    $movie = getRankMovieFromFiles( $type, $id, "id" );
-    if ( $movie )
-    {
-        $movie['isPreviouslyReviewed'] = true;
-        $movie = addImdbFields( $movie );
-    }
-    else
-    {
-        $movie = getMovieFromImdbById( $id );
+        $movie = ( $valueType === "title" ) ? getMovieFromImdbByTitle( $value ) : getMovieFromImdbById( $value );
     }
     return $movie;
 }

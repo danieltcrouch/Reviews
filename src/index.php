@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>Daniel&rsquo;s Ratings</title>
-    <?php includeHeadInfo( getReviewOverride( $_GET['title'], $_GET['id'] ) ); ?>
+    <?php includeHeadInfo( $_GET['title'] ); ?>
     <link rel="stylesheet" type="text/css" href="css/reviews.css"/>
     <script src="javascript/reviews.js"></script>
     <script src="javascript/find.js"></script>

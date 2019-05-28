@@ -36,6 +36,7 @@ function getDataFromResponse( $response )
         $result['id'] = $response->imdbID;
         $result['title'] = $response->Title;
         $result['year'] = $response->Year;
+        $result['date'] = date("m/d/Y", strtotime( $response->Released ) );
         $result['image'] = $response->Poster;
         $result['rtScore'] = $response->Ratings[1]->Value;
     }
@@ -87,6 +88,7 @@ function getMovieListFromFile( $fileName )
             "id"     => $row[$columns['iIndex']],
             "title"  => $row[$columns['tIndex']],
             "year"   => $row[$columns['yIndex']],
+            "date"   => $row[$columns['dIndex']],
             "review" => $row[$columns['cIndex']],
             "rating" => $row[$columns['rIndex']],
             "image"  => $row[$columns['pIndex']]

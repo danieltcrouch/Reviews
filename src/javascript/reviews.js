@@ -434,18 +434,18 @@ function sortList( list, sortType )
         var shortTitleB = titleB.replace(/^(((the|a|an) )|([^a-z])+)/i, "" );
         var numTitleA = isNaN( parseInt( titleA ) ) ? 0 : parseInt( titleA );
         var numTitleB = isNaN( parseInt( titleB ) ) ? 0 : parseInt( titleB );
-        var yearA = a.year;
-        var yearB = b.year;
+        var yearA = Date.parse( a.date );
+        var yearB = Date.parse( b.date );
         var ratingA = a.rating;
         var ratingB = b.rating;
 
         var numTitleCompare = numTitleA - numTitleB;
         var shortTitleCompare = numTitleCompare !== 0 ? numTitleCompare : shortTitleA.localeCompare( shortTitleB );
         var longTitleCompare = titleA.localeCompare( titleB );
-        var yearCompare = yearA - yearB;
-        var inverseYearCompare = yearB - yearA;
+        var yearCompare = yearA > yearB ? -1 : yearA < yearB ? 1 : 0;
+        var inverseYearCompare = yearCompare * -1;
         var ratingCompare = ratingA - ratingB;
-        var inverseRatingCompare = ratingB - ratingA;
+        var inverseRatingCompare = ratingCompare * -1;
 
         var result = 0;
         switch ( sortType )

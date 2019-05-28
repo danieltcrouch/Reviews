@@ -26,7 +26,7 @@ function getFranchise( $list )
 /*****************MOVIE SUBMIT*******************/
 
 
-function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
+function saveMovie( $id, $title, $year, $date, $index, $rating, $review, $overwrite )
 {
     $fileName = getPath( "ratings.csv" );
     $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
@@ -34,6 +34,7 @@ function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
         'title'     => $title,
         'id'        => $id,
         'year'      => $year,
+        'date'      => $date,
         'rating'    => $rating,
         'review'    => $review
     ];
@@ -48,7 +49,6 @@ function saveMovie( $id, $title, $year, $index, $rating, $review, $overwrite )
 
     if ( $index )
     {
-        $index *= -1; //this allows for more intuitive indexing--matching the displayed numbers on the index page
         $count = count( $movies );
         $index = $index > 0 ? $index - 1 : $count + $index + 1;
         array_splice( $movies, $index, 0, array( $movie ) );
@@ -253,9 +253,9 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
     $result = null;
 
     //saveMovie
-    if ( isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['index'] ) && isset( $_POST['rating'] ) && isset( $_POST['review'] ) )
+    if ( isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['date'] ) && isset( $_POST['index'] ) && isset( $_POST['rating'] ) && isset( $_POST['review'] ) )
     {
-        $result = $action( $_POST['id'], $_POST['title'], $_POST['year'], $_POST['index'], $_POST['rating'], $_POST['review'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
+        $result = $action( $_POST['id'], $_POST['title'], $_POST['year'], $_POST['date'], $_POST['index'], $_POST['rating'], $_POST['review'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
     }
     //saveRankedMovie
 	elseif ( isset( $_POST['type'] ) && isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['image'] ) && isset( $_POST['review'] ) )

@@ -53,6 +53,7 @@
             <div><button id="addImage" class="button" style="width: 10em; margin-bottom: 1em" onclick="addImage()"    >Add Image</button></div>
             <div><button id="download" class="button" style="width: 10em; margin-bottom: 1em" onclick="view()"        >View</button></div>
             <input id="id" type="hidden" value="">
+            <input id="date" type="hidden" value="">
             <input id="image" type="hidden" value="">
         </div>
     </div>

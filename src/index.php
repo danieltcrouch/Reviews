@@ -32,7 +32,6 @@
 
     <!--Main-->
     <div class="col-10 main">
-        <a href="#main-top"></a>
         <div class="center" style="font-size: 1.5em">Select a Category</div>
         <div class="col-5 center">
             <img src="images/movies.png" class="icon bounce clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">

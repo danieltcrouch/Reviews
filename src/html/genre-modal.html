@@ -8,7 +8,7 @@
                 <span id="close" class="close">&times;</span>
             </div>
             <div id="modalBody" class="modal-body center" style="padding: .5em 10%">
-                <div>Choose a Top 10 list:</div>
+                <div>Scroll down and choose a Top 10 list:</div>
                 <div id="genreCol1" class="col-3r center"></div>
                 <div id="genreCol2" class="col-3r center"></div>
                 <div id="genreCol3" class="col-3r center"></div>
@@ -48,7 +48,7 @@
             var index = (i%3) + 1;
             index = ( i === genres.length - 1 ) ? ( (index === 3) ? index : index + 1 ) : index;
             var genre = genres[i];
-            $('#genreCol' + index).append( "<button id=\"" + genre.id + "Button\" class=\"button\" style=\"width: 10em; margin-bottom: 1em\" onclick=\"openGenreModalCallback('" + genre.id + "')\">" + genre.title + "</button>" );
+            $('#genreCol' + index).append( "<div><button id=\"" + genre.id + "Button\" class=\"button\" style=\"width: 10em; margin-bottom: 1em\" onclick=\"openGenreModalCallback('" + genre.id + "')\">" + genre.title + "</button></div>" );
         }
     }
 

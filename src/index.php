@@ -37,12 +37,12 @@
             <img src="images/movies.png" class="icon bounce clickable" style="margin-bottom: 1em" onclick="toggleMovieSubMenu()">
             <div id="movieSubMenu" style="display: none">
                 <input id="findMovie" type="search"  class="input" onkeyup="findMovieOnEnter( event )" placeholder="Find a movie">
-                <div>
-                    <img src="images/list.png"      class="sub-icon bounce clickable" onclick="showFullMovieList()" title="Click to see all movies">
-                    <img src="images/ten.png"       class="sub-icon bounce clickable" onclick="showGenreList()"     title="Click to see Ten Top 10 movies">
-                    <img src="images/disney.png"    class="sub-icon bounce clickable" onclick="showDisneyList()"    title="Click to see Disney movies">
-                    <img src="images/marvel.png"    class="sub-icon bounce clickable" onclick="showMarvelList()"    title="Click to see Marvel movies">
-                    <img src="images/star-wars.png" class="sub-icon bounce clickable" onclick="showSWList()"        title="Click to see Star Wars movies">
+                <div class="icon-tray">
+                    <div><img src="images/list.png"      class="sub-icon bounce clickable" onclick="showFullMovieList()" title="Click to see all movies">       <div class="mobileDisplay">All Movies</div></div>
+                    <div><img src="images/ten.png"       class="sub-icon bounce clickable" onclick="showGenreList()"     title="Click to see Ten Top 10 movies"><div class="mobileDisplay">10 Top 10</div></div>
+                    <div><img src="images/disney.png"    class="sub-icon bounce clickable" onclick="showDisneyList()"    title="Click to see Disney movies">    <div class="mobileDisplay">Disney</div></div>
+                    <div><img src="images/marvel.png"    class="sub-icon bounce clickable" onclick="showMarvelList()"    title="Click to see Marvel movies">    <div class="mobileDisplay">Marvel</div></div>
+                    <div><img src="images/star-wars.png" class="sub-icon bounce clickable" onclick="showSWList()"        title="Click to see Star Wars movies"> <div class="mobileDisplay">Star Wars</div></div>
                 </div>
             </div>
         </div>
@@ -50,9 +50,9 @@
             <img src="images/books.png" class="icon bounce clickable" style="margin-bottom: 1em" onclick="toggleBookSubMenu()">
             <div id="bookSubMenu" style="display: none">
                 <input id="findBook" type="search" class="input" onkeyup="findBookOnEnter( event )" placeholder="Find a book">
-                <div>
-                    <img src="images/list.png" class="sub-icon bounce clickable" onclick="showFullBookList()"  title="Click to see all books">
-                    <img src="images/star.png" class="sub-icon bounce clickable" onclick="showFavoritesList()" title="Click to see favorite books">
+                <div class="icon-tray">
+                    <div><img src="images/list.png" class="sub-icon bounce clickable" onclick="showFullBookList()"  title="Click to see all books">     <div class="mobileDisplay">All Books</div></div>
+                    <div><img src="images/star.png" class="sub-icon bounce clickable" onclick="showFavoritesList()" title="Click to see favorite books"><div class="mobileDisplay">Favorites</div></div>
                 </div>
             </div>
         </div>

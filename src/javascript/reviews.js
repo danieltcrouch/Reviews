@@ -487,6 +487,7 @@ function showSection()
 	var anchor = (anchorSections.length > 1) ? anchorSections[1] : null;
 	if ( anchor )
     {
+        var isMovieSection = true;
         switch (anchor)
         {
         case "Movies":
@@ -512,11 +513,22 @@ function showSection()
         case "Books":
         case "BookContainer":
             showFullBookList();
+            isMovieSection = "book";
             break;
         case "Favorites":
         case "FavoritesContainer":
             showFavoritesList();
+            isMovieSection = "book";
             break;
+        }
+
+        if ( isMovieSection )
+        {
+            $('#movieSubMenu').show();
+        }
+        else
+        {
+            $('#bookSubMenu').show();
         }
     }
 }

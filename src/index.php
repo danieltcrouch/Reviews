@@ -17,9 +17,9 @@
     <div class="col-10 header">
         <div class="title center"><span class="clickable">
             Daniel&rsquo;s Ratings
-            <img style="width: .5em; padding-bottom: .25em" src="<?php getHelpImage() ?>" alt="help">
+            <img id="helpIcon" style="width: .5em; padding-bottom: .25em" src="<?php getHelpImage() ?>" alt="help">
         </span></div>
-        <div id="instructions" style="display: none">
+        <div id="helpText" style="display: none">
             Click to view either movies or books. From here, you can search Daniel&rsquo;s reviews for either category or click to view the whole list.
             Each entry has a rating (out of 10 for movies, out of 5 for books), and some entries have written reviews.<br/><br/>
             In addition, the Top 10 for ten different genres are included as well as specific rankings for Disney&rsquo;s Animated Classics, the MCU, and the Star Wars Franchise.

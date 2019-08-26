@@ -52,6 +52,7 @@ function getMovieFromRank( $value, $valueType, $listType )
     {
         $movie = ( $valueType === "title" ) ? getMovieFromImdbByTitle( $value ) : getMovieFromImdbById( $value );
     }
+    $movie['isSuccess'] = (bool) $movie['id'];
     return $movie;
 }
 

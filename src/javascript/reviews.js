@@ -351,12 +351,6 @@ function parseFullBooks( response )
 {
     fullBookList.read = JSON.parse( response );
 
-    for ( var index = 0; index < fullMovieList.watch.length; index++ )
-    {
-        var movie = fullMovieList.watch[index];
-        fullMovieList.watch.review = ( movie.review === "***" || movie.review === "" ) ? "No Review" : movie.review;
-    }
-
     fullBookList.title =   sortList( Array.from(fullBookList.read), "title" );
     fullBookList.year =    sortList( Array.from(fullBookList.read), "year" );
     fullBookList.rating =  sortList( Array.from(fullBookList.read), "rating" );
@@ -434,8 +428,8 @@ function sortList( list, sortType )
         var shortTitleB = titleB.replace(/^(((the|a|an) )|([^a-z])+)/i, "" );
         var numTitleA = isNaN( parseInt( titleA ) ) ? 0 : parseInt( titleA );
         var numTitleB = isNaN( parseInt( titleB ) ) ? 0 : parseInt( titleB );
-        var yearA = Date.parse( a.date );
-        var yearB = Date.parse( b.date );
+        var yearA = Date.parse( a.date || a.year );
+        var yearB = Date.parse( b.date || b.year );
         var ratingA = a.rating;
         var ratingB = b.rating;
 

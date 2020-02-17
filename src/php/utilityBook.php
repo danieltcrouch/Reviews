@@ -101,7 +101,12 @@ function getBookData( $response, $imageOverride = null )
 {
     $isSuccess  = ($response) ? true : false;
     $id         = $response['book']['id'];
-    $year       = is_numeric( $response['book']['publication_year'] ) ? $response['book']['publication_year'] : "";
+    $index      = array_search( $id, array_column( getBookList(), 'id' ) );
+    $year       = ( $response['book']['work'] && is_numeric( $response['book']['work']['original_publication_year'] ) ) ?
+                    $response['book']['work']['original_publication_year'] :
+                    ( ( $index && is_numeric( getBookList()[$index]['year'] ) ) ?
+                        getBookList()[$index]['year'] :
+                        ( is_numeric( $response['book']['publication_year'] ) ? $response['book']['publication_year'] : "" ) );
     $author     = getAuthor( $response['book']['authors'] );
     $review     = getCleanedReview( $response['body'] );
     $image      = $imageOverride ?? $response['book']['image_url'];

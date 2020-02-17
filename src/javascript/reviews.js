@@ -386,6 +386,7 @@ function getFullBookDisplay( books )
     for ( var index = 0; index < books.length; index++ )
     {
         var book = books[index];
+        book.year = ( book.year && parseInt( book.year ) < 0 ) ? ( Math.abs( parseInt( book.year ) ) + " BC" ) : book.year;
         var yearDisplay = book.year ? " (" + book.year + ")" : "";
         bookDisplay += "<div>" + (index + 1) + ". <a class='link' href='" + book.url + "'>" + book.title + "</a>, " + book.author + yearDisplay +
                        " - <strong>" + book.rating + "/5</strong> - " + book.review + "</div>";
@@ -428,8 +429,8 @@ function sortList( list, sortType )
         var shortTitleB = titleB.replace(/^(((the|a|an) )|([^a-z])+)/i, "" );
         var numTitleA = isNaN( parseInt( titleA ) ) ? 0 : parseInt( titleA );
         var numTitleB = isNaN( parseInt( titleB ) ) ? 0 : parseInt( titleB );
-        var yearA = Date.parse( a.date || a.year );
-        var yearB = Date.parse( b.date || b.year );
+        var yearA = Date.parse( a.date || a.year || "0001" );
+        var yearB = Date.parse( b.date || b.year || "0001" );
         var ratingA = a.rating;
         var ratingB = b.rating;
 

@@ -61,9 +61,9 @@
     <div class="col-10 main">
         <div id="MovieContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button id="title"  name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
-                <button id="year"   name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
-                <button id="rating" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
+                <button id="titleM"  name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
+                <button id="yearM"   name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
+                <button id="ratingM" name="movieSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
             <div id="Movies" class="center textBlock"></div>
         </div>
@@ -100,9 +100,9 @@
 
         <div id="BookContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
-                <button id="title"  name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
-                <button id="year"   name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
-                <button id="rating" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
+                <button id="titleB"  name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
+                <button id="yearB"   name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
+                <button id="ratingB" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
             <div id="Books" class="center textBlock">Books are loading... May take a minute...</div>
         </div>
@@ -125,10 +125,10 @@
     showDefaults( "<?php echo $_GET['title']; ?>", "<?php echo $_GET['id']; ?>" );
 
     setRadioCallback( "movieSorting", function( sortType ) {
-        displayFullMovies( sortType );
+        displayFullMovies( sortType.substring(0, sortType.length-1) );
     });
     setRadioCallback( "bookSorting", function( sortType ) {
-        displayFullBooks( sortType );
+        displayFullBooks( sortType.substring(0, sortType.length-1) );
     });
 </script>
 <?php include("html/genre-modal.html"); ?>

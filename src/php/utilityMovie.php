@@ -149,10 +149,10 @@ function archiveFolder( $fileName, $folderLocation )
         $folder = $folderLocation;
         foreach ( scandir($folder) as $file )
         {
-            $file = "$folder/" . $file;
-            if ( file_exists($file) && is_file($file) )
+            $filePath = "$folder/" . $file;
+            if ( file_exists($filePath) && is_file($filePath) )
             {
-                $zip->addFile($file);
+                $zip->addFile($filePath, $file);
             }
         }
         $zip->close();

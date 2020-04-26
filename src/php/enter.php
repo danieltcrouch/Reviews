@@ -220,7 +220,7 @@ function downloadAll()
             ignore_user_abort(true);
             header( "Content-type: application/zip" );
             header( "Content-Length: " . filesize($zipName) );
-            header( "Content-Disposition: attachment; filename='$zipName'" );
+            header( "Content-Disposition: attachment; filename=\"$zipName\"" );
             readfile( $zipName );
             unlink( $zipName );
         }

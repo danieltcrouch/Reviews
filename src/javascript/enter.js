@@ -712,11 +712,11 @@ function view()
         "Download",
         "Download Ratings or View To-Watch List?", "Download All", "View Searches",
         function( answer ) {
-            if ( answer )
+            if ( answer === 0 )
             {
                 download();
             }
-            else
+            else if ( answer === 1 )
             {
                 viewSearches();
             }

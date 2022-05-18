@@ -209,6 +209,31 @@ function saveRankMoviesToFile( $type, $list, $movies )
     } );
 }
 
+//IMAGES ********************
+
+function updateMovieImageSets( $type )
+{
+    $lists = getLists( $type );
+    foreach ( $lists as $list )
+    {
+        $fileName = "$type-$list.csv";
+        $path = getPath( $fileName );
+        $movies = getMovieListFromFile( $path );
+        foreach ( $movies as $movie )
+        {
+            $movie = addImdbFields( $movie );
+        }
+
+        saveListToFile(
+            getPath( $path ),
+            array( "Title", "ID", "Year", "Image", "Review" ),
+            $movies,
+            function( $movie ) {
+                return array( $movie['title'], $movie['id'], $movie['year'], $movie['image'], $movie['review'] );
+        } );
+    }
+}
+
 
 /*********************OTHER**********************/
 

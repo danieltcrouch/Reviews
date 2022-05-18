@@ -18,6 +18,7 @@ function setMediaType( mediaType )
     }
     else
     {
+        $('#updateImages').hide();
         $('#addImage').show();
 
         $('#movieInputs').hide();
@@ -57,6 +58,7 @@ function setMovieType( movieType )
     {
         $('#rating').show();
         $('#list').hide();
+        $('#updateImages').hide();
         setIndexRankHandlers( false );
     }
     else
@@ -64,6 +66,7 @@ function setMovieType( movieType )
         $('#rating').hide();
         $('#list').show();
         $('#list').attr( "placeholder", isFranchiseList() ? "Franchise" : "Genre" );
+        $('#updateImages').show();
         setIndexRankHandlers( true );
     }
 }
@@ -697,6 +700,30 @@ function submitImage( url )
             action: "submitBookImage",
             id:     $('#id').val(),
             url:    url
+        },
+        submitCallback
+    );
+}
+
+function updateImages()
+{
+    if ( enterMediaType === "movie" && !isFullList() )
+    {
+        updateMovieImages();
+    }
+    else
+    {
+        showToaster( "Can only update images for Genres or Series." );
+    }
+}
+
+function updateMovieImages()
+{
+    $.post(
+        "php/enter.php",
+        {
+            action: "updateMovieImages",
+            type:   enterMovieType,
         },
         submitCallback
     );

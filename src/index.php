@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>Daniel&rsquo;s Ratings</title>
-    <?php includeHeadInfo( $_GET['title'] ); ?>
+    <?php includeHeadInfo( isset($_GET['title']) ? $_GET['title'] : null ); ?>
     <link rel="stylesheet" type="text/css" href="css/reviews.css"/>
     <script src="javascript/reviews.js"></script>
     <script src="javascript/find.js"></script>
@@ -122,7 +122,7 @@
     populateFullBookList();
     populateFavoritesList();
 
-    showDefaults( "<?php echo $_GET['title']; ?>", "<?php echo $_GET['id']; ?>" );
+    showDefaults( "<?php echo isset($_GET['title']) ? $_GET['title'] : ''; ?>", "<?php echo isset($_GET['id']) ? $_GET['id'] : ''; ?>" );
 
     setRadioCallback( "movieSorting", function( sortType ) {
         displayFullMovies( sortType.substring(0, sortType.length-1) );

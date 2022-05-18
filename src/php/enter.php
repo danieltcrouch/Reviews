@@ -206,6 +206,11 @@ function submitBookImage( $id, $url )
     fclose( $file );
 }
 
+function updateMovieImages( $type )
+{
+    updateMovieImageSets( $type );
+}
+
 
 /********************DOWNLOAD********************/
 
@@ -277,6 +282,11 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
    	{
    		$result = $action( $_POST['id'], $_POST['url'] );
    	}
+    //updateMovieImages
+	elseif ( isset( $_POST['type'] ) )
+	{
+		$result = $action( $_POST['type'] );
+	}
     //getGenre | getFranchise
 	elseif ( isset( $_POST['list'] ) )
 	{

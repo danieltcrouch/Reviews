@@ -15,6 +15,10 @@ function setMediaType( mediaType )
         $('#delete').show();
 
         $('#addImage').hide();
+        if ( !isFullList() )
+        {
+            $('#updateImages').show();
+        }
     }
     else
     {

@@ -219,7 +219,7 @@ function updateMovieImageSets( $type )
         $fileName = "$type-$list.csv";
         $path = getPath( $fileName );
         $movies = getMovieListFromFile( $path );
-        foreach ( $movies as $movie )
+        foreach ( $movies as &$movie )
         {
             $movie = addImdbFields( $movie );
         }

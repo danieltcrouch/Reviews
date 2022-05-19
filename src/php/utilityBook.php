@@ -22,6 +22,7 @@ function requestGoodReads( $endpoint, array $params = array() )
     $response = file_get_contents( $url );
     $xmlArray = (array)simplexml_load_string( $response, 'SimpleXMLElement', LIBXML_NOCDATA );
     return ( empty($xmlArray) || $xmlArray[0] === false ) ? $response : json_decode( json_encode( $xmlArray ), 1 );
+    /**/
 }
 
 function getBookFromGoodreadsById( $id )
@@ -84,6 +85,7 @@ function getBookListFromGoodreads( $shelf, $sortType = "date_read" )
     {
         if ( $book['book']['id'] )
         {
+            /**/
             $result[$index] = getBookData( $book, $images[$book['book']['id']] );
             $index++;
         }
@@ -102,6 +104,7 @@ function getBookData( $response, $imageOverride = null )
     $isSuccess  = ($response) ? true : false;
     $id         = $response['book']['id'];
     $index      = array_search( $id, array_column( getBookList(), 'id' ) );
+    /**/
     $year       = ( $response['book']['work'] && is_numeric( $response['book']['work']['original_publication_year'] ) ) ?
                     $response['book']['work']['original_publication_year'] :
                     ( ( $index && is_numeric( getBookList()[$index]['year'] ) ) ?

@@ -7,7 +7,7 @@
                 <span id="modalHeader" class="subtitle">Ten Top 10</span>
                 <span id="close" class="close">&times;</span>
             </div>
-            <div id="modalBody" class="modal-body center" style="padding: .5em 10%">
+            <div id="modalBody" class="modal-body center">
                 <div>Scroll down and choose a Top 10 list:</div>
                 <div id="genreCol1" class="col-3r center"></div>
                 <div id="genreCol2" class="col-3r center"></div>
@@ -39,6 +39,7 @@
 
     function createButtons( genres )
     {
+        $("#modalBody").css("padding", ".5em 10%");
         $('#genreCol1').empty();
         $('#genreCol2').empty();
         $('#genreCol3').empty();

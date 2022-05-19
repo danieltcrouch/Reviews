@@ -211,7 +211,10 @@ function populateFullBookList()
             $.post(
                 "php/reviews.php",
                 { action: "getFullBookList" },
-                function( response ) { hasFinalBookListReturned = true; parseFullBooks( response ); }
+                function( response ) {
+                    hasFinalBookListReturned = true;
+                    parseFullBooks( response );
+                }
             );
         }
     );
@@ -508,12 +511,12 @@ function showSection()
         case "Books":
         case "BookContainer":
             showFullBookList();
-            isMovieSection = "book";
+            isMovieSection = false;
             break;
         case "Favorites":
         case "FavoritesContainer":
             showFavoritesList();
-            isMovieSection = "book";
+            isMovieSection = false;
             break;
         }
 

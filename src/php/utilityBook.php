@@ -21,8 +21,7 @@ function requestGoodReads( $endpoint, array $params = array() )
     $url = "https://www.goodreads.com/$endpoint?$paramString";
     $response = file_get_contents( $url );
     $xmlArray = (array)simplexml_load_string( $response, 'SimpleXMLElement', LIBXML_NOCDATA );
-    return ( empty($xmlArray) || $xmlArray[0] === false ) ? $response : json_decode( json_encode( $xmlArray ), 1 );
-    /**/
+    return ( empty($xmlArray) ) ? $response : json_decode( json_encode( $xmlArray ), 1 );
 }
 
 function getBookFromGoodreadsById( $id )
@@ -83,10 +82,11 @@ function getBookListFromGoodreads( $shelf, $sortType = "date_read" )
     $index = 0;
     foreach ( $books as $book )
     {
-        if ( $book['book']['id'] )
+        $id = $book['book']['id'];
+        if ( $id )
         {
-            /**/
-            $result[$index] = getBookData( $book, $images[$book['book']['id']] );
+            $image = array_key_exists($id,$images) ? $images[$id] : NULL;
+            $result[$index] = getBookData( $book, $image );
             $index++;
         }
     }
@@ -99,33 +99,48 @@ function getBookListFromGoodreads( $shelf, $sortType = "date_read" )
     return $result;
 }
 
-function getBookData( $response, $imageOverride = null )
+function getBookData( $response, $imageOverride = NULL )
 {
     $isSuccess  = ($response) ? true : false;
     $id         = $response['book']['id'];
     $index      = array_search( $id, array_column( getBookList(), 'id' ) );
-    /**/
-    $year       = ( $response['book']['work'] && is_numeric( $response['book']['work']['original_publication_year'] ) ) ?
-                    $response['book']['work']['original_publication_year'] :
-                    ( ( $index && is_numeric( getBookList()[$index]['year'] ) ) ?
-                        getBookList()[$index]['year'] :
-                        ( is_numeric( $response['book']['publication_year'] ) ? $response['book']['publication_year'] : "" ) );
+    $title      = $response['book']['title'];
+    $year       = getBookYear( $response['book'], $index );
     $author     = getAuthor( $response['book']['authors'] );
-    $review     = getCleanedReview( $response['body'] );
     $image      = $imageOverride ?? $response['book']['image_url'];
+    $review     = getCleanedReview( array_key_exists( 'body', $response ) ? $response['body'] : "" );
+    $rating     = array_key_exists( 'rating', $response ) ? $response['rating'] : "";
+    $grRating   = $response['book']['average_rating'];
+    $url        = getCDATA( array_key_exists( 'url', $response ) ? $response['url'] : "" );
 
     return [
         'isSuccess' => $isSuccess,
         'id'        => $id,
-        'title'     => $response['book']['title'],
+        'title'     => $title,
         'year'      => $year,
         'author'    => $author,
         'image'     => $image,
         'review'    => $review,
-        'rating'    => $response['rating'],
-        'grRating'  => $response['book']['average_rating'],
-        'url'       => getCDATA( $response['url'] )
+        'rating'    => $rating,
+        'grRating'  => $grRating,
+        'url'       => $url
     ];
+}
+
+function getBookYear( $responseBook, $index )
+{
+    $result = "";
+    $result = ( array_key_exists( 'work', $responseBook ) && array_key_exists( 'original_publication_year', $responseBook['work'] ) ) ? $responseBook['work']['original_publication_year'] : $result;
+    if ( is_numeric( $result ) )
+    {
+        $book = is_numeric($index) ? getBookList()[$index] : [];
+        $result = array_key_exists( 'year', $book ) ? $book['year'] : $result;
+        if ( is_numeric( $result ) )
+        {
+            $result = array_key_exists( 'publication_year', $responseBook ) ? $responseBook['publication_year'] : $result;
+        }
+    }
+    return $result;
 }
 
 

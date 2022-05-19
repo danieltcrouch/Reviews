@@ -380,18 +380,19 @@ function displayFullBooks( sortType )
         books = fullBookList.read;
     }
 
-    $('#Books').html( getFullBookDisplay( books ) );
+    $('#Books').html( getFullBookDisplay( books, sortType === "read" ) );
 }
 
-function getFullBookDisplay( books )
+function getFullBookDisplay( books, reverse = false )
 {
     var bookDisplay = "";
-    for ( var index = 0; index < books.length; index++ )
+    for ( var i = 0; i < books.length; i++ )
     {
-        var book = books[index];
+        var book = books[i];
+        var index = reverse ? (books.length - i) : (i + 1);
         book.year = ( book.year && parseInt( book.year ) < 0 ) ? ( Math.abs( parseInt( book.year ) ) + " BC" ) : book.year;
         var yearDisplay = book.year ? " (" + book.year + ")" : "";
-        bookDisplay += "<div>" + (index + 1) + ". <a class='link' href='" + book.url + "'>" + book.title + "</a>, " + book.author + yearDisplay +
+        bookDisplay += "<div>" + index + ". <a class='link' href='" + book.url + "'>" + book.title + "</a>, " + book.author + yearDisplay +
                        " - <strong>" + book.rating + "/5</strong> - " + book.review + "</div>";
     }
     return bookDisplay;

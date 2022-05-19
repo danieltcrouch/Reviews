@@ -101,7 +101,7 @@
         <div id="BookContainer" style="display: none">
             <div class="center" style="margin-bottom: 1em">
                 <button id="titleB"  name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Title</button>
-                <button id="yearB"   name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button>
+                <!--button id="yearB"   name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Year</button-->
                 <button id="ratingB" name="bookSorting" class="button inverseButton" style="width: 5em; margin: .25em;">Rating</button>
             </div>
             <div id="Books" class="center textBlock">Books are loading... May take a minute...</div>

@@ -17,9 +17,9 @@ function getMovieById( $id, $type )
     return getMovieByType( $id, "id", $type );
 }
 
-function getMovieByType( $id, $valueType, $type )
+function getMovieByType( $value, $valueType, $type )
 {
-    return ( $type === "full" ) ? getMovieFromFull( $id, $valueType ) : getMovieFromRank( $id, $valueType, $type );
+    return ( $type === "full" ) ? getMovieFromFull( $value, $valueType ) : getMovieFromRank( $value, $valueType, $type );
 }
 
 function getMovieFromFull( $value, $valueType )

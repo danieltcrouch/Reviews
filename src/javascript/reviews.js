@@ -433,8 +433,8 @@ function sortList( list, sortType )
         var shortTitleB = titleB.replace(/^(((the|a|an) )|([^a-z])+)/i, "" );
         var numTitleA = isNaN( parseInt( titleA ) ) ? 0 : parseInt( titleA );
         var numTitleB = isNaN( parseInt( titleB ) ) ? 0 : parseInt( titleB );
-        var yearA = Date.parse( a.date || a.year || "0001" );
-        var yearB = Date.parse( b.date || b.year || "0001" );
+        var yearA = Date.parse( a.released || a.year || "0001" );
+        var yearB = Date.parse( b.released || b.year || "0001" );
         var ratingA = a.rating;
         var ratingB = b.rating;
 

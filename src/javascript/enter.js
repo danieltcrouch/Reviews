@@ -192,7 +192,7 @@ function fillData( response )
     var list = isFullList() ? "" : getRankListName( response.list );
     $('#list').val( list );
     $('#id').val( response.id );
-    $('#date').val( response.date );
+    $('#released').val( response.released );
     $('#image').val( response.image );
 
     isOverwrite = response.isPreviouslyReviewed;
@@ -232,7 +232,7 @@ function clear()
     $('#review').val( "" );
     $('#id').val( "" );
     $('#list').val( "" );
-    $('#date').val( "" );
+    $('#released').val( "" );
     $('#image').val( "" );
     isOverwrite = null;
     rankList = null;
@@ -330,14 +330,14 @@ function submitMovie()
     $.post(
         "php/enter.php",
         {
-            action: "saveMovie",
-            index:  $('#index').val(),
-            title:  $('#title').val(),
-            id:     $('#id').val(),
-            year:   $('#year').val(),
-            date:   $('#date').val(),
-            rating: $('#rating').val(),
-            review: $('#review').val() || "***",
+            action:   "saveMovie",
+            index:    $('#index').val(),
+            title:    $('#title').val(),
+            id:       $('#id').val(),
+            year:     $('#year').val(),
+            released: $('#released').val(),
+            rating:   $('#rating').val(),
+            review:   $('#review').val() || "***",
             overwrite: isOverwrite
         },
         submitCallback

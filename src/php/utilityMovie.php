@@ -36,7 +36,7 @@ function getDataFromResponse( $response )
         $result['id'] = $response->imdbID;
         $result['title'] = $response->Title;
         $result['year'] = $response->Year;
-        $result['date'] = date("m/d/Y", strtotime( $response->Released ) );
+        $result['released'] = date("m/d/Y", strtotime( $response->Released ) );
         $result['image'] = $response->Poster;
         $result['rtScore'] = $response->Ratings[1]->Value;
     }
@@ -85,13 +85,13 @@ function getMovieListFromFile( $fileName )
 {
     return getListFromFile( $fileName, function( $row, $columns ) {
         return [
-            "id"     => $row[$columns['iIndex']],
-            "title"  => $row[$columns['tIndex']],
-            "year"   => $row[$columns['yIndex']],
-            "date"   => $row[$columns['dIndex']],
-            "review" => $row[$columns['cIndex']],
-            "rating" => $row[$columns['rIndex']],
-            "image"  => $row[$columns['pIndex']]
+            "id"       => $row[$columns['iIndex']],
+            "title"    => $row[$columns['tIndex']],
+            "year"     => $row[$columns['yIndex']],
+            "released" => $row[$columns['dIndex']],
+            "review"   => $row[$columns['cIndex']],
+            "rating"   => $row[$columns['rIndex']],
+            "image"    => $row[$columns['pIndex']]
         ];
     } );
 }
@@ -118,10 +118,10 @@ function saveFullMoviesToFile( $movies )
 {
     saveListToFile(
         getPath( "ratings.csv" ),
-        array( "Title", "ID", "Year", "Date", "Rating", "Review" ),
+        array( "Title", "ID", "Year", "Released", "Rating", "Review" ),
         $movies,
         function( $movie ) {
-            return array( $movie['title'], $movie['id'], $movie['year'], $movie['date'], $movie['rating'], $movie['review'] );
+            return array( $movie['title'], $movie['id'], $movie['year'], $movie['released'], $movie['rating'], $movie['review'] );
     } );
     $GLOBALS['fullMovieList'] = $movies;
 }
@@ -224,13 +224,7 @@ function updateMovieImageSets( $type )
             $movie = addImdbFields( $movie );
         }
 
-        saveListToFile(
-            getPath( $path ),
-            array( "Title", "ID", "Year", "Image", "Review" ),
-            $movies,
-            function( $movie ) {
-                return array( $movie['title'], $movie['id'], $movie['year'], $movie['image'], $movie['review'] );
-        } );
+        saveRankMoviesToFile( $type, $list, $movies );
     }
 }
 

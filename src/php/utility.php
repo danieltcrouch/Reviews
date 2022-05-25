@@ -20,6 +20,7 @@ function getColumns( $firstRow )
     $result['aIndex'] = array_search( "Author", $firstRow, true );
     $result['yIndex'] = array_search( "Year", $firstRow, true );
     $result['dIndex'] = array_search( "Released", $firstRow, true );
+    $result['wIndex'] = array_search( "Watched", $firstRow, true );
     $result['cIndex'] = array_search( "Review", $firstRow, true );
     $result['rIndex'] = array_search( "Rating", $firstRow, true );
     $result['pIndex'] = array_search( "Image", $firstRow, true );

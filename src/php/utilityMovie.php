@@ -89,6 +89,7 @@ function getMovieListFromFile( $fileName )
             "title"    => $row[$columns['tIndex']],
             "year"     => $row[$columns['yIndex']],
             "released" => $row[$columns['dIndex']],
+            "watched"  => $row[$columns['wIndex']],
             "review"   => $row[$columns['cIndex']],
             "rating"   => $row[$columns['rIndex']],
             "image"    => $row[$columns['pIndex']]
@@ -118,10 +119,10 @@ function saveFullMoviesToFile( $movies )
 {
     saveListToFile(
         getPath( "ratings.csv" ),
-        array( "Title", "ID", "Year", "Released", "Rating", "Review" ),
+        array( "Title", "ID", "Year", "Released", "Watched", "Rating", "Review" ),
         $movies,
         function( $movie ) {
-            return array( $movie['title'], $movie['id'], $movie['year'], $movie['released'], $movie['rating'], $movie['review'] );
+            return array( $movie['title'], $movie['id'], $movie['year'], $movie['released'], $movie['watched'], $movie['rating'], $movie['review'] );
     } );
     $GLOBALS['fullMovieList'] = $movies;
 }

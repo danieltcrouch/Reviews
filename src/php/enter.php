@@ -26,7 +26,7 @@ function getFranchise( $list )
 /*****************MOVIE SUBMIT*******************/
 
 
-function saveMovie( $id, $title, $year, $released, $index, $rating, $review, $overwrite )
+function saveMovie( $id, $title, $year, $released, $watched, $index, $rating, $review, $overwrite )
 {
     $fileName = getPath( "ratings.csv" );
     $isOverwrite = filter_var( $overwrite, FILTER_VALIDATE_BOOLEAN );
@@ -35,6 +35,7 @@ function saveMovie( $id, $title, $year, $released, $index, $rating, $review, $ov
         'id'        => $id,
         'year'      => $year,
         'released'  => $released,
+        'watched'   => $watched,
         'rating'    => $rating,
         'review'    => $review
     ];
@@ -258,9 +259,9 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
     $result = null;
 
     //saveMovie
-    if ( isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['released'] ) && isset( $_POST['index'] ) && isset( $_POST['rating'] ) && isset( $_POST['review'] ) )
+    if ( isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['released'] ) && isset( $_POST['watched'] ) && isset( $_POST['index'] ) && isset( $_POST['rating'] ) && isset( $_POST['review'] ) )
     {
-        $result = $action( $_POST['id'], $_POST['title'], $_POST['year'], $_POST['released'], $_POST['index'], $_POST['rating'], $_POST['review'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
+        $result = $action( $_POST['id'], $_POST['title'], $_POST['year'], $_POST['released'], $_POST['watched'], $_POST['index'], $_POST['rating'], $_POST['review'], isset( $_POST['overwrite'] ) ? $_POST['overwrite'] : false );
     }
     //saveRankedMovie
 	elseif ( isset( $_POST['type'] ) && isset( $_POST['list'] ) && isset( $_POST['rank'] ) && isset( $_POST['id'] ) && isset( $_POST['title'] ) && isset( $_POST['year'] ) && isset( $_POST['image'] ) && isset( $_POST['review'] ) )

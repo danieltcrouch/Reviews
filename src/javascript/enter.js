@@ -193,6 +193,7 @@ function fillData( response )
     $('#list').val( list );
     $('#id').val( response.id );
     $('#released').val( response.released );
+    $('#watched').val( response.watched );
     $('#image').val( response.image );
 
     isOverwrite = response.isPreviouslyReviewed;
@@ -233,6 +234,7 @@ function clear()
     $('#id').val( "" );
     $('#list').val( "" );
     $('#released').val( "" );
+    $('#watched').val( "" );
     $('#image').val( "" );
     isOverwrite = null;
     rankList = null;
@@ -336,6 +338,7 @@ function submitMovie()
             id:       $('#id').val(),
             year:     $('#year').val(),
             released: $('#released').val(),
+            watched: $('#watched').val(),
             rating:   $('#rating').val(),
             review:   $('#review').val() || "***",
             overwrite: isOverwrite

@@ -28,7 +28,6 @@ function getMovieFromFull( $value, $valueType )
     if ( $movie )
     {
         $movie['isPreviouslyReviewed'] = true;
-        $movie['index']++;
         $movie = addImdbFields( $movie );
     }
     else

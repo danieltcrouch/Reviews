@@ -1,7 +1,13 @@
+var EARLY_DATE = new Date('01/28/1993');
+var MIN_YEAR = 1997;
+var MED_YEAR = 2010;
+var originalIndex;
+
 var enterMediaType;
 var enterMovieType;
 var isOverwrite;
 
+var fullMovieList = [];
 var genres = [];
 var rankList = [];
 
@@ -15,13 +21,18 @@ function setMediaType( mediaType )
         $('#delete').show();
 
         $('#addImage').hide();
-        if ( !isFullList() )
+        if ( isFullList() )
+        {
+            $('#advIndex').show();
+        }
+        else
         {
             $('#updateImages').show();
         }
     }
     else
     {
+        $('#advIndex').hide();
         $('#updateImages').hide();
         $('#addImage').show();
 
@@ -63,7 +74,7 @@ function setMovieType( movieType )
         $('#rating').show();
         $('#list').hide();
         $('#updateImages').hide();
-        setIndexRankHandlers( false );
+        $('#advIndex').show();
     }
     else
     {
@@ -71,8 +82,9 @@ function setMovieType( movieType )
         $('#list').show();
         $('#list').attr( "placeholder", isFranchiseList() ? "Franchise" : "Genre" );
         $('#updateImages').show();
-        setIndexRankHandlers( true );
+        $('#advIndex').hide();
     }
+    setIndexHandlers();
 }
 
 function isFullList()
@@ -187,7 +199,8 @@ function fillData( response )
 
     $('#rating').val( response.rating );
     $('#review').val( response.review );
-    $('#index').val( response.index );
+    $('#index').val( response.index + 1 );
+    originalIndex = response.index;
 
     var list = isFullList() ? "" : getRankListName( response.list );
     $('#list').val( list );
@@ -236,6 +249,7 @@ function clear()
     $('#released').val( "" );
     $('#watched').val( "" );
     $('#image').val( "" );
+    originalIndex = null;
     isOverwrite = null;
     rankList = null;
 }
@@ -244,7 +258,7 @@ function clear()
 /*********************SUBMIT*********************/
 
 
-function submit()
+function submitMedia()
 {
     if ( isMovie() )
     {
@@ -288,9 +302,6 @@ function validate()
 
     var id = $('#id').val();
     var year = $('#year').val();
-    var rating = $('#rating').val();
-    var list = $('#list').val();
-    var rank = $('#index').val();
 
     if ( !id )
     {
@@ -304,14 +315,31 @@ function validate()
     }
     else if ( isFullList() )
     {
+        var rating = $('#rating').val();
+        var index = $('#index').val();
+        var indexValue = Math.abs( parseInt( index ) );
+        var released = $('#released').val();
+        var watched = $('#watched').val();
         if ( !rating )
         {
             result = false;
             showToaster( "No rating present." );
         }
+        else if ( index && !(indexValue > 0 && indexValue <= fullMovieList.length) )
+        {
+            result = false;
+            showToaster( "The index must be between 1 and the current number of movies." );
+        }
+        else if ( watched && (new Date(watched)).getTime() < (new Date(released)).getTime() )
+        {
+            result = false;
+            showToaster( "Watched date must be after released date." );
+        }
     }
     else
     {
+        var list = $('#list').val();
+        var rank = $('#index').val();
         if ( !list )
         {
             result = false;
@@ -329,21 +357,27 @@ function validate()
 
 function submitMovie()
 {
+    synchronizeIndexAndDate();
+    var spliceIndex = calculateSpliceIndex();
+
     $.post(
         "php/enter.php",
         {
             action:   "saveMovie",
-            index:    $('#index').val(),
+            index:    spliceIndex,
             title:    $('#title').val(),
             id:       $('#id').val(),
             year:     $('#year').val(),
             released: $('#released').val(),
-            watched: $('#watched').val(),
+            watched:  $('#watched').val(),
             rating:   $('#rating').val(),
             review:   $('#review').val() || "***",
             overwrite: isOverwrite
         },
-        submitCallback
+        function( response ) {
+            populateFullMovieList();
+            submitCallback( response );
+        }
     );
 }
 
@@ -369,19 +403,23 @@ function populateGenres()
     );
 }
 
-function setIndexRankHandlers( getListModal )
+function setIndexHandlers()
 {
     var index = $('#index');
-    index.attr( "placeholder", getListModal ? "Click to change Rank" : "Index" );
-    if ( getListModal )
-    {
-        index.click( getRanking );
-        index.keypress( getRanking );
-    }
-    else
+    index.attr( "placeholder", isFullList() ? "Index" : "Click to change Rank" );
+    if ( isFullList() )
     {
         index.unbind( "click", getRanking );
         index.unbind( "keypress", getRanking );
+
+        index.change( clearWatched );
+    }
+    else
+    {
+        index.click( getRanking );
+        index.keypress( getRanking );
+
+        index.unbind( "change", clearWatched );
     }
 }
 
@@ -553,13 +591,13 @@ function getRankListName( list )
 /*********************GENRE**********************/
 
 
-// test when genre is entered that doesn't exist
+// // test when genre is entered that doesn't exist
 // function editGenres()
 // {
 //     var genreText = genreNames.join('\n');
 //     showBigPrompt(
 //         "Edit Genres",
-//         "Choose genreNames to appear on main page:",
+//         "Choose genre names to appear on main page:",
 //         editGenresCallback,
 //         genreText );
 // }
@@ -734,6 +772,184 @@ function updateMovieImages()
         },
         submitCallback
     );
+}
+
+/********************INDEXING********************/
+
+
+function synchronizeIndexAndDate()
+{
+    var typedIndex = $('#index').val();
+    var typedDate = $('#watched').val();
+
+    if ( !(typedIndex && typedDate) ) //something changed
+    {
+        if ( typedIndex === "" && !typedDate )
+        {
+            typedIndex = "" + (fullMovieList.length + (isOverwrite?0:1));
+            $('#index').val( typedIndex );
+        }
+
+        if ( typedIndex === "" )
+        {
+            var index = fullMovieList.findIndex( movie => movie.watched === typedDate ||
+                (new Date(movie.watched)).getTime() > (new Date(typedDate)).getTime() ) + 1;
+            $('#index').val( index );
+        }
+        else
+        {
+            var watchDate;
+            var index = parseInt( typedIndex );
+            index = index > 0 ? index - 1 : fullMovieList.length + index;
+            if ( index === 0 )
+            {
+                watchDate = adjustDays( new Date(fullMovieList[0].watched), -1 );
+            }
+            else if ( index >= fullMovieList.length - 1 )
+            {
+                watchDate = new Date();
+            }
+            else
+            {
+                var startDate = new Date(fullMovieList[index-1].watched);
+                var endDate = new Date(fullMovieList[index].watched);
+                watchDate = getMiddleDate( startDate, endDate );
+            }
+            $('#watched').val( watchDate.toLocaleDateString('en-US') );
+        }
+    }
+}
+
+function calculateSpliceIndex()
+{
+    var index = parseInt( $('#index').val() );
+    var count = fullMovieList.length;
+    var isPositive = index > 0;
+    var index = isPositive ? index - 1 : count + index;
+
+//This code retains the positioning relative to the movie at that spot; without it, the actual index number is retained (which seems more intuitive)
+//  When a movie is inserted new, it takes an index number and moves the movie at that number up one.
+//  If, however, a movie is an overwrite and exists previously in the list, only one of those can be done:
+//  Either it gets the index number written, or it displaces the movie at that index
+
+//    if ( isOverwrite  )
+//    {
+//        if ( isPositive && index > originalIndex )
+//        {
+//            index--;
+//        }
+//        if ( !isPositive && originalIndex > (count+index) )
+//        {
+//            index++;
+//        }
+//    }
+
+    return index;
+}
+
+function showIndex()
+{
+    showBinaryChoice(
+        "Advanced Indexing",
+        "If you leave the index value blank, the watch date will be set to today. " +
+            "If a value is entered, the movie will be inserted at that value (and the current movie there will be moved up numerically). If the index is negative, the insertion will count from the most recent movie (e.g. -1 will insert just before the most recent film). " +
+            "Note, if the original index is between the beginning of the list and the new insertion, the new insertion will appear after the movie previously at that index. " +
+            "Alternatively, you may enter a timeframe and have the index calculated:",
+        "Choose Year",
+        "Choose Date",
+        function( answer ) {
+            if ( answer === 0 )
+            {
+                showPrompt(
+                    "Enter Year",
+                    "Enter a year before " + MED_YEAR + ":",
+                    chooseYearCallback,
+                    "1999",
+                    true //isNumber
+                );
+            }
+            else if ( answer === 1 )
+            {
+                showPrompt(
+                    "Enter Date",
+                    "Enter a specific date with the format MM/DD/YYYY:",
+                    chooseDateCallback,
+                    "03/27/2016",
+                    false //isNumber
+                );
+            }
+        }
+    );
+}
+
+function chooseYearCallback( response )
+{
+    if ( isNaN(response) || isNaN(parseInt(response)) || parseInt(response) >= MED_YEAR )
+    {
+        showToaster( "Year must be greater than " + (MIN_YEAR - 1) + " and less than " + MED_YEAR );
+    }
+    else
+    {
+        var index = 0;
+        var year = parseInt(response);
+        var closestPrevReleaseDate = EARLY_DATE;
+        for ( var i = 0; i < fullMovieList.length; i++ )
+        {
+            var movie = fullMovieList[i]
+            if ( movie.watched.includes( response ) && parseInt(movie.year) < year )
+            {
+                releaseDate = new Date(movie.released);
+                if (releaseDate.getTime() > closestPrevReleaseDate.getTime())
+                {
+                    closestPrevReleaseDate = releaseDate;
+                    index = i;
+                }
+            }
+        }
+        var watchDate = getMiddleDate( new Date( fullMovieList[index].watched ), new Date( fullMovieList[index+1].watched ) );
+
+        $('#watched').val( watchDate.toLocaleDateString('en-US') );
+        $('#index').val( "" );
+        showToaster( "Watched date set" );
+    }
+}
+
+function chooseDateCallback( response )
+{
+    var today = new Date();
+    var watchDate = new Date(response);
+    if ( isNaN(watchDate) && (watchDate.getTime() < EARLY_DATE.getTime() || watchDate.getTime() > today.getTime()) )
+    {
+        showToaster( "Date must be in the format MM/DD/YYYY, after my birthday, and before tomorrow" );
+    }
+    else
+    {
+        $('#watched').val( watchDate.toLocaleDateString('en-US') );
+        $('#index').val( "" );
+        showToaster( "Watched date set" );
+    }
+}
+
+function getMiddleDate( date1, date2 )
+{
+    var difference = date2.getTime() - date1.getTime();
+    var differenceInDays = difference / (1000 * 3600 * 24);
+    var dayCount = Math.ceil( differenceInDays / 2 );
+    return adjustDays( date1, dayCount );
+}
+
+function populateFullMovieList()
+{
+    $.post(
+        "php/enter.php",
+        { action: "getFullMovieList" },
+        function( response ) { fullMovieList = JSON.parse( response ); }
+    );
+}
+
+function clearWatched()
+{
+    $('#watched').val( "" );
 }
 
 

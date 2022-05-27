@@ -284,10 +284,9 @@ function getFullMovieDisplay( movies, reverse = false )
     var result = "";
     for ( var i = 0; i < movies.length; i++ )
     {
-        var j = reverse ? ( movies.length - i - 1 ) : i;
-        var index = j + 1;
-        var movie = movies[j];
-        result += "<div>" + index + ". <strong>" + movie.title + "</strong> (" + movie.year + ") - <strong>" +
+        var index = reverse ? ( movies.length - i - 1 ) : i;
+        var movie = movies[index];
+        result += "<div>" + (index + 1) + ". <strong>" + movie.title + "</strong> (" + movie.year + ") - <strong>" +
                   movie.rating + "/10</strong> - " + movie.review + "</div>";
     }
     return result;

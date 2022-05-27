@@ -47,11 +47,12 @@
                 <button id="genre"      name="movieType" class="button inverseButton"  style="width: 5em; margin: .25em;">Genre</button>
                 <button id="franchise"  name="movieType" class="button inverseButton"  style="width: 5em; margin: .25em;">Series</button>
             </div>
-            <div><button id="submit"        class="button" style="width: 10em; margin-bottom: 1em" onclick="submit()"       >Submit</button></div>
+            <div><button id="submit"        class="button" style="width: 10em; margin-bottom: 1em" onclick="submitMedia()"  >Submit</button></div>
             <div><button id="delete"        class="button" style="width: 10em; margin-bottom: 1em" onclick="checkDelete()"  >Delete</button></div>
             <!--div><button id="genres"     class="button" style="width: 10em; margin-bottom: 1em" onclick="editGenres()"   >Edit Genres</button></div-->
             <div><button id="addImage"      class="button" style="width: 10em; margin-bottom: 1em" onclick="addImage()"     >Add Image</button></div>
             <div><button id="updateImages"  class="button" style="width: 10em; margin-bottom: 1em" onclick="updateImages()" >Update Images</button></div>
+            <div><button id="advIndex"      class="button" style="width: 10em; margin-bottom: 1em" onclick="showIndex()"    >Adv. Index</button></div>
             <div><button id="download"      class="button" style="width: 10em; margin-bottom: 1em" onclick="view()"         >View</button></div>
             <input id="id" type="hidden" value="">
             <input id="released" type="hidden" value="">
@@ -64,6 +65,7 @@
 
 <script>
     populateGenres();
+    populateFullMovieList();
 
     setRadioCallback( "mediaType", function( mediaType ) {
         setMediaType( mediaType );

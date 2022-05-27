@@ -22,6 +22,11 @@ function getFranchise( $list )
     return getMovieListFromFile( getPath( "franchise-$list.csv" ) );
 }
 
+function getFullMovieList()
+{
+    return getMovieListFromFile( getPath( "ratings.csv" ) );
+}
+
 
 /*****************MOVIE SUBMIT*******************/
 
@@ -48,15 +53,9 @@ function saveMovie( $id, $title, $year, $released, $watched, $index, $rating, $r
         unset( $movies[$originalIndex] );
     }
 
-    if ( $index )
+    if ( is_numeric($index) )
     {
-        $count = count( $movies );
-        $index = $index > 0 ? $index - 1 : $count + $index + 1;
         array_splice( $movies, $index, 0, array( $movie ) );
-    }
-    else
-    {
-        array_push( $movies, $movie );
     }
 
     saveFullMoviesToFile( $movies );
@@ -298,7 +297,7 @@ if ( isset( $_POST['action'] ) && function_exists( $_POST['action'] ) )
 	{
 		$result = $action( $_POST['id'] );
 	}
-    //getGenres | downloadAll | viewSearches
+    //getGenres | downloadAll | viewSearches | getFullMovieList
 	else
 	{
 		$result = $action();

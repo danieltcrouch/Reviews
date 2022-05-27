@@ -179,7 +179,6 @@ function getRankMovieFromFile( $type, $list, $value, $valueType )
     $movies = getMovieListFromFile( getPath( "$type-$list.csv" ) );
     $index = ( $valueType === "id" ) ? getIndexFromListById( $movies, $value ) : getIndexFromListByTitle( $movies, $value );
     $result = $movies[$index];
-    $result['index'] = $index + 1;
     $result['list'] = $list;
     return is_numeric( $index ) ? $result : null;
 }
